@@ -1,0 +1,424 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  email      String   @unique
+  password   String
+  is_school  Boolean
+  is_active  Boolean  @default(true)
+  is_admin   Boolean  @default(false)
+  person     Person?
+  school     School?
+
+  @@map("account")
+}
+
+model Committee {
+  id                               Int                             @id @default(autoincrement())
+  created_at                       DateTime                        @default(now())
+  updated_at                       DateTime                        @default(now())
+  name                             String
+  session_id                       Int?
+  forum_id                         Int?
+  size                             Int?
+  forum                            Forum?                          @relation(fields: [forum_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session                          Session?                        @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegation_committee_assignments DelegationCommitteeAssignment[]
+  person_application               PersonApplication[]
+  report                           Report?
+  topics                           Topic[]
+
+  @@unique([name, session_id, forum_id])
+  @@map("committee")
+}
+
+model Country {
+  id                  Int          @id @default(autoincrement())
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @default(now())
+  code                String       @unique
+  name                String
+  delegation          Delegation[]
+  person_applications Person[]
+  school_applications School[]
+
+  @@map("country")
+}
+
+model Delegation {
+  id                               Int                             @id @default(autoincrement())
+  created_at                       DateTime                        @default(now())
+  updated_at                       DateTime                        @default(now())
+  session_id                       Int?
+  is_individual                    Boolean
+  school_id                        Int?
+  n_delegates                      Int
+  country_id                       Int?
+  name                             String?
+  type                             String
+  country                          Country?                        @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  school                           School?                         @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session                          Session?                        @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegation_committee_assignments DelegationCommitteeAssignment[]
+  person_applications              PersonApplication[]
+
+  @@map("delegation")
+}
+
+model DelegationCommitteeAssignment {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @default(now())
+  session_id    Int?
+  delegation_id Int?
+  committee_id  Int?
+  committee     Committee?  @relation(fields: [committee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegation    Delegation? @relation(fields: [delegation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session       Session?    @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([delegation_id, committee_id, session_id])
+  @@map("delegation_committee_assignment")
+}
+
+model Document {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  session_id  Int?
+  name        String
+  description String?
+  path        String?
+  session     Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([name, session_id])
+  @@map("document")
+}
+
+model Faq {
+  id           Int          @id @default(autoincrement())
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @default(now())
+  question     String?
+  answer       String?
+  category_id  Int?
+  faq_category FaqCategory? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([question, category_id])
+  @@map("faq")
+}
+
+model FaqCategory {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  name        String   @unique
+  description String?
+  faqs        Faq[]
+
+  @@map("faq_category")
+}
+
+model Forum {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @default(now())
+  acronym     String?     @unique
+  name        String?     @unique
+  description String?
+  committees  Committee[]
+  roles       Role[]
+
+  @@map("forum")
+}
+
+model GalleryImage {
+  id              Int      @id @default(autoincrement())
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
+  session_id      Int?
+  name            String?
+  description     String?
+  full_image_path String?
+  thumbnail_path  String?
+  session         Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("gallery_image")
+}
+
+model Group {
+  id                            Int                     @id @default(autoincrement())
+  created_at                    DateTime                @default(now())
+  updated_at                    DateTime                @default(now())
+  name                          String?
+  confirmed_person_applications PersonApplication[]     @relation("confirmed_group")
+  requested_person_applications PersonApplication[]     @relation("requested_group")
+  roles                         Role[]
+  school_group_assignments      SchoolGroupAssignment[]
+
+  @@map("group")
+}
+
+model HousingMatch {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  host_id    Int?
+  guest_id   Int?
+  session_id Int?
+  guest      Person?  @relation("guest", fields: [guest_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  host       Person?  @relation("host", fields: [host_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session    Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([session_id, guest_id])
+  @@map("housing_match")
+}
+
+model Permission {
+  id          Int       @id @default(autoincrement())
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @default(now())
+  person_id   Int?
+  session_id  Int?
+  resource_id Int?
+  person      Person?   @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  resource    Resource? @relation(fields: [resource_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session     Session?  @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([person_id, session_id, resource_id])
+  @@map("permission")
+}
+
+model Person {
+  id            Int                 @id @default(autoincrement())
+  created_at    DateTime            @default(now())
+  updated_at    DateTime            @default(now())
+  name          String
+  surname       String
+  birthday      DateTime?           @db.Date
+  gender        String?
+  picture_path  String?
+  tshirt_size   String?
+  phone_number  String?
+  allergies     String?
+  account_id    Int?                @unique
+  country_id    Int?
+  guest_matches HousingMatch[]      @relation("guest")
+  host_matches  HousingMatch[]      @relation("host")
+  permissions   Permission[]
+  account       Account?            @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  country       Country?            @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  applications  PersonApplication[]
+  posts         Post[]
+
+  @@map("person")
+}
+
+model PersonApplication {
+  id                        Int         @id @default(autoincrement())
+  created_at                DateTime    @default(now())
+  updated_at                DateTime    @default(now())
+  person_id                 Int?
+  session_id                Int?
+  school_id                 Int?
+  school_year               Int?
+  school_section            String?
+  eng_certificate           String?
+  experience_mun            String?
+  experience_other          String?
+  requested_group_id        Int?
+  requested_role_id         Int?
+  confirmed_group_id        Int?
+  confirmed_role_id         Int?
+  city                      String?
+  university                String?
+  is_resident               Boolean?
+  status_application        String
+  status_housing            String
+  housing_is_available      Boolean     @default(false)
+  housing_n_guests          Int?
+  housing_address_street    String?
+  housing_address_number    String?
+  housing_address_postal    String?
+  housing_phone_number      String?
+  housing_pets              String?
+  housing_gender_preference String?
+  committee_id              Int?
+  delegation_id             Int?
+  is_ambassador             Boolean?
+  committee                 Committee?  @relation(fields: [committee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  confirmed_group           Group?      @relation("confirmed_group", fields: [confirmed_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  confirmed_role            Role?       @relation("confirmed_role", fields: [confirmed_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requested_group           Group?      @relation("requested_group", fields: [requested_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requested_role            Role?       @relation("requested_role", fields: [requested_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegation                Delegation? @relation(fields: [delegation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person                    Person?     @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  school                    School?     @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session                   Session?    @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([person_id, session_id])
+  @@map("person_application")
+}
+
+model Post {
+  id             Int      @id @default(autoincrement())
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
+  session_id     Int?
+  author_id      Int?
+  title          String?
+  body           String?
+  is_for_schools Boolean  @default(true)
+  is_for_persons Boolean  @default(true)
+  author         Person?  @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session        Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("post")
+}
+
+model Report {
+  id            Int        @id @default(autoincrement())
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @default(now())
+  committee_id  Int?       @unique
+  name          String
+  document_path String?
+  committee     Committee? @relation(fields: [committee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("report")
+}
+
+model Resource {
+  id          Int          @id @default(autoincrement())
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now())
+  name        String       @unique
+  permissions Permission[]
+
+  @@map("resource")
+}
+
+model Role {
+  id                            Int                 @id @default(autoincrement())
+  created_at                    DateTime            @default(now())
+  updated_at                    DateTime            @default(now())
+  name                          String?
+  forum_id                      Int?
+  group_id                      Int?
+  confirmed_person_applications PersonApplication[] @relation("confirmed_role")
+  requested_person_applications PersonApplication[] @relation("requested_role")
+  forum                         Forum?              @relation(fields: [forum_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  group                         Group?              @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("role")
+}
+
+model School {
+  id                       Int                     @id @default(autoincrement())
+  created_at               DateTime                @default(now())
+  updated_at               DateTime                @default(now())
+  name                     String
+  city                     String
+  address_street           String
+  address_number           String
+  address_postal           String
+  is_network               Boolean                 @default(false)
+  account_id               Int?                    @unique
+  country_id               Int?
+  delegations              Delegation[]
+  person_applications      PersonApplication[]
+  account                  Account?                @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  country                  Country?                @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  applications             SchoolApplication[]
+  school_group_assignments SchoolGroupAssignment[]
+
+  @@map("school")
+}
+
+model SchoolApplication {
+  id                 Int      @id @default(autoincrement())
+  created_at         DateTime @default(now())
+  updated_at         DateTime @default(now())
+  school_id          Int?
+  session_id         Int?
+  experience_mun     String?
+  communications     String?
+  contact_name       String
+  contact_surname    String
+  contact_email      String
+  contact_title      String
+  status_application String
+  status_housing     String
+  school             School?  @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session            Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([school_id, session_id])
+  @@map("school_application")
+}
+
+model SchoolGroupAssignment {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  school_id   Int?
+  session_id  Int?
+  group_id    Int?
+  n_requested Int?
+  n_confirmed Int?
+  group       Group?   @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  school      School?  @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session     Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([school_id, session_id, group_id])
+  @@map("school_group_assignment")
+}
+
+model Session {
+  id                               Int                             @id @default(autoincrement())
+  created_at                       DateTime                        @default(now())
+  updated_at                       DateTime                        @default(now())
+  edition                          Int?                            @unique
+  edition_display                  Int?                            @unique
+  date_start                       DateTime?                       @db.Date
+  date_end                         DateTime?                       @db.Date
+  title                            String?
+  subtitle                         String?
+  description                      String?
+  is_active                        Boolean
+  image_path                       String?
+  committees                       Committee[]
+  delegations                      Delegation[]
+  delegation_committee_assignments DelegationCommitteeAssignment[]
+  documents                        Document[]
+  gallery_images                   GalleryImage[]
+  housing_matches                  HousingMatch[]
+  permissions                      Permission[]
+  person_applications              PersonApplication[]
+  postS                            Post[]
+  school_applications              SchoolApplication[]
+  school_group_assignments         SchoolGroupAssignment[]
+
+  @@map("session")
+}
+
+model Topic {
+  id           Int        @id @default(autoincrement())
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @default(now())
+  committee_id Int?
+  name         String
+  description  String?
+  external_url String?
+  committee    Committee? @relation(fields: [committee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([committee_id, name])
+  @@map("topic")
+}
