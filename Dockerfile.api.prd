@@ -43,4 +43,4 @@ RUN npx prisma generate
 
 EXPOSE 3000
 
-CMD ["node", "/app/packages/rimun-api/dist/index.js"]
+CMD ["node", "/app/packages/rimun-api/dist/src/index.js"]

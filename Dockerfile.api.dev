@@ -6,4 +6,4 @@ RUN npm install -g nodemon
 
 EXPOSE 3000
 
-CMD [ "nodemon", "./packages/rimun-api/dist/index.js" ]
+CMD [ "nodemon", "./packages/rimun-api/dist/src/index.js" ]
