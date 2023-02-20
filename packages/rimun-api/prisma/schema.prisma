@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ApplicationStatus {
+  ACCEPTED @map("accepted")
+  REFUSED  @map("refused")
+  HOLD     @map("hold")
+}
+
+enum HousingStatus {
+  ACCEPTED     @map("accepted")
+  REFUSED      @map("refused")
+  HOLD         @map("hold")
+  NOT_REQUIRED @map("not-required")
+}
+
 model Account {
   id         Int      @id @default(autoincrement())
   created_at DateTime @default(now())
@@ -33,7 +46,7 @@ model Committee {
   forum                            Forum?                          @relation(fields: [forum_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   session                          Session?                        @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   delegation_committee_assignments DelegationCommitteeAssignment[]
-  person_application               PersonApplication[]
+  person_applications              PersonApplication[]
   report                           Report?
   topics                           Topic[]
 
@@ -96,7 +109,7 @@ model Document {
   session_id  Int?
   name        String
   description String?
-  path        String?
+  path        String
   session     Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([name, session_id])
@@ -147,8 +160,8 @@ model GalleryImage {
   session_id      Int?
   name            String?
   description     String?
-  full_image_path String?
-  thumbnail_path  String?
+  full_image_path String
+  thumbnail_path  String
   session         Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("gallery_image")
@@ -158,7 +171,7 @@ model Group {
   id                            Int                     @id @default(autoincrement())
   created_at                    DateTime                @default(now())
   updated_at                    DateTime                @default(now())
-  name                          String?
+  name                          String?                 @unique
   confirmed_person_applications PersonApplication[]     @relation("confirmed_group")
   requested_person_applications PersonApplication[]     @relation("requested_group")
   roles                         Role[]
@@ -203,6 +216,7 @@ model Person {
   updated_at    DateTime            @default(now())
   name          String
   surname       String
+  fullName      String
   birthday      DateTime?           @db.Date
   gender        String?
   picture_path  String?
@@ -223,9 +237,9 @@ model Person {
 }
 
 model PersonApplication {
-  id                        Int         @id @default(autoincrement())
-  created_at                DateTime    @default(now())
-  updated_at                DateTime    @default(now())
+  id                        Int               @id @default(autoincrement())
+  created_at                DateTime          @default(now())
+  updated_at                DateTime          @default(now())
   person_id                 Int?
   session_id                Int?
   school_id                 Int?
@@ -241,9 +255,9 @@ model PersonApplication {
   city                      String?
   university                String?
   is_resident               Boolean?
-  status_application        String
-  status_housing            String
-  housing_is_available      Boolean     @default(false)
+  status_application        ApplicationStatus
+  status_housing            HousingStatus
+  housing_is_available      Boolean           @default(false)
   housing_n_guests          Int?
   housing_address_street    String?
   housing_address_number    String?
@@ -254,15 +268,15 @@ model PersonApplication {
   committee_id              Int?
   delegation_id             Int?
   is_ambassador             Boolean?
-  committee                 Committee?  @relation(fields: [committee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  confirmed_group           Group?      @relation("confirmed_group", fields: [confirmed_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  confirmed_role            Role?       @relation("confirmed_role", fields: [confirmed_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  requested_group           Group?      @relation("requested_group", fields: [requested_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  requested_role            Role?       @relation("requested_role", fields: [requested_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  delegation                Delegation? @relation(fields: [delegation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  person                    Person?     @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  school                    School?     @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  session                   Session?    @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  committee                 Committee?        @relation(fields: [committee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  confirmed_group           Group?            @relation("confirmed_group", fields: [confirmed_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  confirmed_role            Role?             @relation("confirmed_role", fields: [confirmed_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requested_group           Group?            @relation("requested_group", fields: [requested_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requested_role            Role?             @relation("requested_role", fields: [requested_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegation                Delegation?       @relation(fields: [delegation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person                    Person?           @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  school                    School?           @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session                   Session?          @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([person_id, session_id])
   @@map("person_application")
@@ -344,9 +358,9 @@ model School {
 }
 
 model SchoolApplication {
-  id                 Int      @id @default(autoincrement())
-  created_at         DateTime @default(now())
-  updated_at         DateTime @default(now())
+  id                 Int               @id @default(autoincrement())
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @default(now())
   school_id          Int?
   session_id         Int?
   experience_mun     String?
@@ -355,10 +369,10 @@ model SchoolApplication {
   contact_surname    String
   contact_email      String
   contact_title      String
-  status_application String
-  status_housing     String
-  school             School?  @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  session            Session? @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status_application ApplicationStatus
+  status_housing     HousingStatus
+  school             School?           @relation(fields: [school_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session            Session?          @relation(fields: [session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([school_id, session_id])
   @@map("school_application")
