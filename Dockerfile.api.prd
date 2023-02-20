@@ -1,0 +1,46 @@
+FROM node:16.18.0 as build-container
+
+WORKDIR /tmp/build
+
+COPY --chown=node:node yarn.lock .
+COPY --chown=node:node package.json .
+COPY --chown=node:node tsconfig.base.json .
+
+COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
+COPY --chown=node:node packages/rimun-api/tsconfig.json ./packages/rimun-api/
+COPY --chown=node:node packages/rimun-api/src ./packages/rimun-api/src
+
+RUN chown -R node:node /tmp/build
+
+USER node
+
+RUN yarn --non-interactive
+RUN npx prisma generate
+RUN yarn workspace @rimun/api run build
+
+###
+
+FROM node:16.18.0 as runtime-container
+
+WORKDIR /app
+
+COPY --chown=node:node package.json ./
+COPY --chown=node:node yarn.lock ./
+
+COPY --chown=node:node packages/rimun-api/prisma ./packages/rimun-api/dist/prisma
+COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
+COPY --chown=node:node --from=build-container /tmp/build/packages/rimun-api/dist ./packages/rimun-api/dist
+
+RUN chown -R node:node /app
+
+USER node
+
+ENV HOST="0.0.0.0"
+ENV NODE_ENV=production
+
+RUN yarn --pure-lockfile --non-interactive --production
+RUN npx prisma generate
+
+EXPOSE 3000
+
+CMD ["node", "/app/packages/rimun-api/dist/index.js"]
