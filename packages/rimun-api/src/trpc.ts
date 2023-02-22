@@ -2,6 +2,7 @@ import { inferAsyncReturnType, initTRPC, TRPCError } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import superjson from "superjson";
 import { extractUserIdentityFromRequest } from "./authn";
+import { prisma } from "./database";
 
 export async function createContext({
   req,
@@ -10,6 +11,7 @@ export async function createContext({
   const identityPayload = await extractUserIdentityFromRequest(req, res);
   return {
     userId: identityPayload?.sub ? Number.parseInt(identityPayload.sub) : null,
+    prisma,
   };
 }
 
