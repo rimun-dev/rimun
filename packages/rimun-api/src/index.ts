@@ -56,3 +56,5 @@ export default function createApp() {
 
   return app;
 }
+
+export type TrpcRouter = typeof appRouter;
