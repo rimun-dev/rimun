@@ -1,6 +1,5 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import Storage from "../storage";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
@@ -14,24 +13,24 @@ import {
 const resourcesRouter = trpc.router({
   /** Retrieve all informative documents for the current session. */
   getDocuments: trpc.procedure.query(
-    async () =>
-      await prisma.document.findMany({
-        where: { session_id: (await getCurrentSession()).id },
+    async ({ ctx }) =>
+      await ctx.prisma.document.findMany({
+        where: { session_id: (await getCurrentSession(ctx)).id },
       })
   ),
 
   /** Retrieve all FAQs for the current session. */
   getFaqs: trpc.procedure.query(
-    async () =>
-      await prisma.faqCategory.findMany({
+    async ({ ctx }) =>
+      await ctx.prisma.faqCategory.findMany({
         include: { faqs: true },
       })
   ),
 
   /** Retrieve metadata for all Gallery Images. */
   getImages: trpc.procedure.query(
-    async () =>
-      await prisma.session.findMany({
+    async ({ ctx }) =>
+      await ctx.prisma.session.findMany({
         include: { gallery_images: true },
       })
   ),
@@ -46,9 +45,9 @@ const resourcesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "document" });
+      await checkPersonPermission(ctx, { resourceName: "document" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
       const document = getDocumentBuffer(input.document);
       const document_path = await Storage.upload(
@@ -57,7 +56,7 @@ const resourcesRouter = trpc.router({
         "documents"
       );
 
-      return await prisma.document.create({
+      return await ctx.prisma.document.create({
         data: {
           ...input,
           path: document_path,
@@ -70,9 +69,9 @@ const resourcesRouter = trpc.router({
   deleteDocument: authenticatedProcedure
     .input(z.number())
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "document" });
+      await checkPersonPermission(ctx, { resourceName: "document" });
 
-      const document = await prisma.document.delete({
+      const document = await ctx.prisma.document.delete({
         where: { id: input },
       });
 
@@ -95,8 +94,8 @@ const resourcesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "faq" });
-      return await prisma.faq.create({
+      await checkPersonPermission(ctx, { resourceName: "faq" });
+      return await ctx.prisma.faq.create({
         data: input,
       });
     }),
@@ -112,9 +111,9 @@ const resourcesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "faq" });
+      await checkPersonPermission(ctx, { resourceName: "faq" });
 
-      const faq = await prisma.faq.update({
+      const faq = await ctx.prisma.faq.update({
         where: { id: input.faq_id },
         data: input,
       });
@@ -132,9 +131,9 @@ const resourcesRouter = trpc.router({
   deleteFaq: authenticatedProcedure
     .input(z.number())
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "faq" });
+      await checkPersonPermission(ctx, { resourceName: "faq" });
 
-      const faq = await prisma.faq.delete({
+      const faq = await ctx.prisma.faq.delete({
         where: { id: input },
       });
 
@@ -155,8 +154,8 @@ const resourcesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "faq" });
-      return await prisma.faqCategory.create({
+      await checkPersonPermission(ctx, { resourceName: "faq" });
+      return await ctx.prisma.faqCategory.create({
         data: input,
       });
     }),
@@ -172,7 +171,7 @@ const resourcesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "gallery" });
+      await checkPersonPermission(ctx, { resourceName: "gallery" });
 
       const thumbnail = await getThumbnailImageBuffer(input.image);
       const full_image = await getImageBuffer(input.image);
@@ -186,7 +185,7 @@ const resourcesRouter = trpc.router({
         Storage.upload(full_image.data, full_image.type, "img/gallery"),
       ]);
 
-      return await prisma.galleryImage.create({
+      return await ctx.prisma.galleryImage.create({
         data: { ...input, full_image_path, thumbnail_path },
       });
     }),
@@ -195,9 +194,9 @@ const resourcesRouter = trpc.router({
   deleteGalleryImage: authenticatedProcedure
     .input(z.number())
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "gallery" });
+      await checkPersonPermission(ctx, { resourceName: "gallery" });
 
-      const galleryImage = await prisma.galleryImage.delete({
+      const galleryImage = await ctx.prisma.galleryImage.delete({
         where: { id: input },
       });
 

@@ -1,23 +1,23 @@
 import { TRPCError } from "@trpc/server";
-import { prisma } from "../database";
 import Storage from "../storage";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
+  checkPersonPermission,
   getCurrentSession,
   getGroup,
   getRole,
-  getSchoolUserFromAccountId,
+  getSchoolUser,
   getThumbnailImageBuffer,
   identifierSchema,
   personBaseSchema,
 } from "./utils";
 
 const directorsRouter = trpc.router({
-  addDirectors: authenticatedProcedure
+  addDirector: authenticatedProcedure
     .input(personBaseSchema)
     .mutation(async ({ input, ctx }) => {
-      const school = await getSchoolUserFromAccountId(ctx.userId);
-      const currentSession = await getCurrentSession();
+      const school = await getSchoolUser(ctx);
+      const currentSession = await getCurrentSession(ctx);
 
       const schoolApplication = school.applications.find(
         (a) => a.session_id === currentSession.id
@@ -35,18 +35,18 @@ const directorsRouter = trpc.router({
         "img/profile"
       );
 
-      const person = await prisma.person.create({
+      const person = await ctx.prisma.person.create({
         data: {
           ...input,
-          fullName: `${input.name} ${input.surname}`,
+          full_name: `${input.name} ${input.surname}`,
           picture_path,
         },
       });
 
-      const directorGroup = await getGroup("director");
-      const directorRole = await getRole("Director", directorGroup.id);
+      const directorGroup = await getGroup("director", ctx);
+      const directorRole = await getRole("Director", directorGroup.id, ctx);
 
-      return await prisma.personApplication.create({
+      return await ctx.prisma.personApplication.create({
         data: {
           person_id: person.id,
           session_id: currentSession.id,
@@ -65,23 +65,25 @@ const directorsRouter = trpc.router({
   removeDirector: authenticatedProcedure
     .input(identifierSchema)
     .mutation(async ({ input, ctx }) => {
-      const school = await getSchoolUserFromAccountId(ctx.userId);
-      const currentSession = await getCurrentSession();
+      const school = await getSchoolUser(ctx);
+      const currentSession = await getCurrentSession(ctx);
 
-      const deletedApplications = await prisma.personApplication.deleteMany({
-        where: {
-          person_id: input,
-          session_id: currentSession.id,
-          school_id: school.id,
-        },
-      });
+      const deletedApplications = await ctx.prisma.personApplication.deleteMany(
+        {
+          where: {
+            person_id: input,
+            session_id: currentSession.id,
+            school_id: school.id,
+          },
+        }
+      );
       if (deletedApplications.count === 0)
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "This director does not exist.",
         });
 
-      const person = await prisma.person.delete({
+      const person = await ctx.prisma.person.delete({
         where: { id: input },
       });
       if (!person)
@@ -90,6 +92,31 @@ const directorsRouter = trpc.router({
           message: "This director does not exist.",
         });
     }),
+
+  getAllDirectors: authenticatedProcedure.query(async ({ ctx }) => {
+    await checkPersonPermission(ctx, { userGroupName: "secretariat" });
+
+    const currentSession = await getCurrentSession(ctx);
+
+    return await ctx.prisma.schoolApplication.findMany({
+      where: { session_id: currentSession.id },
+      include: {
+        school: {
+          include: {
+            person_applications: {
+              include: { person: { include: { account: true } } },
+              where: {
+                session_id: currentSession.id,
+                confirmed_group: {
+                  name: "director",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }),
 });
 
 export default directorsRouter;

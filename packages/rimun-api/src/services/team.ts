@@ -1,8 +1,12 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import { authenticatedProcedure, trpc } from "../trpc";
-import { checkPersonPermission, getCurrentSession, getGroup } from "./utils";
+import {
+  checkPersonPermission,
+  getCurrentSession,
+  getGroup,
+  identifierSchema,
+} from "./utils";
 
 const teamRouter = trpc.router({
   /** Add a person to the Secretariat core team. */
@@ -14,11 +18,11 @@ const teamRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "team" });
+      await checkPersonPermission(ctx, { resourceName: "team" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      const application = await prisma.personApplication.findUnique({
+      const application = await ctx.prisma.personApplication.findUnique({
         where: {
           person_id_session_id: {
             person_id: input.person_id,
@@ -27,11 +31,13 @@ const teamRouter = trpc.router({
         },
       });
 
-      const secretariatGroup = await getGroup("secretariat");
+      const secretariatGroup = await getGroup("secretariat", ctx);
 
       if (!application)
-        await prisma.personApplication.create({
+        await ctx.prisma.personApplication.create({
           data: {
+            person_id: input.person_id,
+            session_id: currentSession.id,
             requested_group_id: secretariatGroup.id,
             confirmed_group_id: secretariatGroup.id,
             requested_role_id: input.confirmed_role_id,
@@ -41,7 +47,7 @@ const teamRouter = trpc.router({
           },
         });
       else
-        await prisma.personApplication.update({
+        await ctx.prisma.personApplication.update({
           where: {
             person_id_session_id: {
               person_id: input.person_id,
@@ -61,17 +67,17 @@ const teamRouter = trpc.router({
 
   /** Remove a person from the Secretariat core team. */
   removeTeamMember: authenticatedProcedure
-    .input(z.object({ person_id: z.number() }))
+    .input(identifierSchema)
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "team" });
+      await checkPersonPermission(ctx, { resourceName: "team" });
 
-      const currentSession = await getCurrentSession();
-      const secretariatGroup = await getGroup("secretariat");
+      const currentSession = await getCurrentSession(ctx);
+      const secretariatGroup = await getGroup("secretariat", ctx);
 
-      const application = await prisma.personApplication.findUnique({
+      const application = await ctx.prisma.personApplication.findUnique({
         where: {
           person_id_session_id: {
-            person_id: input.person_id,
+            person_id: input,
             session_id: currentSession.id,
           },
         },
@@ -86,10 +92,10 @@ const teamRouter = trpc.router({
           message: "This person is not a member of the Secretariat.",
         });
 
-      await prisma.personApplication.delete({
+      await ctx.prisma.personApplication.delete({
         where: {
           person_id_session_id: {
-            person_id: input.person_id,
+            person_id: input,
             session_id: currentSession.id,
           },
         },
@@ -98,19 +104,18 @@ const teamRouter = trpc.router({
 
   /** Retrieve all permissions and relative team members. */
   getAllPermissions: authenticatedProcedure.query(async ({ ctx }) => {
-    await checkPersonPermission(ctx.userId, { resourceName: "team" });
+    await checkPersonPermission(ctx, { resourceName: "team" });
 
-    const currentSession = await getCurrentSession();
+    const currentSession = await getCurrentSession(ctx);
 
-    const resources = await prisma.resource.findMany();
-    const permissions = await prisma.permission.findMany({
-      where: { session_id: currentSession.id },
+    return await ctx.prisma.resource.findMany({
+      include: {
+        permissions: {
+          where: { session_id: currentSession.id },
+          include: { person: true, resource: true },
+        },
+      },
     });
-    const persons = await prisma.person.findMany({
-      where: { id: { in: permissions.map((p) => p.id) } },
-    });
-
-    return { resources, permissions, persons };
   }),
 
   /** Grant permission to a single resource to a person. */
@@ -122,11 +127,11 @@ const teamRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "team" });
+      await checkPersonPermission(ctx, { resourceName: "team" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      const existingPermission = await prisma.permission.findUnique({
+      const existingPermission = await ctx.prisma.permission.findUnique({
         where: {
           person_id_session_id_resource_id: {
             person_id: input.person_id,
@@ -138,7 +143,7 @@ const teamRouter = trpc.router({
 
       if (existingPermission) return existingPermission;
 
-      return await prisma.permission.create({
+      return await ctx.prisma.permission.create({
         data: {
           person_id: input.person_id,
           resource_id: input.resource_id,
@@ -156,11 +161,11 @@ const teamRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "team" });
+      await checkPersonPermission(ctx, { resourceName: "team" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      await prisma.permission.delete({
+      await ctx.prisma.permission.delete({
         where: {
           person_id_session_id_resource_id: {
             person_id: input.person_id,

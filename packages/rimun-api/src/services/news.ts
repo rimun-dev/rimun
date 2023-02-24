@@ -1,24 +1,30 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
   checkPersonPermission,
   getCurrentSession,
-  getPersonUserFromAccountId,
+  getPersonUser,
 } from "./utils";
 
 const newsRouter = trpc.router({
   /** Retrieve all posts for the current session. */
-  getPosts: trpc.procedure.query(async () => {
-    const currentSession = await getCurrentSession();
-    await prisma.post.findMany({
+  getPosts: trpc.procedure.query(async ({ ctx }) => {
+    const currentSession = await getCurrentSession(ctx);
+    return await ctx.prisma.post.findMany({
       where: { session_id: currentSession.id },
       include: {
         author: {
           include: {
             account: true,
-            applications: { where: { session_id: currentSession.id }, take: 1 },
+            applications: {
+              where: { session_id: currentSession.id },
+              include: {
+                confirmed_role: true,
+                confirmed_group: true,
+              },
+              take: 1,
+            },
           },
         },
       },
@@ -36,16 +42,16 @@ const newsRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, {
+      await checkPersonPermission(ctx, {
         resourceName: "news",
         userGroupName: "secretariat",
       });
 
-      const currentUser = await getPersonUserFromAccountId(ctx.userId);
+      const currentUser = await getPersonUser(ctx);
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      return await prisma.post.create({
+      return await ctx.prisma.post.create({
         data: {
           ...input,
           author_id: currentUser.id,
@@ -66,12 +72,12 @@ const newsRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, {
+      await checkPersonPermission(ctx, {
         resourceName: "news",
         userGroupName: "secretariat",
       });
 
-      const post = await prisma.post.update({
+      const post = await ctx.prisma.post.update({
         where: { id: input.post_id },
         data: input,
       });
@@ -89,12 +95,12 @@ const newsRouter = trpc.router({
   deletePost: authenticatedProcedure
     .input(z.number())
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, {
+      await checkPersonPermission(ctx, {
         resourceName: "news",
         userGroupName: "secretariat",
       });
 
-      const post = await prisma.post.delete({
+      const post = await ctx.prisma.post.delete({
         where: { id: input },
       });
 

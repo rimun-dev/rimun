@@ -1,6 +1,5 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import Storage from "../storage";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
@@ -20,11 +19,11 @@ const committeesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "committee" });
+      await checkPersonPermission(ctx, { resourceName: "committee" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      return await prisma.committee.create({
+      return await ctx.prisma.committee.create({
         data: { ...input, session_id: currentSession.id },
       });
     }),
@@ -39,9 +38,9 @@ const committeesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "committee" });
+      await checkPersonPermission(ctx, { resourceName: "committee" });
 
-      const committee = await prisma.committee.update({
+      const committee = await ctx.prisma.committee.update({
         where: { id: input.committee_id },
         data: input,
       });
@@ -59,16 +58,26 @@ const committeesRouter = trpc.router({
   getCommittee: authenticatedProcedure
     .input(z.number())
     .query(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "committee" });
-      return await prisma.committee.findUnique({
+      await checkPersonPermission(ctx, { resourceName: "committee" });
+      const committee = await ctx.prisma.committee.findUnique({
         where: { id: input },
         include: {
+          forum: true,
           delegation_committee_assignments: { include: { delegation: true } },
-          person_applications: { include: { person: true } },
+          person_applications: {
+            include: {
+              person: true,
+              confirmed_role: true,
+              confirmed_group: true,
+              delegation: { include: { country: true } },
+            },
+          },
           report: true,
           topics: true,
         },
       });
+      if (!committee) throw new TRPCError({ code: "NOT_FOUND" });
+      return committee;
     }),
 
   /** Updated committee report. */
@@ -81,9 +90,9 @@ const committeesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "committee" });
+      await checkPersonPermission(ctx, { resourceName: "committee" });
 
-      const committee = await prisma.committee.findUnique({
+      const committee = await ctx.prisma.committee.findUnique({
         where: { id: input.committee_id },
       });
 
@@ -100,11 +109,11 @@ const committeesRouter = trpc.router({
         "documents"
       );
 
-      await prisma.report.deleteMany({
+      await ctx.prisma.report.deleteMany({
         where: { committee_id: input.committee_id },
       });
 
-      return await prisma.report.create({
+      return await ctx.prisma.report.create({
         data: { ...input, document_path },
       });
     }),
@@ -118,9 +127,9 @@ const committeesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "committee" });
+      await checkPersonPermission(ctx, { resourceName: "committee" });
 
-      const committee = await prisma.committee.findUnique({
+      const committee = await ctx.prisma.committee.findUnique({
         where: { id: input.committee_id },
       });
 
@@ -130,16 +139,16 @@ const committeesRouter = trpc.router({
           message: "This committee does not exist.",
         });
 
-      return await prisma.topic.create({ data: input });
+      return await ctx.prisma.topic.create({ data: input });
     }),
 
   /** Delete committee topic. */
   deleteCommitteeTopic: authenticatedProcedure
     .input(z.number())
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "committee" });
+      await checkPersonPermission(ctx, { resourceName: "committee" });
 
-      const topic = await prisma.topic.delete({ where: { id: input } });
+      const topic = await ctx.prisma.topic.delete({ where: { id: input } });
 
       if (!topic)
         throw new TRPCError({

@@ -1,6 +1,5 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
   applicationStatusSchema,
@@ -9,8 +8,8 @@ import {
   genderSchema,
   getCurrentSession,
   getGroup,
-  getPersonUserFromAccountId,
-  getSchoolUserFromAccountId,
+  getPersonUser,
+  getSchoolUser,
   housingStatusSchema,
   identifierSchema,
   resetSchoolHousingSessionData,
@@ -48,8 +47,8 @@ const applicationsRouter = trpc.router({
       )
     )
     .mutation(async ({ input, ctx }) => {
-      const currentSession = await getCurrentSession();
-      const person = await getPersonUserFromAccountId(ctx.userId);
+      const currentSession = await getCurrentSession(ctx);
+      const person = await getPersonUser(ctx);
 
       if (person.applications.find((a) => a.session_id === currentSession.id))
         throw new TRPCError({
@@ -58,7 +57,7 @@ const applicationsRouter = trpc.router({
         });
 
       const existingSchoolApplication =
-        await prisma.schoolApplication.findUnique({
+        await ctx.prisma.schoolApplication.findUnique({
           where: {
             school_id_session_id: {
               school_id: input.school_id,
@@ -77,7 +76,7 @@ const applicationsRouter = trpc.router({
           message: "This school has not been accepted to this session yet.",
         });
 
-      return await prisma.personApplication.create({
+      return await ctx.prisma.personApplication.create({
         data: {
           ...input,
           person_id: person.id,
@@ -104,8 +103,8 @@ const applicationsRouter = trpc.router({
       )
     )
     .mutation(async ({ input, ctx }) => {
-      const currentSession = await getCurrentSession();
-      const person = await getPersonUserFromAccountId(ctx.userId);
+      const currentSession = await getCurrentSession(ctx);
+      const person = await getPersonUser(ctx);
 
       if (person.applications.find((a) => a.session_id === currentSession.id))
         throw new TRPCError({
@@ -113,14 +112,14 @@ const applicationsRouter = trpc.router({
           message: "You have already applied for this session.",
         });
 
-      return await prisma.personApplication.create({
+      return await ctx.prisma.personApplication.create({
         data: {
           ...input,
           person_id: person.id,
           session_id: currentSession.id,
           status_application: "HOLD",
           status_housing: input.housing_is_required ? "HOLD" : "NOT_REQUIRED",
-          requested_group_id: (await getGroup("hsc")).id,
+          requested_group_id: (await getGroup("hsc", ctx)).id,
         },
       });
     }),
@@ -147,8 +146,8 @@ const applicationsRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const currentSession = await getCurrentSession();
-      const school = await getSchoolUserFromAccountId(ctx.userId);
+      const currentSession = await getCurrentSession(ctx);
+      const school = await getSchoolUser(ctx);
 
       if (school.applications.find((a) => a.session_id === currentSession.id))
         throw new TRPCError({
@@ -156,7 +155,7 @@ const applicationsRouter = trpc.router({
           message: "You have already applied for this session.",
         });
 
-      const application = await prisma.schoolApplication.create({
+      const application = await ctx.prisma.schoolApplication.create({
         data: {
           ...input,
           school_id: school.id,
@@ -166,8 +165,12 @@ const applicationsRouter = trpc.router({
         },
       });
 
-      const assignments = await prisma.schoolGroupAssignment.createMany({
-        data: input.assignments,
+      const assignments = await ctx.prisma.schoolGroupAssignment.createMany({
+        data: input.assignments.map((a) => ({
+          ...a,
+          session_id: currentSession.id,
+          school_id: school.id,
+        })),
       });
 
       return { application, assignments };
@@ -177,32 +180,33 @@ const applicationsRouter = trpc.router({
    * Get summary statistics of the application for the current session.
    */
   getStats: authenticatedProcedure.query(async ({ ctx }) => {
-    await checkPersonPermission(ctx.userId, { resourceName: "application" });
+    await checkPersonPermission(ctx, { resourceName: "application" });
 
-    const currentSession = await getCurrentSession();
-    const hscGroup = await getGroup("hsc");
+    const currentSession = await getCurrentSession(ctx);
+    const hscGroup = await getGroup("hsc", ctx);
 
-    const confirmedHscApplications = await prisma.personApplication.count({
+    const confirmedHscApplications = await ctx.prisma.personApplication.count({
       where: { session_id: currentSession.id, confirmed_group_id: hscGroup.id },
     });
 
-    const schoolGroupAssignments = await prisma.schoolGroupAssignment.groupBy({
-      by: ["group_id"],
-      _sum: {
-        n_confirmed: true,
-      },
-      where: {
-        session_id: currentSession.id,
-        school: {
-          applications: {
-            some: {
-              session_id: currentSession.id,
-              status_application: "ACCEPTED",
+    const schoolGroupAssignments =
+      await ctx.prisma.schoolGroupAssignment.groupBy({
+        by: ["group_id"],
+        _sum: {
+          n_confirmed: true,
+        },
+        where: {
+          session_id: currentSession.id,
+          school: {
+            applications: {
+              some: {
+                session_id: currentSession.id,
+                status_application: "ACCEPTED",
+              },
             },
           },
         },
-      },
-    });
+      });
 
     return [
       ...schoolGroupAssignments.map((sga) => ({
@@ -237,18 +241,22 @@ const applicationsRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "application" });
+      await checkPersonPermission(ctx, { resourceName: "application" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
       if (input.status_housing)
-        resetSchoolHousingSessionData(input.school_id, input.status_housing);
+        resetSchoolHousingSessionData(
+          input.school_id,
+          input.status_housing,
+          ctx
+        );
 
       if (input.status_application)
-        resetSchoolSessionData(input.school_id, input.status_application);
+        resetSchoolSessionData(input.school_id, input.status_application, ctx);
 
       for (let assignment of input.assignments ?? []) {
-        await prisma.schoolGroupAssignment.update({
+        await ctx.prisma.schoolGroupAssignment.update({
           where: {
             school_id_session_id_group_id: {
               group_id: assignment.group_id,
@@ -260,7 +268,7 @@ const applicationsRouter = trpc.router({
         });
       }
 
-      const application = await prisma.schoolApplication.findUnique({
+      const application = await ctx.prisma.schoolApplication.findUnique({
         where: {
           school_id_session_id: {
             school_id: input.school_id,
@@ -287,33 +295,33 @@ const applicationsRouter = trpc.router({
         person_id: identifierSchema,
         status_application: applicationStatusSchema.optional(),
         status_housing: housingStatusSchema.optional(),
-        requested_group_id: identifierSchema.optional(),
-        requested_role_id: identifierSchema.optional(),
-        confirmed_group_id: identifierSchema.optional(),
-        confirmed_role_id: identifierSchema.optional(),
-        delegation_id: identifierSchema.optional(),
-        committee_id: identifierSchema.optional(),
-        is_ambassador: z.boolean().optional(),
+        requested_group_id: identifierSchema.optional().nullable(),
+        requested_role_id: identifierSchema.optional().nullable(),
+        confirmed_group_id: identifierSchema.optional().nullable(),
+        confirmed_role_id: identifierSchema.optional().nullable(),
+        delegation_id: identifierSchema.optional().nullable(),
+        committee_id: identifierSchema.optional().nullable(),
+        is_ambassador: z.boolean().optional().nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const delegateGroup = await getGroup("delegate");
+      const delegateGroup = await getGroup("delegate", ctx);
 
       // schools can only modify delegates' status
       if (input.requested_group_id === delegateGroup.id)
         await checkUserPermissionToUpdatePersonApplication(
-          ctx.userId,
+          ctx,
           input.person_id,
           "application"
         );
       else
-        await checkPersonPermission(ctx.userId, {
+        await checkPersonPermission(ctx, {
           resourceName: "application",
         });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      const application = await prisma.personApplication.findUnique({
+      const application = await ctx.prisma.personApplication.findUnique({
         where: {
           person_id_session_id: {
             person_id: input.person_id,
@@ -330,7 +338,7 @@ const applicationsRouter = trpc.router({
       const isReassigned =
         input.confirmed_group_id !== application.confirmed_group_id;
 
-      return await prisma.personApplication.update({
+      return await ctx.prisma.personApplication.update({
         where: {
           person_id_session_id: {
             person_id: input.person_id,

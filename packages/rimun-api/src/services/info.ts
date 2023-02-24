@@ -1,36 +1,36 @@
-import { prisma } from "../database";
 import { trpc } from "../trpc";
 import { getCurrentSession } from "./utils";
 
 const infoRouter = trpc.router({
   getCountries: trpc.procedure.query(
-    async () => await prisma.country.findMany()
+    async ({ ctx }) => await ctx.prisma.country.findMany()
   ),
 
   getSessions: trpc.procedure.query(
-    async () => await prisma.session.findMany()
+    async ({ ctx }) => await ctx.prisma.session.findMany()
   ),
 
   getResources: trpc.procedure.query(
-    async () => await prisma.resource.findMany()
+    async ({ ctx }) => await ctx.prisma.resource.findMany()
   ),
 
-  getForums: trpc.procedure.query(async () => {
-    const currentSession = await getCurrentSession();
+  getForums: trpc.procedure.query(async ({ ctx }) => {
+    const currentSession = await getCurrentSession(ctx);
 
-    const forums = await prisma.forum.findMany();
-    const committees = await prisma.committee.findMany({
-      where: { session_id: currentSession.id },
+    const forums = await ctx.prisma.forum.findMany({
+      include: { committees: { where: { session_id: currentSession.id } } },
     });
 
     const committees_stats: { [cid: number]: number } = {};
-    for (let c of committees) {
-      committees_stats[c.id] = await prisma.personApplication.count({
-        where: { committee_id: c.id, session_id: currentSession.id },
-      });
+    for (let f of forums) {
+      for (let c of f.committees) {
+        committees_stats[c.id] = await ctx.prisma.personApplication.count({
+          where: { committee_id: c.id, session_id: currentSession.id },
+        });
+      }
     }
 
-    return { forums, committees, committees_stats };
+    return { forums, committees_stats };
   }),
 });
 

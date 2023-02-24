@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
 import Jimp from "jimp";
 import { z } from "zod";
-import { prisma } from "../database";
+import { Context } from "../trpc";
 
 export const identifierSchema = z.number().int();
 export const genderSchema = z.enum(["m", "f", "nb"]);
@@ -34,41 +34,57 @@ export async function hashPassword(password: string) {
   return await bcrypt.hash(password, hashSalt);
 }
 
-export async function getPersonUserFromAccountId(id: number) {
-  const user = await prisma.person.findUnique({
-    where: { id },
+export async function getPersonUser(ctx: Context) {
+  if (!ctx.userId)
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "This user is not authorized.",
+    });
+
+  const user = await ctx.prisma.person.findUnique({
+    where: { id: ctx.userId },
     include: {
       account: true,
       permissions: true,
       applications: true,
     },
   });
+
   if (!user)
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "This user is not authorized.",
     });
+
   return user;
 }
 
-export async function getSchoolUserFromAccountId(id: number) {
-  const user = await prisma.school.findUnique({
-    where: { id },
+export async function getSchoolUser(ctx: Context) {
+  if (!ctx.userId)
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "This user is not authorized.",
+    });
+
+  const user = await ctx.prisma.school.findUnique({
+    where: { id: ctx.userId },
     include: {
       account: true,
       applications: true,
     },
   });
+
   if (!user)
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "This user is not authorized.",
     });
+
   return user;
 }
 
-export async function getCurrentSession() {
-  const session = await prisma.session.findFirst({
+export async function getCurrentSession(ctx: Context) {
+  const session = await ctx.prisma.session.findFirst({
     where: { is_active: true },
   });
   if (!session)
@@ -79,8 +95,8 @@ export async function getCurrentSession() {
   return session;
 }
 
-export async function getGroup(name: string) {
-  const group = await prisma.group.findFirst({
+export async function getGroup(name: string, ctx: Context) {
+  const group = await ctx.prisma.group.findFirst({
     where: { name },
   });
   if (!group)
@@ -91,8 +107,8 @@ export async function getGroup(name: string) {
   return group;
 }
 
-export async function getRole(name: string, group_id: number) {
-  const role = await prisma.role.findFirst({
+export async function getRole(name: string, group_id: number, ctx: Context) {
+  const role = await ctx.prisma.role.findFirst({
     where: { name, group_id },
   });
   if (!role)
@@ -109,17 +125,17 @@ interface CheckPersonPermissionOpts {
 }
 
 export async function checkPersonPermission(
-  userId: number,
+  ctx: Context,
   { resourceName, userGroupName }: CheckPersonPermissionOpts
 ) {
-  const currentSession = await getCurrentSession();
-  const currentUser = await getPersonUserFromAccountId(userId);
+  const currentSession = await getCurrentSession(ctx);
+  const currentUser = await getPersonUser(ctx);
 
   if (currentUser.account?.is_admin) return;
 
   let hasGroupPermissions = false;
   if (userGroupName) {
-    const group = await prisma.group.findUnique({
+    const group = await ctx.prisma.group.findUnique({
       where: { name: userGroupName },
     });
     hasGroupPermissions =
@@ -135,7 +151,7 @@ export async function checkPersonPermission(
 
   let hasExplicitPermission = false;
   if (resourceName) {
-    const resource = await prisma.resource.findUnique({
+    const resource = await ctx.prisma.resource.findUnique({
       where: { name: resourceName },
     });
 
@@ -157,28 +173,29 @@ export async function checkPersonPermission(
 
 export async function resetSchoolSessionData(
   school_id: z.infer<typeof identifierSchema>,
-  status_application: z.infer<typeof applicationStatusSchema>
+  status_application: z.infer<typeof applicationStatusSchema>,
+  ctx: Context
 ) {
-  const currentSession = await getCurrentSession();
+  const currentSession = await getCurrentSession(ctx);
 
-  await prisma.schoolGroupAssignment.updateMany({
+  await ctx.prisma.schoolGroupAssignment.updateMany({
     where: { school_id, session_id: currentSession.id },
     data: { n_confirmed: status_application === "REFUSED" ? 0 : null },
   });
 
-  await prisma.personApplication.updateMany({
+  await ctx.prisma.personApplication.updateMany({
     where: { session_id: currentSession.id, school_id },
     data: { status_application },
   });
 
   const personIds = (
-    await prisma.personApplication.findMany({
+    await ctx.prisma.personApplication.findMany({
       where: { session_id: currentSession.id, school_id },
       select: { person_id: true },
     })
   ).map((p) => p.person_id!);
 
-  await prisma.housingMatch.deleteMany({
+  await ctx.prisma.housingMatch.deleteMany({
     where: {
       OR: {
         host_id: { in: personIds },
@@ -190,24 +207,25 @@ export async function resetSchoolSessionData(
 
 export async function resetSchoolHousingSessionData(
   school_id: z.infer<typeof identifierSchema>,
-  status_housing: z.infer<typeof housingStatusSchema>
+  status_housing: z.infer<typeof housingStatusSchema>,
+  ctx: Context
 ) {
-  const currentSession = await getCurrentSession();
+  const currentSession = await getCurrentSession(ctx);
 
-  await prisma.personApplication.updateMany({
+  await ctx.prisma.personApplication.updateMany({
     where: { session_id: currentSession.id, school_id },
     data: { status_housing },
   });
 
   if (status_housing !== "ACCEPTED") {
     const personIds = (
-      await prisma.personApplication.findMany({
+      await ctx.prisma.personApplication.findMany({
         where: { session_id: currentSession.id, school_id },
         select: { person_id: true },
       })
     ).map((p) => p.person_id!);
 
-    await prisma.housingMatch.deleteMany({
+    await ctx.prisma.housingMatch.deleteMany({
       where: {
         OR: {
           host_id: { in: personIds },
@@ -219,12 +237,18 @@ export async function resetSchoolHousingSessionData(
 }
 
 export async function checkUserPermissionToUpdatePersonApplication(
-  userId: number,
+  ctx: Context,
   person_id: number,
   resourceName: string
 ) {
-  const account = await prisma.account.findUnique({
-    where: { id: userId },
+  if (!ctx.userId)
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be authenticated.",
+    });
+
+  const account = await ctx.prisma.account.findUnique({
+    where: { id: ctx.userId },
   });
   if (!account)
     throw new TRPCError({
@@ -232,12 +256,12 @@ export async function checkUserPermissionToUpdatePersonApplication(
       message: "You must be authenticated.",
     });
 
-  if (!account.is_school) await checkPersonPermission(userId, { resourceName });
+  if (!account.is_school) await checkPersonPermission(ctx, { resourceName });
 
-  const currentSession = await getCurrentSession();
+  const currentSession = await getCurrentSession(ctx);
 
   if (account.is_school) {
-    const personApplication = await prisma.personApplication.findUnique({
+    const personApplication = await ctx.prisma.personApplication.findUnique({
       where: {
         person_id_session_id: {
           person_id: person_id,
@@ -247,7 +271,7 @@ export async function checkUserPermissionToUpdatePersonApplication(
       include: { school: true },
     });
 
-    if (personApplication?.school?.account_id !== userId)
+    if (personApplication?.school?.account_id !== ctx.userId)
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "You are not authorized to update this person's application.",
@@ -300,4 +324,14 @@ export function getDocumentBuffer(base64: string) {
   const { type, data } = parseBase64Image(base64);
   const buffer = Buffer.from(data, "base64");
   return { data: buffer, type };
+}
+
+export function exclude<User, Key extends keyof User>(
+  user: User,
+  keys: Key[]
+): Omit<User, Key> {
+  for (let key of keys) {
+    delete user[key];
+  }
+  return user;
 }

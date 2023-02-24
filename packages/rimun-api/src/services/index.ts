@@ -1,5 +1,6 @@
 import { trpc } from "../trpc";
 import applicationsRouter from "./applications";
+import authRouter from "./auth";
 import committeesRouter from "./committees";
 import delegationsRouter from "./delegations";
 import directorsRouter from "./directors";
@@ -14,7 +15,8 @@ import teamRouter from "./team";
 
 export const appRouter = trpc.router({
   applications: applicationsRouter,
-  committee: committeesRouter,
+  auth: authRouter,
+  committees: committeesRouter,
   delegations: delegationsRouter,
   directors: directorsRouter,
   housing: housingRouter,

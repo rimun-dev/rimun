@@ -1,24 +1,23 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
   checkPersonPermission,
   getCurrentSession,
   getGroup,
-  getPersonUserFromAccountId,
+  getPersonUser,
   identifierSchema,
 } from "./utils";
 
 const housingRouter = trpc.router({
   getStats: authenticatedProcedure.query(async ({ ctx }) => {
-    await checkPersonPermission(ctx.userId, { resourceName: "housing" });
+    await checkPersonPermission(ctx, { resourceName: "housing" });
 
-    const currentSession = await getCurrentSession();
-    const hscGroup = await getGroup("hsc");
+    const currentSession = await getCurrentSession(ctx);
+    const hscGroup = await getGroup("hsc", ctx);
 
     const hscRequestsPersonIds = (
-      await prisma.personApplication.findMany({
+      await ctx.prisma.personApplication.findMany({
         where: {
           confirmed_group_id: hscGroup.id,
           session_id: currentSession.id,
@@ -29,18 +28,18 @@ const housingRouter = trpc.router({
       })
     ).map((r) => r.person_id!);
 
-    const nMatched = await prisma.housingMatch.count({
+    const nMatched = await ctx.prisma.housingMatch.count({
       where: { session_id: currentSession.id },
     });
 
-    const nHscMatched = await prisma.housingMatch.count({
+    const nHscMatched = await ctx.prisma.housingMatch.count({
       where: {
         session_id: currentSession.id,
         guest_id: { in: hscRequestsPersonIds },
       },
     });
 
-    const nSchoolRequests = await prisma.schoolGroupAssignment.aggregate({
+    const nSchoolRequests = await ctx.prisma.schoolGroupAssignment.aggregate({
       where: { session_id: currentSession.id, n_confirmed: { not: null } },
       _sum: { n_confirmed: true },
     });
@@ -56,14 +55,14 @@ const housingRouter = trpc.router({
   getHostHousingMatches: authenticatedProcedure
     .input(identifierSchema)
     .query(async ({ input, ctx }) => {
-      const currentUser = await getPersonUserFromAccountId(ctx.userId);
+      const currentUser = await getPersonUser(ctx);
 
       if (currentUser.id !== input)
-        await checkPersonPermission(ctx.userId, { resourceName: "housing" });
+        await checkPersonPermission(ctx, { resourceName: "housing" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      return await prisma.housingMatch.findMany({
+      return await ctx.prisma.housingMatch.findMany({
         where: { session_id: currentSession.id, host_id: input },
       });
     }),
@@ -71,14 +70,14 @@ const housingRouter = trpc.router({
   getGuestHousingMatches: authenticatedProcedure
     .input(identifierSchema)
     .query(async ({ input, ctx }) => {
-      const currentUser = await getPersonUserFromAccountId(ctx.userId);
+      const currentUser = await getPersonUser(ctx);
 
       if (currentUser.id !== input)
-        await checkPersonPermission(ctx.userId, { resourceName: "housing" });
+        await checkPersonPermission(ctx, { resourceName: "housing" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      return await prisma.housingMatch.findMany({
+      return await ctx.prisma.housingMatch.findMany({
         where: { session_id: currentSession.id, guest_id: input },
       });
     }),
@@ -91,11 +90,11 @@ const housingRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "housing" });
+      await checkPersonPermission(ctx, { resourceName: "housing" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      const hostApplication = await prisma.personApplication.findUnique({
+      const hostApplication = await ctx.prisma.personApplication.findUnique({
         where: {
           person_id_session_id: {
             person_id: input.host_id,
@@ -109,7 +108,7 @@ const housingRouter = trpc.router({
           message: "The host has not applied for this session yet.",
         });
 
-      const guestApplication = await prisma.personApplication.findUnique({
+      const guestApplication = await ctx.prisma.personApplication.findUnique({
         where: {
           person_id_session_id: {
             person_id: input.host_id,
@@ -123,7 +122,7 @@ const housingRouter = trpc.router({
           message: "The guest has not applied for this session yet.",
         });
 
-      const existingGuestMatch = await prisma.housingMatch.findFirst({
+      const existingGuestMatch = await ctx.prisma.housingMatch.findFirst({
         where: { guest_id: input.guest_id, session_id: currentSession.id },
       });
       if (existingGuestMatch)
@@ -132,7 +131,7 @@ const housingRouter = trpc.router({
           message: "The guest has already been assigned.",
         });
 
-      const nExistingHostMatches = await prisma.housingMatch.count({
+      const nExistingHostMatches = await ctx.prisma.housingMatch.count({
         where: { host_id: input.host_id, session_id: currentSession.id },
       });
       if (nExistingHostMatches >= (hostApplication.housing_n_guests ?? 0))
@@ -142,7 +141,7 @@ const housingRouter = trpc.router({
             message: "The host has too many guests already.",
           });
 
-      return await prisma.housingMatch.create({
+      return await ctx.prisma.housingMatch.create({
         data: {
           ...input,
           session_id: currentSession.id,
@@ -153,8 +152,10 @@ const housingRouter = trpc.router({
   deleteHousingMatch: authenticatedProcedure
     .input(identifierSchema)
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "housing" });
-      const match = await prisma.housingMatch.delete({ where: { id: input } });
+      await checkPersonPermission(ctx, { resourceName: "housing" });
+      const match = await ctx.prisma.housingMatch.delete({
+        where: { id: input },
+      });
       if (!match)
         throw new TRPCError({
           code: "BAD_REQUEST",

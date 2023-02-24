@@ -1,9 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import mailTransport from "../email";
 import Storage from "../storage";
-import { trpc } from "../trpc";
+import { Context, trpc } from "../trpc";
 import {
   accountBaseSchema,
   getThumbnailImageBuffer,
@@ -11,8 +10,8 @@ import {
   personBaseSchema,
 } from "./utils";
 
-async function checkForExistingAccount(email: string) {
-  const existingAccount = await prisma.account.findUnique({
+async function checkForExistingAccount(ctx: Context, email: string) {
+  const existingAccount = await ctx.prisma.account.findUnique({
     where: { email },
   });
 
@@ -27,10 +26,10 @@ const registrationRouter = trpc.router({
   /** Register a personal account. */
   registerPerson: trpc.procedure
     .input(accountBaseSchema.and(personBaseSchema))
-    .mutation(async ({ input }) => {
-      await checkForExistingAccount(input.email);
+    .mutation(async ({ input, ctx }) => {
+      await checkForExistingAccount(ctx, input.email);
 
-      const account = await prisma.account.create({
+      const account = await ctx.prisma.account.create({
         data: {
           ...input,
           password: await hashPassword(input.password),
@@ -47,10 +46,10 @@ const registrationRouter = trpc.router({
         "img/profile"
       );
 
-      const person = await prisma.person.create({
+      const person = await ctx.prisma.person.create({
         data: {
           ...input,
-          fullName: `${input.name} ${input.surname}`,
+          full_name: `${input.name} ${input.surname}`,
           picture_path,
           account_id: account.id,
         },
@@ -58,8 +57,8 @@ const registrationRouter = trpc.router({
 
       await mailTransport.sendMail({
         subject: "[RIMUN] Welcome!",
-        text: getWelcomeEmailText(person.fullName),
-        html: getWelcomeEmailHTML(person.fullName),
+        text: getWelcomeEmailText(person.full_name),
+        html: getWelcomeEmailHTML(person.full_name),
         from: process.env.MAIL_USERNAME,
         to: [account.email],
       });
@@ -80,10 +79,10 @@ const registrationRouter = trpc.router({
         })
         .and(accountBaseSchema)
     )
-    .mutation(async ({ input }) => {
-      await checkForExistingAccount(input.email);
+    .mutation(async ({ input, ctx }) => {
+      await checkForExistingAccount(ctx, input.email);
 
-      const account = await prisma.account.create({
+      const account = await ctx.prisma.account.create({
         data: {
           ...input,
           password: await hashPassword(input.password),
@@ -93,7 +92,7 @@ const registrationRouter = trpc.router({
         },
       });
 
-      const school = await prisma.school.create({
+      const school = await ctx.prisma.school.create({
         data: { ...input, account_id: account.id },
       });
 

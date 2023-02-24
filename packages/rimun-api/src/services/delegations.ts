@@ -1,6 +1,5 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
   checkPersonPermission,
@@ -32,11 +31,11 @@ const delegationsRouter = trpc.router({
         )
     )
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "delegation" });
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      return await prisma.delegation.create({
+      return await ctx.prisma.delegation.create({
         data: {
           ...input,
           session_id: currentSession.id,
@@ -48,9 +47,9 @@ const delegationsRouter = trpc.router({
   deleteDelegation: authenticatedProcedure
     .input(identifierSchema)
     .mutation(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "delegation" });
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
 
-      await prisma.personApplication.updateMany({
+      await ctx.prisma.personApplication.updateMany({
         where: { delegation_id: input },
         data: {
           delegation_id: null,
@@ -59,7 +58,7 @@ const delegationsRouter = trpc.router({
         },
       });
 
-      const delegation = await prisma.delegation.delete({
+      const delegation = await ctx.prisma.delegation.delete({
         where: { id: input },
       });
 
@@ -74,15 +73,26 @@ const delegationsRouter = trpc.router({
   getDelegation: authenticatedProcedure
     .input(identifierSchema)
     .query(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "delegation" });
-      return await prisma.delegation.findUnique({
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
+      const delegation = await ctx.prisma.delegation.findUnique({
         where: { id: input },
         include: {
-          school: true,
+          school: { include: { country: true } },
+          country: true,
           person_applications: { include: { person: true } },
-          delegation_committee_assignments: { include: { committee: true } },
+          delegation_committee_assignments: {
+            include: { committee: { include: { forum: true } } },
+          },
         },
       });
+
+      if (!delegation)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This delegation does not exist.",
+        });
+
+      return delegation;
     }),
 
   /**
@@ -100,14 +110,14 @@ const delegationsRouter = trpc.router({
     )
     .mutation(async ({ input, ctx }) => {
       await checkUserPermissionToUpdatePersonApplication(
-        ctx.userId,
+        ctx,
         input.person_id,
         "delegation"
       );
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      await prisma.personApplication.update({
+      await ctx.prisma.personApplication.update({
         where: {
           person_id_session_id: {
             person_id: input.person_id,
@@ -126,14 +136,14 @@ const delegationsRouter = trpc.router({
     .input(identifierSchema)
     .mutation(async ({ input, ctx }) => {
       await checkUserPermissionToUpdatePersonApplication(
-        ctx.userId,
+        ctx,
         input,
         "delegation"
       );
 
-      const currentSession = await getCurrentSession();
+      const currentSession = await getCurrentSession(ctx);
 
-      await prisma.personApplication.update({
+      await ctx.prisma.personApplication.update({
         where: {
           person_id_session_id: {
             person_id: input,
@@ -156,14 +166,151 @@ const delegationsRouter = trpc.router({
       })
     )
     .query(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx.userId, { resourceName: "delegation" });
-      return await prisma.delegation.findMany({
-        where: input,
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
+
+      const currentSession = await getCurrentSession(ctx);
+
+      return await ctx.prisma.delegation.findMany({
+        where: { ...input, session_id: currentSession.id },
         include: {
           school: true,
+          country: true,
           person_applications: { include: { person: true } },
           delegation_committee_assignments: { include: { committee: true } },
         },
+      });
+    }),
+
+  /** Assign committee to delegation. */
+  assignCommittee: authenticatedProcedure
+    .input(
+      z.object({
+        committee_id: identifierSchema,
+        delegation_id: identifierSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
+
+      const delegation = await ctx.prisma.delegation.findUnique({
+        where: { id: input.delegation_id },
+      });
+
+      if (!delegation)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This delegation does not exist.",
+        });
+
+      const committee = await ctx.prisma.committee.findUnique({
+        where: { id: input.committee_id },
+      });
+
+      if (!committee)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This committee does not exist.",
+        });
+
+      const currentSession = await getCurrentSession(ctx);
+
+      await ctx.prisma.delegationCommitteeAssignment.create({
+        data: {
+          ...input,
+          session_id: currentSession.id,
+        },
+      });
+    }),
+
+  /** Remove committee from delegation. */
+  removeCommittee: authenticatedProcedure
+    .input(
+      z.object({
+        committee_id: identifierSchema,
+        delegation_id: identifierSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
+
+      const delegation = await ctx.prisma.delegation.findUnique({
+        where: { id: input.delegation_id },
+      });
+
+      if (!delegation)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This delegation does not exist.",
+        });
+
+      const currentSession = await getCurrentSession(ctx);
+
+      await ctx.prisma.delegationCommitteeAssignment.delete({
+        where: {
+          delegation_id_committee_id_session_id: {
+            ...input,
+            session_id: currentSession.id,
+          },
+        },
+      });
+    }),
+
+  /** Assign school to delegation. */
+  assignSchool: authenticatedProcedure
+    .input(
+      z.object({
+        school_id: identifierSchema,
+        delegation_id: identifierSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
+
+      const delegation = await ctx.prisma.delegation.findUnique({
+        where: { id: input.delegation_id },
+      });
+
+      if (!delegation)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This delegation does not exist.",
+        });
+
+      const school = await ctx.prisma.school.findUnique({
+        where: { id: input.school_id },
+      });
+
+      if (!school)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This school does not exist.",
+        });
+
+      return await ctx.prisma.delegation.update({
+        where: { id: delegation.id },
+        data: input,
+      });
+    }),
+
+  /** Remove school from delegation. */
+  removeSchool: authenticatedProcedure
+    .input(identifierSchema)
+    .mutation(async ({ input, ctx }) => {
+      await checkPersonPermission(ctx, { resourceName: "delegation" });
+
+      const delegation = await ctx.prisma.delegation.findUnique({
+        where: { id: input },
+      });
+
+      if (!delegation)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This delegation does not exist.",
+        });
+
+      return await ctx.prisma.delegation.update({
+        where: { id: delegation.id },
+        data: { school_id: null },
       });
     }),
 });

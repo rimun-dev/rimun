@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { prisma } from "../database";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
   applicationStatusSchema,
+  checkPersonPermission,
+  exclude,
   genderSchema,
   getCurrentSession,
   housingStatusSchema,
@@ -11,7 +12,10 @@ import {
 
 const searchInputBaseSchema = z.object({
   limit: z.number().int().optional().default(10),
-  cursor: z.date().optional(),
+  cursor: z
+    .date()
+    .optional()
+    .default(() => new Date()),
 });
 
 const searchTextQueryBaseSchema = z
@@ -21,6 +25,9 @@ const searchTextQueryBaseSchema = z
   .and(searchInputBaseSchema);
 
 const searchRouter = trpc.router({
+  /**
+   * Search within persons with an application for the current session.
+   */
   searchPersons: authenticatedProcedure
     .input(
       searchTextQueryBaseSchema.and(
@@ -41,25 +48,43 @@ const searchRouter = trpc.router({
         })
       )
     )
-    .query(async ({ input }) => {
-      const currentSession = await getCurrentSession();
+    .query(async ({ input, ctx }) => {
+      const currentSession = await getCurrentSession(ctx);
 
-      const result = await prisma.personApplication.findMany({
+      const result = await ctx.prisma.personApplication.findMany({
         where: {
           ...input,
+          created_at: { lt: input.cursor },
           session_id: currentSession.id,
           person: input.query
-            ? { fullName: { contains: input.query } }
+            ? { full_name: { contains: input.query } }
             : undefined,
         },
         include: {
-          person: { include: { account: true } },
+          person: {
+            include: {
+              account: true,
+              country: true,
+              guest_matches: {
+                where: { session_id: currentSession.id },
+                include: { host: true },
+              },
+              host_matches: {
+                where: { session_id: currentSession.id },
+                include: { guest: true },
+              },
+            },
+          },
           school: true,
+          confirmed_group: true,
+          requested_group: true,
+          confirmed_role: true,
+          requested_role: true,
         },
         take: input.limit + 1,
       });
 
-      const total_count = await prisma.personApplication.count({
+      const total_count = await ctx.prisma.personApplication.count({
         where: {
           ...input,
           session_id: currentSession.id,
@@ -67,12 +92,23 @@ const searchRouter = trpc.router({
       });
 
       return {
-        result: result.slice(0, result.length),
+        result: result.slice(0, result.length).map((r) => ({
+          ...r,
+          person: {
+            ...r.person,
+            account: r.person.account
+              ? exclude(r.person.account, ["password"])
+              : null,
+          },
+        })),
         has_more: result.length > input.limit,
         total_count,
       };
     }),
 
+  /**
+   * Search within schools with an application for the current session.
+   */
   searchSchools: authenticatedProcedure
     .input(
       searchTextQueryBaseSchema.and(
@@ -86,30 +122,87 @@ const searchRouter = trpc.router({
         })
       )
     )
-    .query(async ({ input }) => {
-      const currentSession = await getCurrentSession();
+    .query(async ({ input, ctx }) => {
+      const currentSession = await getCurrentSession(ctx);
 
-      const result = await prisma.schoolApplication.findMany({
+      const result = await ctx.prisma.schoolApplication.findMany({
         where: {
           ...input,
+          created_at: { lt: input.cursor },
           session_id: currentSession.id,
           school: input.query ? { name: { contains: input.query } } : undefined,
         },
         include: {
-          school: { include: { account: true } },
+          school: {
+            include: {
+              country: true,
+              account: true,
+              school_group_assignments: {
+                include: { group: true },
+                where: { session_id: currentSession.id },
+              },
+            },
+          },
         },
         take: input.limit + 1,
       });
 
-      const total_count = await prisma.schoolApplication.count({
+      const total_count = await ctx.prisma.schoolApplication.count({
         where: {
           ...input,
           session_id: currentSession.id,
         },
       });
 
+      const schoolAssignments = await ctx.prisma.schoolGroupAssignment.findMany(
+        {
+          where: { session_id: currentSession.id },
+          include: { group: true },
+        }
+      );
+
       return {
-        result: result.slice(0, result.length),
+        result: result.slice(0, result.length).map((r) => ({
+          ...r,
+          assignments: schoolAssignments.filter(
+            (a) => a.school_id === r.school_id
+          ),
+          school: {
+            ...r.school,
+            account: exclude(r.school.account, ["password"]),
+          },
+        })),
+        has_more: result.length > input.limit,
+        total_count,
+      };
+    }),
+
+  /**
+   * Search within persons WITHOUT an application for the current session.
+   * This is restricted to admin users as there are no use-cases besides
+   * the initial Secretariat assignments.
+   */
+  searchPersonsWithoutApplication: authenticatedProcedure
+    .input(searchTextQueryBaseSchema)
+    .query(async ({ input, ctx }) => {
+      await checkPersonPermission(ctx, { userGroupName: "secretariat" });
+
+      const result = await ctx.prisma.person.findMany({
+        where: {
+          created_at: { lt: input.cursor },
+          full_name: input.query ? { contains: input.query } : undefined,
+        },
+        take: input.limit + 1,
+      });
+
+      const total_count = await ctx.prisma.person.count({
+        where: {
+          full_name: input.query ? { contains: input.query } : undefined,
+        },
+      });
+
+      return {
+        result,
         has_more: result.length > input.limit,
         total_count,
       };

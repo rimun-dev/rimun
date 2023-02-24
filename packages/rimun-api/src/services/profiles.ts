@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../database";
 import Storage from "../storage";
 import { authenticatedProcedure, trpc } from "../trpc";
 import {
-  getPersonUserFromAccountId,
+  exclude,
+  getCurrentSession,
+  getPersonUser,
   getThumbnailImageBuffer,
   hashPassword,
 } from "./utils";
@@ -13,32 +14,53 @@ const profilesRouter = trpc.router({
   /** Get Profile information for a given person. */
   getPersonProfile: authenticatedProcedure
     .input(z.number())
-    .query(async ({ input }) => {
-      return await prisma.person.findUnique({
+    .query(async ({ input, ctx }) => {
+      const currentSession = await getCurrentSession(ctx);
+
+      const profile = await ctx.prisma.person.findUnique({
         where: { id: input },
         include: {
-          applications: true,
-          account: {
-            select: { password: false },
-          },
+          applications: { where: { session_id: currentSession.id } },
+          account: true,
         },
       });
+
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return {
+        ...profile,
+        account: profile.account
+          ? exclude(profile.account, ["password"])
+          : null,
+      };
     }),
 
   /** Get Profile information for a given school. */
   getSchoolProfile: authenticatedProcedure
     .input(z.number())
-    .query(async ({ input }) => {
-      return await prisma.school.findUnique({
+    .query(async ({ input, ctx }) => {
+      const currentSession = await getCurrentSession(ctx);
+
+      const profile = await ctx.prisma.school.findUnique({
         where: { id: input },
         include: {
-          applications: true,
-          school_group_assignments: { include: { group: true } },
-          account: {
-            select: { password: false },
+          applications: { where: { session_id: currentSession.id } },
+          school_group_assignments: {
+            include: { group: true },
+            where: { session_id: currentSession.id },
           },
+          account: true,
         },
       });
+
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return {
+        ...profile,
+        account: profile.account
+          ? exclude(profile.account, ["password"])
+          : null,
+      };
     }),
 
   /** Update Profile information for a given person. */
@@ -48,7 +70,7 @@ const profilesRouter = trpc.router({
         name: z.string().optional(),
         surname: z.string().optional(),
         birthday: z.date().optional(),
-        gender: z.enum(["f", "m", "nb"]).optional(),
+        gender: z.enum(["f", "m", "nb"]).nullable().optional(),
         picture: z.string().optional(),
         phone_number: z.string().optional(),
         country_id: z.number().optional(),
@@ -57,7 +79,8 @@ const profilesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const currentUser = await getPersonUserFromAccountId(ctx.userId);
+      const currentSession = await getCurrentSession(ctx);
+      const currentUser = await getPersonUser(ctx);
 
       let picture_path = currentUser.picture_path;
       if (input.picture) {
@@ -68,23 +91,30 @@ const profilesRouter = trpc.router({
           "img/profile"
         );
 
-        if (currentUser.picture_path)
-          await Storage.remove(currentUser.picture_path);
+        await Storage.remove(currentUser.picture_path);
       }
 
-      const person = await prisma.person.update({
+      const profile = await ctx.prisma.person.update({
         where: { account_id: ctx.userId },
         data: { ...input, picture_path },
-        include: { account: { select: { password: false } } },
+        include: {
+          applications: { where: { session_id: currentSession.id } },
+          account: true,
+        },
       });
 
-      if (!person)
+      if (!profile)
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "You must be authenticated.",
         });
 
-      return person;
+      return {
+        ...profile,
+        account: profile.account
+          ? exclude(profile.account, ["password"])
+          : null,
+      };
     }),
 
   /** Update Profile information for a given school. */
@@ -101,19 +131,31 @@ const profilesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const school = await prisma.school.update({
+      const currentSession = await getCurrentSession(ctx);
+
+      const profile = await ctx.prisma.school.update({
         where: { account_id: ctx.userId },
         data: input,
-        include: { account: { select: { password: false } } },
+        include: {
+          applications: { where: { session_id: currentSession.id } },
+          school_group_assignments: {
+            include: { group: true },
+            where: { session_id: currentSession.id },
+          },
+          account: true,
+        },
       });
 
-      if (!school)
+      if (!profile)
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "You must be authenticated.",
         });
 
-      return school;
+      return {
+        ...profile,
+        account: exclude(profile.account, ["password"]),
+      };
     }),
 
   /** Update Account information. */
@@ -125,7 +167,7 @@ const profilesRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const account = await prisma.account.update({
+      const account = await ctx.prisma.account.update({
         where: { id: ctx.userId },
         data: {
           ...input,
@@ -133,7 +175,6 @@ const profilesRouter = trpc.router({
             ? await hashPassword(input.password)
             : undefined,
         },
-        select: { password: false },
       });
 
       if (!account)
@@ -142,7 +183,7 @@ const profilesRouter = trpc.router({
           message: "You must be authenticated.",
         });
 
-      return account;
+      return exclude(account, ["password"]);
     }),
 });
 

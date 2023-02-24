@@ -1,10 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createToken, extractUserIdentity } from "../authn";
-import { prisma } from "../database";
 import mailTransport from "../email";
 import { trpc } from "../trpc";
-import { hashPassword } from "./utils";
+import { exclude, hashPassword } from "./utils";
 
 const authRouter = trpc.router({
   login: trpc.procedure
@@ -14,10 +13,24 @@ const authRouter = trpc.router({
         password: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
-      const account = await prisma.account.findUnique({
+    .mutation(async ({ input, ctx }) => {
+      const account = await ctx.prisma.account.findUnique({
         where: { email: input.email.trim() },
-        include: { person: { include: { applications: true } } },
+        include: {
+          school: {
+            include: {
+              applications: true,
+              country: true,
+            },
+          },
+          person: {
+            include: {
+              applications: true,
+              permissions: true,
+              country: true,
+            },
+          },
+        },
       });
 
       if ((await hashPassword(input.password)) !== account?.password)
@@ -26,7 +39,10 @@ const authRouter = trpc.router({
           message: "Wrong email or password",
         });
 
-      return account;
+      return {
+        account: exclude(account, ["password"]),
+        token: await createToken(account.id.toString()),
+      };
     }),
 
   resetPassword: trpc.procedure
@@ -36,7 +52,7 @@ const authRouter = trpc.router({
         password: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const payload = await extractUserIdentity(input.token);
 
       if (!payload?.sub)
@@ -45,7 +61,7 @@ const authRouter = trpc.router({
           message: "The token you provided is invalid or expired.",
         });
 
-      return await prisma.account.update({
+      return await ctx.prisma.account.update({
         where: { id: Number.parseInt(payload.sub) },
         data: {
           password: await hashPassword(input.password),
@@ -55,8 +71,8 @@ const authRouter = trpc.router({
 
   sendResetEmail: trpc.procedure
     .input(z.string().email())
-    .mutation(async ({ input }) => {
-      const account = await prisma.account.findUnique({
+    .mutation(async ({ input, ctx }) => {
+      const account = await ctx.prisma.account.findUnique({
         where: { email: input.trim() },
       });
 
@@ -92,7 +108,7 @@ function getRecoverEmailHTML(token: string) {
     <p>To reset your password follow this link:</p>
 
     <p>
-    <a href="https://$host/password-recovery/${token}">Reset password page</a>
+    <a href="https://${process.env.PASSWORD_RECOVERY_URL}/password-recovery/${token}">Reset password page</a>
     </p>
 
     <p>If you have not sent any request just ignore this email.</p>
@@ -118,7 +134,7 @@ function getRecoverEmailText(token: string) {
 
   To reset your password follow this link:
   
-  https://$host/password-recovery/${token}
+  https://${process.env.PASSWORD_RECOVERY_URL}/password-recovery/${token}
   
   If you have not sent any request just ignore this email.
   
