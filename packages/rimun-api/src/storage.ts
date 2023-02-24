@@ -1,58 +1,97 @@
+import fs from "fs";
+import FTPClient from "ftp";
 import * as uuid from "uuid";
-import logger from "./logging";
 
-import * as firebase from "firebase-admin";
-import * as firebaseStorage from "firebase-admin/storage";
+/*
+  The following is a simple implementation for Supabase bucket storage.
+  However, due to budget reasons we are still relying on the old FTP server
+  for static file storage.
+export const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
+);
 
-firebase.initializeApp({
-  credential: firebase.credential.applicationDefault(),
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-});
+const bucket = supabase.storage.from(process.env.SUPABASE_BUCKET!);
 
-const bucket = firebaseStorage
-  .getStorage()
-  .bucket(process.env.FIREBASE_STORAGE_BUCKET);
-
-function makeBucketDirName(): string {
-  const date = new Date(Date.now());
-  const y = date.getFullYear();
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  return `${y}/${m}/${d}`;
-}
-
-namespace Storage {
+namespace SupabaseStorage {
   export async function upload(
     data: Buffer,
-    contentType: string,
+    type: string,
     rootFolder: string = ""
   ) {
-    const ext = contentType.split("/")[1];
-    const path = `${rootFolder}/${makeBucketDirName()}/${uuid.v4()}.${ext}`;
-    const file = bucket.file(path);
-    await file.save(data, { metadata: { contentType } });
+    const ext = type.split("/")[1];
+    const path = `${rootFolder}/${uuid.v4()}.${ext}`;
+    await bucket.upload(path, data);
     return path;
   }
 
   export async function remove(path: string) {
-    try {
-      await bucket.file(path).delete();
-    } catch (e) {
-      logger.warn(e.message);
-    }
+    await bucket.remove([path]);
+  }
+}
+*/
+
+const ftpConfig = {
+  host: process.env.FTP_HOST,
+  user: process.env.FTP_USER,
+  password: process.env.FTP_PASSWORD,
+  port: Number.parseInt(process.env.FTP_PORT ?? "21"),
+} as FTPClient.Options;
+
+namespace FTPStorage {
+  export async function upload(
+    data: Buffer,
+    type: string,
+    rootFolder: string = ""
+  ) {
+    return await new Promise<string>((resolve, reject) => {
+      const ext = type.split("/")[1];
+      const path = `${rootFolder}/${uuid.v4()}.${ext}`;
+      const ftpClient = new FTPClient();
+
+      ftpClient.on("ready", () => {
+        ftpClient.put(data, path, () => {
+          ftpClient.end();
+          resolve(path);
+        });
+      });
+
+      ftpClient.on("error", reject);
+      ftpClient.connect(ftpConfig);
+    });
   }
 
-  export async function retrieve(path: string) {
-    try {
-      const file = bucket.file(path);
-      const data = await file.download();
-      const meta = await file.getMetadata();
-      return { meta, data };
-    } catch (e) {
-      logger.warn(e.message);
-      return null;
-    }
+  export async function remove(path: string) {
+    await new Promise<void>((resolve, reject) => {
+      const ftpClient = new FTPClient();
+
+      ftpClient.on("ready", () => {
+        ftpClient.delete(path, reject);
+        resolve();
+      });
+
+      ftpClient.on("error", reject);
+      ftpClient.connect(ftpConfig);
+    });
+  }
+
+  export async function download(path: string) {
+    return await new Promise<Buffer>((resolve, reject) => {
+      const ftpClient = new FTPClient();
+
+      ftpClient.on("ready", () => {
+        ftpClient.get(path, (err, stream) => {
+          if (err) reject(err);
+          stream.once("close", ftpClient.end);
+          stream.pipe(fs.createWriteStream(path));
+          resolve(fs.readFileSync(path));
+        });
+      });
+
+      ftpClient.on("error", reject);
+      ftpClient.connect(ftpConfig);
+    });
   }
 }
 
-export default Storage;
+export default FTPStorage;

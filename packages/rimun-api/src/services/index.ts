@@ -11,6 +11,7 @@ import profilesRouter from "./profiles";
 import registrationRouter from "./registration";
 import resourcesRouter from "./resources";
 import searchRouter from "./search";
+import staticRouter from "./static";
 import teamRouter from "./team";
 
 export const appRouter = trpc.router({
@@ -26,5 +27,6 @@ export const appRouter = trpc.router({
   registration: registrationRouter,
   resources: resourcesRouter,
   search: searchRouter,
+  static: staticRouter,
   team: teamRouter,
 });
