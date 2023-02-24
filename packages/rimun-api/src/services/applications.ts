@@ -208,13 +208,15 @@ const applicationsRouter = trpc.router({
         },
       });
 
+    const groups = await ctx.prisma.group.findMany();
+
     return [
       ...schoolGroupAssignments.map((sga) => ({
-        group_id: sga.group_id,
+        group: groups.find((g) => g.id === sga.group_id)!,
         n_confirmed: sga._sum,
       })),
       {
-        group_id: hscGroup.id,
+        group: hscGroup,
         n_confirmed: confirmedHscApplications,
       },
     ];

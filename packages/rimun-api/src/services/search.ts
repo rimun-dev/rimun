@@ -44,6 +44,12 @@ const searchRouter = trpc.router({
             status_housing: housingStatusSchema.optional(),
             gender: genderSchema.optional(),
             housing_is_available: z.boolean().optional(),
+            confirmed_group: z
+              .object({ name: z.string().optional() })
+              .optional(),
+            requested_group: z
+              .object({ name: z.string().optional() })
+              .optional(),
           }),
         })
       )

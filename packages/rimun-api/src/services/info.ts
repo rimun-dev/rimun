@@ -1,5 +1,6 @@
+import { z } from "zod";
 import { trpc } from "../trpc";
-import { getCurrentSession } from "./utils";
+import { getCurrentSession, identifierSchema } from "./utils";
 
 const infoRouter = trpc.router({
   getCountries: trpc.procedure.query(
@@ -32,6 +33,27 @@ const infoRouter = trpc.router({
 
     return { forums, committees_stats };
   }),
+
+  getGroups: trpc.procedure.query(async ({ ctx }) => {
+    return await ctx.prisma.group.findMany();
+  }),
+
+  getRoles: trpc.procedure
+    .input(
+      z
+        .object({
+          group: z.object({
+            name: z.string().optional(),
+            id: identifierSchema.optional(),
+          }),
+        })
+        .optional()
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.prisma.role.findMany({
+        where: input,
+      });
+    }),
 });
 
 export default infoRouter;

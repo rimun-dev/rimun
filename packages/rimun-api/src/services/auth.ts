@@ -32,9 +32,13 @@ const authRouter = trpc.router({
             include: {
               applications: {
                 where: { session_id: currentSession.id },
+                include: { confirmed_group: true, confirmed_role: true },
                 take: 1,
               },
-              permissions: { where: { session_id: currentSession.id } },
+              permissions: {
+                where: { session_id: currentSession.id },
+                include: { resource: true },
+              },
               country: true,
             },
           },
@@ -116,7 +120,7 @@ function getRecoverEmailHTML(token: string) {
     <p>To reset your password follow this link:</p>
 
     <p>
-    <a href="https://${process.env.PASSWORD_RECOVERY_URL}/password-recovery/${token}">Reset password page</a>
+    <a href="https://${process.env.PASSWORD_RECOVERY_URL}/${token}">Reset password page</a>
     </p>
 
     <p>If you have not sent any request just ignore this email.</p>
@@ -142,7 +146,7 @@ function getRecoverEmailText(token: string) {
 
   To reset your password follow this link:
   
-  https://${process.env.PASSWORD_RECOVERY_URL}/password-recovery/${token}
+  https://${process.env.PASSWORD_RECOVERY_URL}/${token}
   
   If you have not sent any request just ignore this email.
   
