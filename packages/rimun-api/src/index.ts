@@ -58,3 +58,14 @@ export default function createApp() {
 }
 
 export type TrpcRouter = typeof appRouter;
+
+function main() {
+  const app = createApp();
+
+  app.listen(
+    process.env.PORT ? Number.parseInt(process.env.PORT) : 3000,
+    process.env.HOST ?? "0.0.0.0"
+  );
+}
+
+main();
