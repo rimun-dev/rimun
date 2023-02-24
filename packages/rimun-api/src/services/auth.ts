@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createToken, extractUserIdentity } from "../authn";
 import mailTransport from "../email";
 import { trpc } from "../trpc";
-import { exclude, hashPassword } from "./utils";
+import { exclude, getCurrentSession, hashPassword } from "./utils";
 
 const authRouter = trpc.router({
   login: trpc.procedure
@@ -14,19 +14,27 @@ const authRouter = trpc.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const currentSession = await getCurrentSession(ctx);
+
       const account = await ctx.prisma.account.findUnique({
         where: { email: input.email.trim() },
         include: {
           school: {
             include: {
-              applications: true,
+              applications: {
+                where: { session_id: currentSession.id },
+                take: 1,
+              },
               country: true,
             },
           },
           person: {
             include: {
-              applications: true,
-              permissions: true,
+              applications: {
+                where: { session_id: currentSession.id },
+                take: 1,
+              },
+              permissions: { where: { session_id: currentSession.id } },
               country: true,
             },
           },
