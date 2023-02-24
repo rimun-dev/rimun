@@ -1,0 +1,116 @@
+import MDEditor from "@uiw/react-md-editor";
+import { Form, Formik } from "formik";
+import rehypeSanitize from "rehype-sanitize";
+import SelectField from "src/components/fields/base/SelectField";
+import SubmitButton from "src/components/fields/base/SubmitButton";
+import TextInputField from "src/components/fields/base/TextInputField";
+import Label from "src/components/fields/base/utils/Label";
+import { TARGET_AUDIENCES } from "src/components/forms/news/utils";
+import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
+import { trpc } from "src/trpc";
+import * as Yup from "yup";
+
+interface CreateBlogPostModalFormProps extends ModalProps {}
+
+export default function CreateBlogPostModalForm(
+  props: CreateBlogPostModalFormProps
+) {
+  const trpcCtx = trpc.useContext();
+
+  const mutation = trpc.news.createPost.useMutation({
+    onSuccess: () => {
+      trpcCtx.news.getPosts.invalidate();
+      props.setIsVisible(false);
+    },
+  });
+
+  return (
+    <Modal
+      {...props}
+      className="w-full top-8 max-w-4xl bg-white shadow-xl rounded-lg"
+    >
+      <ModalHeader onDismiss={() => props.setIsVisible(false)}>
+        Create new Blog Post
+      </ModalHeader>
+      <Formik
+        validateOnChange={false}
+        validateOnBlur={false}
+        validateOnMount={false}
+        onSubmit={({ target, ...values }) => {
+          mutation.mutate({
+            is_for_persons: target === "ALL" || target === "PERSON",
+            is_for_schools: target === "ALL" || target === "SCHOOL",
+            ...values,
+          });
+        }}
+        initialValues={{
+          title: "",
+          body: "",
+          target: "ALL",
+        }}
+        validationSchema={Yup.object({
+          title: Yup.string().required("Please insert a title."),
+          body: Yup.string().required("Please insert a body."),
+          target: Yup.mixed()
+            .oneOf([...TARGET_AUDIENCES], "Please select a target audience.")
+            .required("Please select a target audience."),
+        })}
+      >
+        {({ values, setFieldValue }) => (
+          <Form className="px-4 pb-4" data-color-mode="light">
+            <Label htmlFor="title">
+              Title
+              <TextInputField
+                name="title"
+                placeholder="Title"
+                className="w-full"
+                required
+              />
+            </Label>
+
+            <Label htmlFor="target">
+              <div className="mt-4">Target audience</div>
+              <SelectField
+                name="target"
+                options={[
+                  { name: "All", value: "ALL" },
+                  { name: "Schools", value: "SCHOOL" },
+                  { name: "Students", value: "PERSON" },
+                ]}
+              />
+            </Label>
+
+            <div className="h-4" />
+
+            <MDEditor
+              value={values.body}
+              height={350}
+              onChange={(v) => setFieldValue("body", v)}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
+
+            <div className="py-4 text-xs">
+              Need some help understanding the MarkDown editor? Visit the{" "}
+              <a
+                href="https://www.markdownguide.org/basic-syntax/"
+                target="_blank"
+                className="text-blue-600 hover:underline"
+              >
+                Documentation
+              </a>
+            </div>
+
+            <SubmitButton
+              isLoading={mutation.isLoading}
+              className="float-right my-4"
+            >
+              Create Post
+            </SubmitButton>
+          </Form>
+        )}
+      </Formik>
+    </Modal>
+  );
+}
