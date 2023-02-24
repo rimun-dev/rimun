@@ -20,8 +20,28 @@ const profilesRouter = trpc.router({
       const profile = await ctx.prisma.person.findUnique({
         where: { id: input },
         include: {
-          applications: { where: { session_id: currentSession.id } },
           account: true,
+          country: true,
+          applications: {
+            where: { session_id: currentSession.id },
+            include: {
+              requested_group: true,
+              requested_role: true,
+              confirmed_group: true,
+              confirmed_role: true,
+            },
+            take: 1,
+          },
+          permissions: { where: { session_id: currentSession.id } },
+          guest_matches: {
+            where: { session_id: currentSession.id },
+            include: { host: true },
+            take: 1,
+          },
+          host_matches: {
+            where: { session_id: currentSession.id },
+            include: { guest: true },
+          },
         },
       });
 
@@ -44,7 +64,7 @@ const profilesRouter = trpc.router({
       const profile = await ctx.prisma.school.findUnique({
         where: { id: input },
         include: {
-          applications: { where: { session_id: currentSession.id } },
+          applications: { where: { session_id: currentSession.id }, take: 1 },
           school_group_assignments: {
             include: { group: true },
             where: { session_id: currentSession.id },
@@ -185,6 +205,74 @@ const profilesRouter = trpc.router({
 
       return exclude(account, ["password"]);
     }),
+
+  /**
+   * Utility method to call for currently logged in user information.
+   */
+  getCurrentPersonUser: authenticatedProcedure.query(async ({ ctx }) => {
+    const currentSession = await getCurrentSession(ctx);
+
+    const profile = await ctx.prisma.person.findUnique({
+      where: { account_id: ctx.userId },
+      include: {
+        account: true,
+        country: true,
+        applications: {
+          where: { session_id: currentSession.id },
+          include: {
+            requested_group: true,
+            requested_role: true,
+            confirmed_group: true,
+            confirmed_role: true,
+          },
+          take: 1,
+        },
+        permissions: { where: { session_id: currentSession.id } },
+        guest_matches: {
+          where: { session_id: currentSession.id },
+          include: { host: true },
+          take: 1,
+        },
+        host_matches: {
+          where: { session_id: currentSession.id },
+          include: { guest: true },
+        },
+      },
+    });
+
+    if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+    return {
+      ...profile,
+      account: profile.account ? exclude(profile.account, ["password"]) : null,
+    };
+  }),
+
+  /**
+   * Utility method to call for currently logged in user information.
+   */
+  getCurrentSchoolUser: authenticatedProcedure.query(async ({ ctx }) => {
+    const currentSession = await getCurrentSession(ctx);
+
+    const profile = await ctx.prisma.school.findUnique({
+      where: { account_id: ctx.userId },
+      include: {
+        applications: { where: { session_id: currentSession.id }, take: 1 },
+        school_group_assignments: {
+          include: { group: true },
+          where: { session_id: currentSession.id },
+        },
+        account: true,
+      },
+    });
+
+    if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+    return {
+      ...profile,
+      account: profile.account ? exclude(profile.account, ["password"]) : null,
+    };
+  }),
 });
 
 export default profilesRouter;
