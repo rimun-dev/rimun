@@ -8,6 +8,7 @@ const mailTransport = nodemailer.createTransport({
   secure: true,
   maxConnections: 3,
   auth: { user: process.env.MAIL_USERNAME, pass: process.env.MAIL_PASSWORD },
+  tls: { rejectUnauthorized: false },
 } as SMTPTransport.Options);
 
 export default mailTransport;
