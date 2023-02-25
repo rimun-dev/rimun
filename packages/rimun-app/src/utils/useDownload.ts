@@ -1,5 +1,5 @@
+import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
-import useStateDispatch from "src/utils/useStateDispatch";
 
 const STATIC_ENDPOINT = "/static";
 
@@ -11,7 +11,10 @@ export default function useDownload() {
 
     if (!res.ok) {
       dispatch(
-        DeviceActions.displayAlert({ status: "error", message: "Something went wrong. Contact the maintainers." })
+        DeviceActions.displayAlert({
+          status: "error",
+          message: "Something went wrong. Contact the maintainers.",
+        })
       );
       return;
     }

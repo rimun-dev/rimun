@@ -1,5 +1,5 @@
+import { useStateSelector } from "src/store";
 import { AuthenticatedAuthState } from "src/store/reducers/auth";
-import useStateSelector from "src/utils/useStateSelector";
 
 export default function useAuthenticatedState(): AuthenticatedAuthState {
   const authState = useStateSelector((s) => s.auth);
