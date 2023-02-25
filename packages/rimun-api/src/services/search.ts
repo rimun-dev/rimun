@@ -18,11 +18,9 @@ const searchInputBaseSchema = z.object({
     .default(() => new Date()),
 });
 
-const searchTextQueryBaseSchema = z
-  .object({
-    query: z.string().optional(),
-  })
-  .and(searchInputBaseSchema);
+const searchTextQueryBaseSchema = searchInputBaseSchema.extend({
+  query: z.string().optional(),
+});
 
 const searchRouter = trpc.router({
   /**
@@ -30,41 +28,50 @@ const searchRouter = trpc.router({
    */
   searchPersons: authenticatedProcedure
     .input(
-      searchTextQueryBaseSchema.and(
-        z.object({
-          filters: z.object({
-            requested_group_id: identifierSchema.optional(),
-            requested_role_id: identifierSchema.optional(),
-            confirmed_group_id: identifierSchema.optional(),
-            confirmed_role_id: identifierSchema.optional(),
-            country_id: identifierSchema.optional(),
-            committee_id: identifierSchema.optional(),
-            school_id: identifierSchema.optional(),
-            status_application: applicationStatusSchema.optional(),
-            status_housing: housingStatusSchema.optional(),
-            gender: genderSchema.optional(),
-            housing_is_available: z.boolean().optional(),
-            confirmed_group: z
-              .object({ name: z.string().optional() })
-              .optional(),
-            requested_group: z
-              .object({ name: z.string().optional() })
-              .optional(),
-          }),
-        })
-      )
+      searchTextQueryBaseSchema.extend({
+        filters: z.object({
+          application: z
+            .object({
+              requested_group_id: identifierSchema.optional(),
+              requested_role_id: identifierSchema.optional(),
+              confirmed_group_id: identifierSchema.optional(),
+              confirmed_role_id: identifierSchema.optional(),
+              committee_id: identifierSchema.optional(),
+              school_id: identifierSchema.optional(),
+              status_application: applicationStatusSchema.optional(),
+              status_housing: housingStatusSchema.optional(),
+              housing_is_available: z.boolean().optional(),
+              confirmed_group: z
+                .object({ name: z.string().optional() })
+                .optional(),
+              requested_group: z
+                .object({ name: z.string().optional() })
+                .optional(),
+            })
+            .optional(),
+          person: z
+            .object({
+              country_id: identifierSchema.optional(),
+              gender: genderSchema.optional(),
+            })
+            .optional(),
+        }),
+      })
     )
     .query(async ({ input, ctx }) => {
       const currentSession = await getCurrentSession(ctx);
 
       const result = await ctx.prisma.personApplication.findMany({
         where: {
-          ...input,
+          ...input.filters.application,
           created_at: { lt: input.cursor },
           session_id: currentSession.id,
-          person: input.query
-            ? { full_name: { contains: input.query } }
-            : undefined,
+          person: {
+            ...input.filters.person,
+            full_name: input.query
+              ? { contains: input.query, mode: "insensitive" }
+              : undefined,
+          },
         },
         include: {
           person: {
@@ -92,8 +99,14 @@ const searchRouter = trpc.router({
 
       const total_count = await ctx.prisma.personApplication.count({
         where: {
-          ...input,
+          ...input.filters.application,
           session_id: currentSession.id,
+          person: {
+            ...input.filters.person,
+            full_name: input.query
+              ? { contains: input.query, mode: "insensitive" }
+              : undefined,
+          },
         },
       });
 
@@ -117,26 +130,37 @@ const searchRouter = trpc.router({
    */
   searchSchools: authenticatedProcedure
     .input(
-      searchTextQueryBaseSchema.and(
-        z.object({
-          filters: z.object({
-            country_id: identifierSchema.optional(),
-            status_application: applicationStatusSchema.optional(),
-            status_housing: housingStatusSchema.optional(),
-            is_network: z.boolean().optional(),
-          }),
-        })
-      )
+      searchTextQueryBaseSchema.extend({
+        filters: z.object({
+          application: z
+            .object({
+              status_application: applicationStatusSchema.optional(),
+              status_housing: housingStatusSchema.optional(),
+            })
+            .optional(),
+          school: z
+            .object({
+              country_id: identifierSchema.optional(),
+              is_network: z.boolean().optional(),
+            })
+            .optional(),
+        }),
+      })
     )
     .query(async ({ input, ctx }) => {
       const currentSession = await getCurrentSession(ctx);
 
       const result = await ctx.prisma.schoolApplication.findMany({
         where: {
-          ...input,
+          ...input.filters.application,
           created_at: { lt: input.cursor },
           session_id: currentSession.id,
-          school: input.query ? { name: { contains: input.query } } : undefined,
+          school: {
+            ...input.filters.school,
+            name: input.query
+              ? { contains: input.query, mode: "insensitive" }
+              : undefined,
+          },
         },
         include: {
           school: {
@@ -155,8 +179,14 @@ const searchRouter = trpc.router({
 
       const total_count = await ctx.prisma.schoolApplication.count({
         where: {
-          ...input,
+          ...input.filters.application,
           session_id: currentSession.id,
+          school: {
+            ...input.filters.school,
+            name: input.query
+              ? { contains: input.query, mode: "insensitive" }
+              : undefined,
+          },
         },
       });
 
@@ -196,14 +226,18 @@ const searchRouter = trpc.router({
       const result = await ctx.prisma.person.findMany({
         where: {
           created_at: { lt: input.cursor },
-          full_name: input.query ? { contains: input.query } : undefined,
+          full_name: input.query
+            ? { contains: input.query, mode: "insensitive" }
+            : undefined,
         },
         take: input.limit + 1,
       });
 
       const total_count = await ctx.prisma.person.count({
         where: {
-          full_name: input.query ? { contains: input.query } : undefined,
+          full_name: input.query
+            ? { contains: input.query, mode: "insensitive" }
+            : undefined,
         },
       });
 
