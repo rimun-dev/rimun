@@ -34,6 +34,10 @@ export async function hashPassword(password: string) {
   return await bcrypt.hash(password, hashSalt);
 }
 
+export async function checkPassword(password: string, hashedPassword: string) {
+  return await bcrypt.compare(password, hashedPassword);
+}
+
 export async function getPersonUser(ctx: Context) {
   if (!ctx.userId)
     throw new TRPCError({
@@ -42,7 +46,7 @@ export async function getPersonUser(ctx: Context) {
     });
 
   const user = await ctx.prisma.person.findUnique({
-    where: { id: ctx.userId },
+    where: { account_id: ctx.userId },
     include: {
       account: true,
       permissions: true,
@@ -67,7 +71,7 @@ export async function getSchoolUser(ctx: Context) {
     });
 
   const user = await ctx.prisma.school.findUnique({
-    where: { id: ctx.userId },
+    where: { account_id: ctx.userId },
     include: {
       account: true,
       applications: true,
@@ -296,10 +300,11 @@ export async function getThumbnailImageBuffer(base64: string) {
   const { type, data } = parseBase64Image(base64);
   try {
     const jimp = (await Jimp.read(Buffer.from(data, "base64")))
-      .resize(128, Jimp.AUTO)
+      .resize(256, Jimp.AUTO)
       .quality(70);
     return { data: await jimp.getBufferAsync(type), type };
-  } catch {
+  } catch (e) {
+    console.debug(e);
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "This image format is not supported.",
@@ -310,7 +315,7 @@ export async function getThumbnailImageBuffer(base64: string) {
 function parseBase64Image(base64: string): { type: string; data: string } {
   try {
     const [meta, data] = base64.split(",", 2);
-    const type = meta.split(";")[0];
+    const type = meta.split(";")[0].split(":")[1];
     return { type, data };
   } catch {
     throw new TRPCError({
@@ -326,12 +331,12 @@ export function getDocumentBuffer(base64: string) {
   return { data: buffer, type };
 }
 
-export function exclude<User, Key extends keyof User>(
-  user: User,
+export function exclude<T, Key extends keyof T>(
+  data: T,
   keys: Key[]
-): Omit<User, Key> {
+): Omit<T, Key> {
   for (let key of keys) {
-    delete user[key];
+    delete data[key];
   }
-  return user;
+  return data;
 }
