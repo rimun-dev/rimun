@@ -56,9 +56,11 @@ const resourcesRouter = trpc.router({
         "documents"
       );
 
+      const { document: _, ...data } = input;
+
       return await ctx.prisma.document.create({
         data: {
-          ...input,
+          ...data,
           path: document_path,
           session_id: currentSession.id,
         },
@@ -104,7 +106,7 @@ const resourcesRouter = trpc.router({
   updateFaq: authenticatedProcedure
     .input(
       z.object({
-        faq_id: z.number(),
+        id: z.number(),
         question: z.string().optional(),
         answer: z.string().optional(),
         category_id: z.number().optional(),
@@ -114,7 +116,7 @@ const resourcesRouter = trpc.router({
       await checkPersonPermission(ctx, { resourceName: "faq" });
 
       const faq = await ctx.prisma.faq.update({
-        where: { id: input.faq_id },
+        where: { id: input.id },
         data: input,
       });
 
@@ -185,8 +187,10 @@ const resourcesRouter = trpc.router({
         Storage.upload(full_image.data, full_image.type, "img/gallery"),
       ]);
 
+      const { image: _, ...data } = input;
+
       return await ctx.prisma.galleryImage.create({
-        data: { ...input, full_image_path, thumbnail_path },
+        data: { ...data, full_image_path, thumbnail_path },
       });
     }),
 

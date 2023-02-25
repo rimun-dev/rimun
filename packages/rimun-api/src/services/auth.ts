@@ -3,7 +3,12 @@ import { z } from "zod";
 import { createToken, extractUserIdentity } from "../authn";
 import mailTransport from "../email";
 import { trpc } from "../trpc";
-import { exclude, getCurrentSession, hashPassword } from "./utils";
+import {
+  checkPassword,
+  exclude,
+  getCurrentSession,
+  hashPassword,
+} from "./utils";
 
 const authRouter = trpc.router({
   login: trpc.procedure
@@ -45,7 +50,17 @@ const authRouter = trpc.router({
         },
       });
 
-      if ((await hashPassword(input.password)) !== account?.password)
+      if (!account)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Wrong email or password",
+        });
+
+      const isPasswordCorrect = await checkPassword(
+        input.password,
+        account.password
+      );
+      if (!isPasswordCorrect)
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Wrong email or password",

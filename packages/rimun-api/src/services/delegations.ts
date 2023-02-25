@@ -288,7 +288,7 @@ const delegationsRouter = trpc.router({
 
       return await ctx.prisma.delegation.update({
         where: { id: delegation.id },
-        data: input,
+        data: { school_id: input.school_id },
       });
     }),
 

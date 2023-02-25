@@ -32,7 +32,7 @@ const committeesRouter = trpc.router({
   updateCommittee: authenticatedProcedure
     .input(
       z.object({
-        committee_id: z.number(),
+        id: z.number(),
         name: z.string().optional(),
         size: z.number().int().optional(),
       })
@@ -41,7 +41,7 @@ const committeesRouter = trpc.router({
       await checkPersonPermission(ctx, { resourceName: "committee" });
 
       const committee = await ctx.prisma.committee.update({
-        where: { id: input.committee_id },
+        where: { id: input.id },
         data: input,
       });
 
@@ -109,12 +109,14 @@ const committeesRouter = trpc.router({
         "documents"
       );
 
+      const { document: _, ...data } = input;
+
       await ctx.prisma.report.deleteMany({
         where: { committee_id: input.committee_id },
       });
 
       return await ctx.prisma.report.create({
-        data: { ...input, document_path },
+        data: { ...data, document_path },
       });
     }),
 

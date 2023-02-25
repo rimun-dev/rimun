@@ -114,9 +114,11 @@ const profilesRouter = trpc.router({
         await Storage.remove(currentUser.picture_path);
       }
 
+      const { picture, ...person } = input;
+
       const profile = await ctx.prisma.person.update({
         where: { account_id: ctx.userId },
-        data: { ...input, picture_path },
+        data: { ...person, picture_path },
         include: {
           applications: { where: { session_id: currentSession.id } },
           account: true,

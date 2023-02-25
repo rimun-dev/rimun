@@ -36,15 +36,13 @@ const applicationsRouter = trpc.router({
    */
   submitHighSchoolApplication: authenticatedProcedure
     .input(
-      submitPersonApplicationBaseSchema.and(
-        z.object({
-          school_id: identifierSchema,
-          school_year: z.number().int().optional(),
-          school_section: z.string().optional(),
-          requested_group_id: identifierSchema,
-          requested_role_id: identifierSchema.optional(),
-        })
-      )
+      submitPersonApplicationBaseSchema.extend({
+        school_id: identifierSchema,
+        school_year: z.number().int().optional(),
+        school_section: z.string().optional(),
+        requested_group_id: identifierSchema,
+        requested_role_id: identifierSchema.optional(),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const currentSession = await getCurrentSession(ctx);
@@ -93,14 +91,12 @@ const applicationsRouter = trpc.router({
    */
   submitUndergraduateApplication: authenticatedProcedure
     .input(
-      submitPersonApplicationBaseSchema.and(
-        z.object({
-          city: z.string(),
-          university: z.string(),
-          is_resident: z.boolean(),
-          housing_is_required: z.boolean(),
-        })
-      )
+      submitPersonApplicationBaseSchema.extend({
+        city: z.string(),
+        university: z.string(),
+        is_resident: z.boolean(),
+        housing_is_required: z.boolean(),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const currentSession = await getCurrentSession(ctx);
@@ -112,13 +108,15 @@ const applicationsRouter = trpc.router({
           message: "You have already applied for this session.",
         });
 
+      const { housing_is_required, ...data } = input;
+
       return await ctx.prisma.personApplication.create({
         data: {
-          ...input,
+          ...data,
           person_id: person.id,
           session_id: currentSession.id,
           status_application: "HOLD",
-          status_housing: input.housing_is_required ? "HOLD" : "NOT_REQUIRED",
+          status_housing: housing_is_required ? "HOLD" : "NOT_REQUIRED",
           requested_group_id: (await getGroup("hsc", ctx)).id,
         },
       });
@@ -155,13 +153,15 @@ const applicationsRouter = trpc.router({
           message: "You have already applied for this session.",
         });
 
+      const { assignments: _, housing_is_required, ...data } = input;
+
       const application = await ctx.prisma.schoolApplication.create({
         data: {
-          ...input,
+          ...data,
           school_id: school.id,
           session_id: currentSession.id,
           status_application: "HOLD",
-          status_housing: input.housing_is_required ? "HOLD" : "NOT_REQUIRED",
+          status_housing: housing_is_required ? "HOLD" : "NOT_REQUIRED",
         },
       });
 

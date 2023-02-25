@@ -25,40 +25,46 @@ async function checkForExistingAccount(ctx: Context, email: string) {
 const registrationRouter = trpc.router({
   /** Register a personal account. */
   registerPerson: trpc.procedure
-    .input(accountBaseSchema.and(personBaseSchema))
+    .input(
+      z.object({
+        account: accountBaseSchema,
+        person: personBaseSchema,
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      await checkForExistingAccount(ctx, input.email);
+      await checkForExistingAccount(ctx, input.account.email);
 
-      const account = await ctx.prisma.account.create({
-        data: {
-          ...input,
-          password: await hashPassword(input.password),
-          is_school: false,
-          is_active: true,
-          is_admin: false,
-        },
-      });
-
-      const picture = await getThumbnailImageBuffer(input.picture);
+      const pictureImage = await getThumbnailImageBuffer(input.person.picture);
       const picture_path = await Storage.upload(
-        picture.data,
-        picture.type,
+        pictureImage.data,
+        pictureImage.type,
         "img/profile"
       );
 
-      const person = await ctx.prisma.person.create({
+      const { picture, ...person } = input.person;
+
+      const account = await ctx.prisma.account.create({
         data: {
-          ...input,
-          full_name: `${input.name} ${input.surname}`,
-          picture_path,
-          account_id: account.id,
+          ...input.account,
+          password: await hashPassword(input.account.password),
+          is_school: false,
+          is_active: true,
+          is_admin: false,
+          person: {
+            create: {
+              ...person,
+              full_name: `${input.person.name} ${input.person.surname}`,
+              picture_path,
+            },
+          },
         },
+        include: { person: true },
       });
 
       await mailTransport.sendMail({
         subject: "[RIMUN] Welcome!",
-        text: getWelcomeEmailText(person.full_name),
-        html: getWelcomeEmailHTML(person.full_name),
+        text: getWelcomeEmailText(account.person!.full_name),
+        html: getWelcomeEmailHTML(account.person!.full_name),
         from: process.env.MAIL_USERNAME,
         to: [account.email],
       });
@@ -67,8 +73,9 @@ const registrationRouter = trpc.router({
   /** Register a school account. */
   registerSchool: trpc.procedure
     .input(
-      z
-        .object({
+      z.object({
+        account: accountBaseSchema,
+        school: z.object({
           name: z.string(),
           city: z.string(),
           country_id: z.number(),
@@ -76,30 +83,28 @@ const registrationRouter = trpc.router({
           address_number: z.string(),
           address_postal: z.string(),
           is_network: z.boolean(),
-        })
-        .and(accountBaseSchema)
+        }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
-      await checkForExistingAccount(ctx, input.email);
+      await checkForExistingAccount(ctx, input.account.email);
 
       const account = await ctx.prisma.account.create({
         data: {
-          ...input,
-          password: await hashPassword(input.password),
+          ...input.account,
+          password: await hashPassword(input.account.password),
           is_school: true,
           is_active: true,
           is_admin: false,
+          school: { create: input.school },
         },
-      });
-
-      const school = await ctx.prisma.school.create({
-        data: { ...input, account_id: account.id },
+        include: { school: true },
       });
 
       await mailTransport.sendMail({
         subject: "[RIMUN] Welcome!",
-        text: getWelcomeEmailText(school.name),
-        html: getWelcomeEmailHTML(school.name),
+        text: getWelcomeEmailText(account.school!.name),
+        html: getWelcomeEmailHTML(account.school!.name),
         from: process.env.MAIL_USERNAME,
         to: [account.email],
       });
