@@ -4,7 +4,8 @@ import { trpc } from "../trpc";
 
 const staticRouter = trpc.router({
   get: trpc.procedure.input(z.string()).query(async ({ input }) => {
-    return await FTPStorage.download(input);
+    const buff = await FTPStorage.download(input);
+    return buff.toString("base64");
   }),
 });
 
