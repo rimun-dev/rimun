@@ -107,6 +107,12 @@ async function main() {
       { group_id: 3, name: "Director" },
       { group_id: 8, name: "Guest" },
       { group_id: 7, name: "Delegate" },
+      { group_id: 2, name: "Head of Staff" },
+      { group_id: 1, name: "Conference Manager for Materials and Gadgets" },
+      { group_id: 2, name: "Secretariat Staff" },
+      { group_id: 2, name: "Kitchen Staff" },
+      { group_id: 4, name: "Crisis Writer" },
+      { group_id: 2, name: "Teacher Staff" },
     ],
   });
 
