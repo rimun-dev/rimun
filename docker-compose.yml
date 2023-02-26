@@ -47,34 +47,6 @@ services:
     networks:
       - rimun
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api.dev
-    container_name: ps-api
-    ports:
-      - "127.0.0.1:3000:3000"
-    volumes:
-      - .:/usr/src/rimun
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-      - DATABASE_URL=${DATABASE_URL}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - MAIL_PORT=${MAIL_PORT}
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - FTP_USER=${FTP_USER}
-      - FTP_PASSWORD=${FTP_PASSWORD}
-      - FTP_HOST=${FTP_HOST}
-      - STATIC_FOLDER=${STATIC_FOLDER}
-      - JWT_SECRET=${JWT_SECRET}
-    depends_on:
-      - db
-      - db-gui
-    networks:
-      - rimun
-
 networks:
   rimun:
     name: "rimun-network"
