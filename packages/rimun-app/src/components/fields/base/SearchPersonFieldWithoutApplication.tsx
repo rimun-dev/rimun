@@ -25,10 +25,12 @@ export default function SearchPersonWithoutApplicationField({
     | undefined
   >(name);
 
+  const enableQuery = query.length > 0;
+
   const { data, isLoading } =
     trpc.search.searchPersonsWithoutApplication.useQuery(
       { limit: maxResults ?? N_RESULTS_DEFAULT, query },
-      { enabled: query.length > 0 }
+      { enabled: enableQuery }
     );
 
   const selectedPerson = data?.result.find((pa) => pa.id === field.value);
@@ -37,7 +39,7 @@ export default function SearchPersonWithoutApplicationField({
     <FieldItem {...{ error, touched }}>
       {field.value && selectedPerson ? (
         <PersonSearchResultItem
-          person={selectedPerson}
+          personData={selectedPerson}
           onClick={() => setValue(undefined)}
         />
       ) : (
@@ -55,14 +57,13 @@ export default function SearchPersonWithoutApplicationField({
             {data?.result.map((item) => (
               <PersonSearchResultItem
                 key={item.id}
-                person={item}
-                query={query}
+                personData={item}
                 onClick={() => setValue(item.id)}
               />
             ))}
           </div>
 
-          {isLoading && <Spinner />}
+          {isLoading && enableQuery && <Spinner />}
         </>
       )}
     </FieldItem>

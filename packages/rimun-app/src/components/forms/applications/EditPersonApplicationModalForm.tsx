@@ -1,13 +1,13 @@
 import { Form, Formik } from "formik";
 import SelectField from "src/components/fields/base/SelectField";
+import SelectGroupField from "src/components/fields/base/SelectGroupField";
+import SelectRoleField from "src/components/fields/base/SelectRoleField";
 import Label from "src/components/fields/base/utils/Label";
 import ModalFooter from "src/components/forms/utils/ModalFooter";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
 import Banner from "src/components/status/Banner";
-import Spinner from "src/components/status/Spinner";
 import { SearchRouterOutputs, trpc } from "src/trpc";
 import useAuthenticatedState from "src/utils/useAuthenticatedState";
-import useRolesInformation from "src/utils/useRolesInformation";
 import * as Yup from "yup";
 
 interface EditPersonApplicationModalFormProps extends ModalProps {
@@ -18,7 +18,6 @@ interface EditPersonApplicationModalFormProps extends ModalProps {
 export default function EditPersonApplicationModalForm(
   props: EditPersonApplicationModalFormProps
 ) {
-  const rolesInfo = useRolesInformation();
   const authState = useAuthenticatedState();
 
   const mutation = trpc.applications.updatePersonApplication.useMutation({
@@ -27,8 +26,6 @@ export default function EditPersonApplicationModalForm(
       props.setIsVisible(false);
     },
   });
-
-  if (rolesInfo.isLoading) return <Spinner />;
 
   const notAllowedToReassign = authState.account.is_school;
 
@@ -108,18 +105,9 @@ export default function EditPersonApplicationModalForm(
                   className="w-full block mt-4"
                 >
                   Reassign this person to another group:
-                  <SelectField
+                  <SelectGroupField
                     name="requested_group_id"
                     className="w-full"
-                    options={rolesInfo.groups
-                      .filter(
-                        (g) =>
-                          !["secretariat", "guest", "director"].includes(g.name)
-                      )
-                      .map((g) => ({
-                        name: g.name.toUpperCase(),
-                        value: g.id,
-                      }))}
                   />
                 </Label>
 
@@ -128,12 +116,10 @@ export default function EditPersonApplicationModalForm(
                   className="w-full block mt-4"
                 >
                   Reassign this person to another role:
-                  <SelectField
+                  <SelectRoleField
                     name="confirmed_role_id"
                     className="w-full"
-                    options={rolesInfo.roles
-                      .filter((r) => r.group_id === values.requested_group_id)
-                      .map((r) => ({ name: r.name, value: r.id }))}
+                    groupId={values.requested_group_id ?? undefined}
                   />
                 </Label>
 

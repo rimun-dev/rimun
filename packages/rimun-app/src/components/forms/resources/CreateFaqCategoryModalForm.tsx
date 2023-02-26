@@ -1,6 +1,6 @@
 import { Form, Formik } from "formik";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";

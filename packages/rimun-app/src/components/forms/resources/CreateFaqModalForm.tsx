@@ -1,7 +1,7 @@
 import { Form, Formik } from "formik";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
 import SelectField from "src/components/fields/base/SelectField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import TextAreaField from "src/components/fields/base/TextAreaField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";

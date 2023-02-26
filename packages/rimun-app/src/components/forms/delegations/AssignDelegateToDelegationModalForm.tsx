@@ -5,7 +5,6 @@ import SelectCommitteeField from "src/components/fields/base/SelectCommitteeFiel
 import Label from "src/components/fields/base/utils/Label";
 import ModalFooter from "src/components/forms/utils/ModalFooter";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
-import Spinner from "src/components/status/Spinner";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
 import {
@@ -14,8 +13,7 @@ import {
   SearchRouterInputs,
   trpc,
 } from "src/trpc";
-import { useDelegationName } from "src/utils/strings";
-import useRolesInformation from "src/utils/useRolesInformation";
+import { renderDelegationName } from "src/utils/strings";
 import * as Yup from "yup";
 
 interface AssignDelegateToDelegationModalFormProps extends ModalProps {
@@ -31,7 +29,6 @@ export default function AssignDelegateToDelegationModalForm(
   props: AssignDelegateToDelegationModalFormProps
 ) {
   const dispatch = useStateDispatch();
-  const rolesInfo = useRolesInformation();
 
   const mutation = trpc.delegations.addDelegate.useMutation({
     onSuccess: () => {
@@ -46,10 +43,6 @@ export default function AssignDelegateToDelegationModalForm(
     },
   });
 
-  const delegationNameInfo = useDelegationName(props.delegation);
-
-  if (delegationNameInfo.isLoading) return null;
-
   return (
     <Modal
       {...props}
@@ -61,70 +54,69 @@ export default function AssignDelegateToDelegationModalForm(
 
       <p className="px-4 text-sm">
         This delegate will be assigned to the delegation:{" "}
-        <b>{delegationNameInfo.name}</b>
+        <b>{renderDelegationName(props.delegation)}</b>
       </p>
 
-      {rolesInfo.isLoading ? (
-        <Spinner />
-      ) : (
-        <Formik
-          onSubmit={(v) =>
-            mutation.mutate({ ...v, delegation_id: props.delegation.id })
-          }
-          initialValues={{
-            person_id: -1,
-            committee_id: props.committee?.id ?? -1,
-            is_ambassador: false,
-          }}
-          validationSchema={Yup.object({
-            person_id: Yup.number()
-              .min(0, "Please select a delegate.")
-              .required("Please select a delegate."),
-            committee_id: Yup.number()
-              .min(0, "Please select a committee.")
-              .required("Please select a committee."),
-            is_ambassador: Yup.boolean(),
-          })}
-        >
-          <Form className="p-4">
-            <Label htmlFor="person_id" className="w-full bloc mt-4">
-              Select the delegate
-              <SearchPersonField
-                name="person_id"
-                filters={{
-                  ...props.filters,
+      <Formik
+        onSubmit={(v) =>
+          mutation.mutate({ ...v, delegation_id: props.delegation.id })
+        }
+        initialValues={{
+          person_id: -1,
+          committee_id: props.committee?.id ?? -1,
+          is_ambassador: false,
+        }}
+        validationSchema={Yup.object({
+          person_id: Yup.number()
+            .min(0, "Please select a delegate.")
+            .required("Please select a delegate."),
+          committee_id: Yup.number()
+            .min(0, "Please select a committee.")
+            .required("Please select a committee."),
+          is_ambassador: Yup.boolean(),
+        })}
+      >
+        <Form className="p-4">
+          <Label htmlFor="person_id" className="w-full bloc mt-4">
+            Select the delegate
+            <SearchPersonField
+              name="person_id"
+              filters={{
+                ...props.filters,
+                application: {
+                  ...props.filters?.application,
+                  school_id: props.delegation.school_id ?? undefined,
                   status_application: "ACCEPTED",
-                  confirmed_group_id: rolesInfo.getGroupIdByName("delegate"),
-                }}
-              />
-            </Label>
-
-            {!props.committee && (
-              <Label htmlFor="committee_id" className="w-full bloc mt-4">
-                Select the Committee
-                <SelectCommitteeField name="committee_id" />
-              </Label>
-            )}
-
-            <Label htmlFor="name">
-              <div className="flex flex-row items-center gap-4  mt-4">
-                <p>
-                  Do you want for this delegate to be the delegation's
-                  ambassador?
-                </p>
-                <CheckBoxField name="is_ambassador" />
-                (check=yes)
-              </div>
-            </Label>
-
-            <ModalFooter
-              isLoading={mutation.isLoading}
-              {...props}
-              actionTitle="Assign Delegate"
+                  confirmed_group: { name: "delegate" },
+                },
+              }}
             />
-          </Form>
-        </Formik>
-      )}
+          </Label>
+
+          {!props.committee && (
+            <Label htmlFor="committee_id" className="w-full bloc mt-4">
+              Select the Committee
+              <SelectCommitteeField name="committee_id" />
+            </Label>
+          )}
+
+          <Label htmlFor="name">
+            <div className="flex flex-row items-center gap-4  mt-4">
+              <p>
+                Do you want for this delegate to be the delegation's ambassador?
+              </p>
+              <CheckBoxField name="is_ambassador" />
+              (check=yes)
+            </div>
+          </Label>
+
+          <ModalFooter
+            isLoading={mutation.isLoading}
+            {...props}
+            actionTitle="Assign Delegate"
+          />
+        </Form>
+      </Formik>
     </Modal>
   );
 }

@@ -19,6 +19,9 @@ const CountrySelectField: React.FC<CountrySelectFieldProps> = ({
   const { data, isLoading } = trpc.info.getCountries.useQuery(undefined, {
     staleTime: Infinity,
     cacheTime: Infinity,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   });
 
   return (

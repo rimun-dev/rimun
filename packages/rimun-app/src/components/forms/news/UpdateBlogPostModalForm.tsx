@@ -1,8 +1,6 @@
-import MDEditor from "@uiw/react-md-editor";
 import { Form, Formik } from "formik";
-import rehypeSanitize from "rehype-sanitize";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import SelectField from "src/components/fields/base/SelectField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
 import {
@@ -62,7 +60,7 @@ export default function UpdateBlogPostModalForm(
             .required("Please select a target audience."),
         })}
       >
-        {({ values, setFieldValue }) => (
+        {() => (
           <Form className="px-4 pb-4" data-color-mode="light">
             <Label htmlFor="title">
               Title
@@ -88,14 +86,14 @@ export default function UpdateBlogPostModalForm(
 
             <div className="h-4" />
 
-            <MDEditor
+            {/* <MDEditor
               value={values.body}
               height={350}
               onChange={(v) => setFieldValue("body", v)}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
               }}
-            />
+            /> */}
 
             <div className="py-4 text-xs">
               Need some help understanding the MarkDown editor? Visit the{" "}

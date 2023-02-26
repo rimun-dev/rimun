@@ -3,13 +3,21 @@ import CountrySelectField from "src/components/fields/base/CountrySelectField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
 
-export default function PartialSchoolForm() {
+interface PartialSchoolFormProps {
+  fieldName?: string;
+}
+
+export default function PartialSchoolForm(props: PartialSchoolFormProps) {
+  const renderFieldName = (name: string) => {
+    return props.fieldName ? `${props.fieldName}.${name}` : name;
+  };
+
   return (
     <>
-      <Label htmlFor="name">
+      <Label htmlFor={renderFieldName("name")}>
         School/Organization name
         <TextInputField
-          name="name"
+          name={renderFieldName("name")}
           placeholder="E.g. Hogwarts School of Witchcraft and Wizardry"
           className="w-full"
           required
@@ -18,17 +26,21 @@ export default function PartialSchoolForm() {
 
       <div className="h-2" />
 
-      <Label htmlFor="country_id">
+      <Label htmlFor={renderFieldName("country_id")}>
         Country
-        <CountrySelectField name="country_id" className="w-full" required />
+        <CountrySelectField
+          name={renderFieldName("country_id")}
+          className="w-full"
+          required
+        />
       </Label>
 
       <div className="h-2" />
 
-      <Label htmlFor="address">
+      <Label htmlFor={renderFieldName("address")}>
         Address
         <AddressField
-          name="address"
+          name={renderFieldName("address")}
           placeholder="School address"
           className="w-full"
           required

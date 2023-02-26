@@ -3,12 +3,10 @@ import SelectCommitteeField from "src/components/fields/base/SelectCommitteeFiel
 import Label from "src/components/fields/base/utils/Label";
 import ModalFooter from "src/components/forms/utils/ModalFooter";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
-import Spinner from "src/components/status/Spinner";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
 import { DelegationsRouterOutputs, trpc } from "src/trpc";
-import { useDelegationName } from "src/utils/strings";
-import useRolesInformation from "src/utils/useRolesInformation";
+import { renderDelegationName } from "src/utils/strings";
 import * as Yup from "yup";
 
 interface AssignCommitteeToDelegationModalFormProps extends ModalProps {
@@ -20,7 +18,6 @@ export default function AssignCommitteeToDelegationModalForm(
   props: AssignCommitteeToDelegationModalFormProps
 ) {
   const dispatch = useStateDispatch();
-  const rolesInfo = useRolesInformation();
 
   const mutation = trpc.delegations.assignCommittee.useMutation({
     onSuccess: () => {
@@ -35,10 +32,6 @@ export default function AssignCommitteeToDelegationModalForm(
     },
   });
 
-  const delegationNameInfo = useDelegationName(props.delegationData);
-
-  if (delegationNameInfo.isLoading) return null;
-
   return (
     <Modal
       {...props}
@@ -49,38 +42,34 @@ export default function AssignCommitteeToDelegationModalForm(
       </ModalHeader>
 
       <p className="px-4 text-sm">
-        The delegation <b>{delegationNameInfo.name}</b> will be assigned to the
-        committee.
+        The delegation <b>{renderDelegationName(props.delegationData)}</b> will
+        be assigned to the committee.
       </p>
 
-      {rolesInfo.isLoading ? (
-        <Spinner />
-      ) : (
-        <Formik
-          onSubmit={(v) =>
-            mutation.mutate({ ...v, delegation_id: props.delegationData.id })
-          }
-          initialValues={{ committee_id: -1 }}
-          validationSchema={Yup.object({
-            committee_id: Yup.number()
-              .min(0, "Please select a committee.")
-              .required("Please select a committee."),
-          })}
-        >
-          <Form className="p-4">
-            <Label htmlFor="committee_id" className="w-full bloc mt-4">
-              Select the Committee
-              <SelectCommitteeField name="committee_id" />
-            </Label>
+      <Formik
+        onSubmit={(v) =>
+          mutation.mutate({ ...v, delegation_id: props.delegationData.id })
+        }
+        initialValues={{ committee_id: -1 }}
+        validationSchema={Yup.object({
+          committee_id: Yup.number()
+            .min(0, "Please select a committee.")
+            .required("Please select a committee."),
+        })}
+      >
+        <Form className="p-4">
+          <Label htmlFor="committee_id" className="w-full bloc mt-4">
+            Select the Committee
+            <SelectCommitteeField name="committee_id" />
+          </Label>
 
-            <ModalFooter
-              isLoading={mutation.isLoading}
-              {...props}
-              actionTitle="Assign Committee"
-            />
-          </Form>
-        </Formik>
-      )}
+          <ModalFooter
+            isLoading={mutation.isLoading}
+            {...props}
+            actionTitle="Assign Committee"
+          />
+        </Form>
+      </Formik>
     </Modal>
   );
 }

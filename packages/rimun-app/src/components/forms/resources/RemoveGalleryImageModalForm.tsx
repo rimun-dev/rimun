@@ -1,5 +1,5 @@
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
 import { ResourcesRouterOutputs, trpc } from "src/trpc";
 

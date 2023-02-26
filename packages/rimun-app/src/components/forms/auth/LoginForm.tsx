@@ -1,7 +1,7 @@
 import { Form, Formik } from "formik";
 import { Link, useNavigate } from "react-router-dom";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import PasswordInputField from "src/components/fields/base/PasswordInputField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import InputField from "src/components/fields/base/TextInputField";
 import { useStateDispatch } from "src/store";
 import { AuthActions } from "src/store/reducers/auth";

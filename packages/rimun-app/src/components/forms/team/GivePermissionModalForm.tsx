@@ -1,7 +1,7 @@
 import { Form, Formik } from "formik";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
 import SearchPersonField from "src/components/fields/base/SearchPersonField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import Label from "src/components/fields/base/utils/Label";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
 import { InfoRouterOutputs, trpc } from "src/trpc";

@@ -1,20 +1,17 @@
 import { Form, Formik } from "formik";
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import CancelButton from "src/components/fields/base/CancelButton";
 import SelectField from "src/components/fields/base/SelectField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
+import SelectGroupField from "src/components/fields/base/SelectGroupField";
+import SelectRoleField from "src/components/fields/base/SelectRoleField";
 import TextAreaField from "src/components/fields/base/TextAreaField";
 import Label from "src/components/fields/base/utils/Label";
 import HousingOfferPartialForm from "src/components/forms/applications/utils/HousingOfferPartialForm";
-import Icon from "src/components/icons/Icon";
+import PageFormFooter from "src/components/forms/utils/PageFormFooter";
 import Banner from "src/components/status/Banner";
 import Spinner from "src/components/status/Spinner";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
 import { trpc } from "src/trpc";
-import useRefreshView from "src/utils/useRefreshView";
-import useRolesInformation from "src/utils/useRolesInformation";
 import * as Yup from "yup";
 
 interface HighSchoolApplicationFormProps {}
@@ -22,13 +19,13 @@ interface HighSchoolApplicationFormProps {}
 const HighSchoolApplicationForm: React.FC<
   HighSchoolApplicationFormProps
 > = () => {
-  const rolesInfo = useRolesInformation();
-  const refresh = useRefreshView();
   const dispatch = useStateDispatch();
-  const navigate = useNavigate();
+
+  const trpcCtx = trpc.useContext();
 
   const mutation = trpc.applications.submitHighSchoolApplication.useMutation({
     onSuccess: () => {
+      trpcCtx.profiles.getCurrentPersonUser.invalidate();
       dispatch(
         DeviceActions.displayAlert({
           status: "success",
@@ -36,17 +33,25 @@ const HighSchoolApplicationForm: React.FC<
             "Your application was succesfully submitted and will be soon be reviewed by the Secretariat.",
         })
       );
-      refresh();
     },
   });
 
   const schoolsQuery = trpc.search.searchSchools.useQuery({
-    cursor: new Date(),
     limit: Number.MAX_SAFE_INTEGER,
-    filters: { status_application: "ACCEPTED" },
+    filters: { application: { status_application: "ACCEPTED" } },
   });
 
-  if (schoolsQuery.isLoading || !schoolsQuery.data || rolesInfo.isLoading)
+  const groupsQuery = trpc.info.getGroups.useQuery(undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
+
+  if (
+    schoolsQuery.isLoading ||
+    !schoolsQuery.data ||
+    groupsQuery.isLoading ||
+    !groupsQuery.data
+  )
     return <Spinner />;
 
   const networkSchoolsIds = schoolsQuery.data.result
@@ -74,7 +79,7 @@ const HighSchoolApplicationForm: React.FC<
         eng_certificate: "",
         experience_mun: "",
         experience_other: "",
-        requested_group_id: rolesInfo.getGroupIdByName("delegate")!,
+        requested_group_id: -1,
         requested_role_id: undefined,
         housing_is_available: false,
         housing_address: {
@@ -95,7 +100,8 @@ const HighSchoolApplicationForm: React.FC<
       {({ values, touched }) => {
         const isNetworkSelected = networkSchoolsIds.includes(values.school_id);
         const isStaffSelected =
-          values.requested_group_id === rolesInfo.getGroupIdByName("staff");
+          values.requested_group_id ===
+          groupsQuery.data.find((g) => g.name === "staff")!.id;
 
         return (
           <Form className="mt-4">
@@ -125,18 +131,7 @@ const HighSchoolApplicationForm: React.FC<
 
             <Label htmlFor="requested_group_id" className="w-full">
               What is your role preference?
-              <SelectField
-                name="requested_group_id"
-                className="w-full"
-                options={rolesInfo.groups
-                  .filter(
-                    (g) =>
-                      !["secretariat", "guest", "director", "hsc"].includes(
-                        g.name
-                      )
-                  )
-                  .map((g) => ({ name: g.name.toUpperCase(), value: g.id }))}
-              />
+              <SelectGroupField name="requested_group_id" className="w-full" />
             </Label>
 
             {isStaffSelected && isNetworkSelected && (
@@ -145,16 +140,10 @@ const HighSchoolApplicationForm: React.FC<
 
                 <Label htmlFor="requested_role_id" className="w-full">
                   What is your staff role preference?
-                  <SelectField
+                  <SelectRoleField
                     name="requested_role_id"
                     className="w-full"
-                    options={rolesInfo.roles
-                      .filter(
-                        (r) =>
-                          r.group_id === rolesInfo.getGroupIdByName("staff")
-                      )
-                      .filter((r) => !r.name.includes("Head"))
-                      .map((r) => ({ name: r.name, value: r.id }))}
+                    groupName="staff"
                   />
                 </Label>
               </>
@@ -208,22 +197,10 @@ const HighSchoolApplicationForm: React.FC<
 
             <div className="h-4" />
 
-            <div className="flex mt-6 justify-between">
-              <CancelButton
-                onClick={() => navigate(-1)}
-                className="flex justify-center items-center flex-1 mr-2"
-              >
-                <Icon name="arrow-sm-left" className="mr-2" />
-                Go back
-              </CancelButton>
-
-              <SubmitButton
-                isLoading={mutation.isLoading}
-                className="ml-2 flex-1"
-              >
-                Send Application
-              </SubmitButton>
-            </div>
+            <PageFormFooter
+              actionTitle="Submit Application"
+              isLoading={mutation.isLoading}
+            />
           </Form>
         );
       }}

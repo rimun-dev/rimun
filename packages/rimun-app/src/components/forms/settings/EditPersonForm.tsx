@@ -1,8 +1,8 @@
 import { ArrowSmallLeftIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import PartialPersonForm from "src/components/forms/utils/PartialPersonForm";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
@@ -70,10 +70,10 @@ export default function EditPersonForm(props: EditPersonFormProps) {
 
           <div className="flex mt-6 justify-between">
             <CancelButton
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate(-1)}
               className="flex justify-center items-center flex-1 mr-2"
             >
-              <ArrowSmallLeftIcon className="mr-2" />
+              <ArrowSmallLeftIcon className="mr-2 w-4 h-4" />
               Go Back
             </CancelButton>
 

@@ -2,13 +2,21 @@ import PasswordInputField from "src/components/fields/base/PasswordInputField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
 
-export default function PartialAccountForm() {
+interface PartialAccountFormProps {
+  fieldName?: string;
+}
+
+export default function PartialAccountForm(props: PartialAccountFormProps) {
+  const renderFieldName = (name: string) => {
+    return props.fieldName ? `${props.fieldName}.${name}` : name;
+  };
+
   return (
     <>
-      <Label htmlFor="email">
+      <Label htmlFor={renderFieldName("email")}>
         Email
         <TextInputField
-          name="email"
+          name={renderFieldName("email")}
           placeholder="example@gmail.com"
           className="w-full"
           required
@@ -17,10 +25,10 @@ export default function PartialAccountForm() {
 
       <div className="h-2" />
 
-      <Label htmlFor="password">
+      <Label htmlFor={renderFieldName("password")}>
         Password
         <PasswordInputField
-          name="password"
+          name={renderFieldName("password")}
           placeholder="your-password-here"
           className="w-full"
           required
@@ -29,10 +37,10 @@ export default function PartialAccountForm() {
 
       <div className="h-2" />
 
-      <Label htmlFor="confirm_password">
+      <Label htmlFor={renderFieldName("confirm_password")}>
         Confirm Password
         <PasswordInputField
-          name="confirm_password"
+          name={renderFieldName("confirm_password")}
           placeholder="your-password-here"
           className="w-full"
           required

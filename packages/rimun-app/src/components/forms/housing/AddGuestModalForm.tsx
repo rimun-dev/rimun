@@ -47,8 +47,10 @@ export default function AddGuestModalForm(props: AddGuestModalFormProps) {
           <SearchPersonField
             name="guest_id"
             filters={{
-              status_application: "ACCEPTED",
-              status_housing: "ACCEPTED",
+              application: {
+                status_application: "ACCEPTED",
+                status_housing: "ACCEPTED",
+              },
             }}
           />
 

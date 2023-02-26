@@ -1,5 +1,5 @@
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 
 interface ModalFooterProps {
   actionTitle?: string;

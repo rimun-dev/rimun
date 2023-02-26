@@ -27,24 +27,22 @@ export default function SearchPersonField({
     SearchRouterOutputs["searchPersons"]["result"][0]["person_id"] | undefined
   >(name);
 
+  const enableQuery = query.length > 0;
+
   const { data, isLoading } = trpc.search.searchPersons.useQuery(
     { limit: maxResults ?? N_RESULTS_DEFAULT, query, filters },
-    { enabled: query.length > 0 }
+    { enabled: enableQuery }
   );
 
   const selectedPerson = data?.result.find(
     (pa) => pa.person_id === field.value
   )?.person;
-  const selectedAccount = data?.result.find(
-    (pa) => pa.person?.account_id === selectedPerson?.account_id
-  );
 
   return (
     <FieldItem {...{ error, touched }}>
       {field.value && selectedPerson ? (
         <PersonSearchResultItem
-          account={selectedAccount}
-          person={selectedPerson}
+          personData={selectedPerson}
           onClick={() => setValue(undefined)}
         />
       ) : (
@@ -61,16 +59,15 @@ export default function SearchPersonField({
           <div className="flex flex-col max-h-40 overflow-y-scroll">
             {data?.result.map((item) => (
               <PersonSearchResultItem
-                key={item.person_id}
-                account={item.person?.account}
-                person={item.person}
+                key={item.id}
+                personData={item.person}
                 query={query}
                 onClick={() => setValue(item.person_id)}
               />
             ))}
           </div>
 
-          {isLoading && <Spinner />}
+          {isLoading && enableQuery && <Spinner />}
         </>
       )}
     </FieldItem>

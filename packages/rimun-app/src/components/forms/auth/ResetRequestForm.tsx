@@ -1,9 +1,7 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
-import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import InputField from "src/components/fields/base/TextInputField";
-import Icon from "src/components/icons/Icon";
+import PageFormFooter from "src/components/forms/utils/PageFormFooter";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
 import { trpc } from "src/trpc";
@@ -48,22 +46,7 @@ export default function ResetRequestForm() {
             required
           />
 
-          <div className="flex mt-6 justify-between">
-            <CancelButton
-              onClick={() => navigate("/login")}
-              className="flex justify-center items-center flex-1 mr-2"
-            >
-              <Icon name="arrow-sm-left" className="mr-2" />
-              Go back
-            </CancelButton>
-
-            <SubmitButton
-              isLoading={mutation.isLoading}
-              className="ml-2 flex-1"
-            >
-              Submit
-            </SubmitButton>
-          </div>
+          <PageFormFooter actionTitle="Submit" isLoading={mutation.isLoading} />
         </Form>
       )}
     </Formik>

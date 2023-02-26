@@ -1,13 +1,11 @@
 import { Form, Formik } from "formik";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
 import SearchPersonWithoutApplicationField from "src/components/fields/base/SearchPersonFieldWithoutApplication";
-import SelectField from "src/components/fields/base/SelectField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
+import SelectRoleField from "src/components/fields/base/SelectRoleField";
 import Label from "src/components/fields/base/utils/Label";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
-import Spinner from "src/components/status/Spinner";
 import { trpc } from "src/trpc";
-import useRolesInformation from "src/utils/useRolesInformation";
 import * as Yup from "yup";
 
 interface AddTeamMemberModalFormProps extends ModalProps {
@@ -17,17 +15,12 @@ interface AddTeamMemberModalFormProps extends ModalProps {
 export default function AddTeamMemberModalForm(
   props: AddTeamMemberModalFormProps
 ) {
-  const rolesInfo = useRolesInformation();
   const mutation = trpc.team.addTeamMember.useMutation({
     onSuccess: () => {
       props.onMemberAdded();
       props.setIsVisible(false);
     },
   });
-
-  if (rolesInfo.isLoading) return <Spinner />;
-
-  const secretariatId = rolesInfo.getGroupIdByName("secretariat");
 
   return (
     <Modal
@@ -55,12 +48,10 @@ export default function AddTeamMemberModalForm(
         <Form className="p-4">
           <Label htmlFor="confirmed_role_id" className="w-full">
             What role should this team member have?
-            <SelectField
+            <SelectRoleField
               name="confirmed_role_id"
               className="w-full"
-              options={rolesInfo.roles
-                .filter((r) => r.group_id === secretariatId)
-                .map((r) => ({ name: r.name, value: r.id }))}
+              groupName="secretariat"
             />
           </Label>
 

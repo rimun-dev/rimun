@@ -46,9 +46,7 @@ export default function EditCommitteeModalForm(
       </p>
 
       <Formik
-        onSubmit={(v) =>
-          mutation.mutate({ ...v, committee_id: props.committeeData.id })
-        }
+        onSubmit={(v) => mutation.mutate({ ...v, id: props.committeeData.id })}
         initialValues={{
           name: props.committeeData.name,
           size: props.committeeData.size,

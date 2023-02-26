@@ -1,14 +1,12 @@
 import { Form, Formik } from "formik";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
 import NumberInputField from "src/components/fields/base/NumberInputField";
 import SelectField from "src/components/fields/base/SelectField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import Label from "src/components/fields/base/utils/Label";
 import Modal, { ModalHeader, ModalProps } from "src/components/layout/Modal";
 import Banner from "src/components/status/Banner";
-import Spinner from "src/components/status/Spinner";
 import { SearchRouterOutputs, trpc } from "src/trpc";
-import useRolesInformation from "src/utils/useRolesInformation";
 import * as Yup from "yup";
 
 interface EditSchoolApplicationModalFormProps extends ModalProps {
@@ -19,15 +17,12 @@ interface EditSchoolApplicationModalFormProps extends ModalProps {
 export default function EditSchoolApplicationModalForm(
   props: EditSchoolApplicationModalFormProps
 ) {
-  const rolesInfo = useRolesInformation();
   const mutation = trpc.applications.updateSchoolApplication.useMutation({
     onSuccess: () => {
       props.onApplicationUpdated();
       props.setIsVisible(false);
     },
   });
-
-  if (rolesInfo.isLoading) return <Spinner />;
 
   const delegate = props.schoolApplicationData.assignments.find(
     (a) => a.group.name === "delegate"

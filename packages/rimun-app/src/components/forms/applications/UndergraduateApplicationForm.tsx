@@ -1,19 +1,15 @@
 import { Form, Formik } from "formik";
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import CancelButton from "src/components/fields/base/CancelButton";
 import SelectField from "src/components/fields/base/SelectField";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import SwitchField from "src/components/fields/base/SwitchField";
 import TextAreaField from "src/components/fields/base/TextAreaField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
 import HousingOfferPartialForm from "src/components/forms/applications/utils/HousingOfferPartialForm";
-import Icon from "src/components/icons/Icon";
+import PageFormFooter from "src/components/forms/utils/PageFormFooter";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
 import { trpc } from "src/trpc";
-import useRefreshView from "src/utils/useRefreshView";
 import * as Yup from "yup";
 
 interface UndergraduateApplicationFormProps {}
@@ -21,13 +17,14 @@ interface UndergraduateApplicationFormProps {}
 const UndergraduateApplicationForm: React.FC<
   UndergraduateApplicationFormProps
 > = () => {
-  const refresh = useRefreshView();
   const dispatch = useStateDispatch();
-  const navigate = useNavigate();
+
+  const trpcCtx = trpc.useContext();
 
   const mutation = trpc.applications.submitUndergraduateApplication.useMutation(
     {
       onSuccess: () => {
+        trpcCtx.profiles.getCurrentPersonUser.invalidate();
         dispatch(
           DeviceActions.displayAlert({
             status: "success",
@@ -35,7 +32,6 @@ const UndergraduateApplicationForm: React.FC<
               "Your application was succesfully submitted and will be soon be reviewed by the Secretariat.",
           })
         );
-        refresh();
       },
     }
   );
@@ -141,22 +137,10 @@ const UndergraduateApplicationForm: React.FC<
 
           <div className="h-4" />
 
-          <div className="flex mt-6 justify-between">
-            <CancelButton
-              onClick={() => navigate(-1)}
-              className="flex justify-center items-center flex-1 mr-2"
-            >
-              <Icon name="arrow-sm-left" className="mr-2" />
-              Go back
-            </CancelButton>
-
-            <SubmitButton
-              isLoading={mutation.isLoading}
-              className="ml-2 flex-1"
-            >
-              Send Application
-            </SubmitButton>
-          </div>
+          <PageFormFooter
+            actionTitle="Submit Application"
+            isLoading={mutation.isLoading}
+          />
         </Form>
       )}
     </Formik>

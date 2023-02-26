@@ -8,12 +8,16 @@ type Option<T> = {
   value: T;
 };
 
-interface SelectFieldProps extends React.HTMLProps<HTMLSelectElement> {
+export interface SelectFieldProps extends React.HTMLProps<HTMLSelectElement> {
   name: string;
   options: Option<string | number>[];
 }
 
-export default function SelectField({ name, options, ...props }: SelectFieldProps) {
+export default function SelectField({
+  name,
+  options,
+  ...props
+}: SelectFieldProps) {
   const [field, { error, touched }, { setValue }] = useField(name);
   return (
     <FieldItem {...{ error, touched }}>

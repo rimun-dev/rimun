@@ -5,14 +5,22 @@ import TextAreaField from "src/components/fields/base/TextAreaField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
 
-export default function PartialPersonForm() {
+interface PartialPersonFormProps {
+  fieldName?: string;
+}
+
+export default function PartialPersonForm(props: PartialPersonFormProps) {
+  const renderFieldName = (name: string) => {
+    return props.fieldName ? `${props.fieldName}.${name}` : name;
+  };
+
   return (
     <>
       <div className="flex flex-col md:flex-row">
         <Label htmlFor="name" className="md:mr-1">
           First name
           <TextInputField
-            name="name"
+            name={renderFieldName(`name`)}
             placeholder="John"
             className="w-full"
             required
@@ -22,7 +30,7 @@ export default function PartialPersonForm() {
         <Label htmlFor="surname" className="md:ml-1 mt-2 md:mt-0">
           Last name
           <TextInputField
-            name="surname"
+            name={renderFieldName(`surname`)}
             placeholder="Doe"
             className="w-full"
             required
@@ -35,13 +43,17 @@ export default function PartialPersonForm() {
       <div className="flex flex-col md:flex-row">
         <Label htmlFor="birthday" className="w-full md:mr-1">
           Date of birth
-          <DateInputField name="birthday" className="w-full" required />
+          <DateInputField
+            name={renderFieldName(`birthday`)}
+            className="w-full"
+            required
+          />
         </Label>
 
         <Label htmlFor="gender" className="w-full md:ml-1 mt-2 md:mt-0">
           Gender
           <SelectField
-            name="gender"
+            name={renderFieldName(`gender`)}
             className="w-full"
             options={[
               { name: "Male", value: "m" },
@@ -57,7 +69,7 @@ export default function PartialPersonForm() {
       <Label htmlFor="phone_number">
         Phone number (mobile)
         <TextInputField
-          name="phone_number"
+          name={renderFieldName(`phone_number`)}
           placeholder="+39 333 2222111"
           className="w-full"
           required
@@ -68,7 +80,11 @@ export default function PartialPersonForm() {
 
       <Label htmlFor="country_id">
         Nationality
-        <CountrySelectField name="country_id" className="w-full" required />
+        <CountrySelectField
+          name={renderFieldName(`country_id`)}
+          className="w-full"
+          required
+        />
       </Label>
 
       <div className="h-2" />
@@ -76,7 +92,7 @@ export default function PartialPersonForm() {
       <Label htmlFor="tshirt_size" className="w-full md:ml-1">
         T-shirt Size
         <SelectField
-          name="tshirt_size"
+          name={renderFieldName(`tshirt_size`)}
           className="w-full"
           options={[
             { name: "Small", value: "s" },
@@ -92,7 +108,7 @@ export default function PartialPersonForm() {
       <Label htmlFor="allergies">
         Allergies or Intolerances
         <TextAreaField
-          name="allergies"
+          name={renderFieldName(`allergies`)}
           placeholder="Write about your allergies (if applicable)..."
           className="w-full"
         />

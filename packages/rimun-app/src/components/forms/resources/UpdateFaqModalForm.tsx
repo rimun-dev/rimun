@@ -1,6 +1,6 @@
 import { Form, Formik } from "formik";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import TextAreaField from "src/components/fields/base/TextAreaField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
@@ -34,7 +34,7 @@ export default function UpdateFaqModalForm(props: UpdateFaqModalFormProps) {
         validateOnChange={false}
         validateOnBlur={false}
         validateOnMount={false}
-        onSubmit={(v) => mutation.mutate({ ...v, faq_id: props.faq.id })}
+        onSubmit={(v) => mutation.mutate({ ...v, id: props.faq.id })}
         initialValues={{
           question: props.faq.question,
           answer: props.faq.answer,
