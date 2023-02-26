@@ -106,7 +106,7 @@ const committeesRouter = trpc.router({
       const document_path = await Storage.upload(
         document.data,
         document.type,
-        "documents"
+        "files/reports"
       );
 
       const { document: _, ...data } = input;

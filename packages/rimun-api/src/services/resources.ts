@@ -53,7 +53,7 @@ const resourcesRouter = trpc.router({
       const document_path = await Storage.upload(
         document.data,
         document.type,
-        "documents"
+        "files/documents"
       );
 
       const { document: _, ...data } = input;

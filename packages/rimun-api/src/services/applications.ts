@@ -213,7 +213,7 @@ const applicationsRouter = trpc.router({
     return [
       ...schoolGroupAssignments.map((sga) => ({
         group: groups.find((g) => g.id === sga.group_id)!,
-        n_confirmed: sga._sum,
+        n_confirmed: sga._sum.n_confirmed,
       })),
       {
         group: hscGroup,
@@ -338,6 +338,7 @@ const applicationsRouter = trpc.router({
         });
 
       const isReassigned =
+        !!input.confirmed_group_id &&
         input.confirmed_group_id !== application.confirmed_group_id;
 
       return await ctx.prisma.personApplication.update({
@@ -351,13 +352,19 @@ const applicationsRouter = trpc.router({
           ...input,
           committee_id: isReassigned
             ? null
-            : input.committee_id ?? application.committee_id,
+            : input.committee_id === undefined
+            ? application.committee_id
+            : input.committee_id,
           delegation_id: isReassigned
             ? null
-            : input.delegation_id ?? application.delegation_id,
+            : input.delegation_id === undefined
+            ? application.delegation_id
+            : input.delegation_id,
           is_ambassador: isReassigned
             ? false
-            : input.is_ambassador ?? application.is_ambassador,
+            : input.is_ambassador === undefined
+            ? application.is_ambassador
+            : input.is_ambassador,
         },
       });
     }),
