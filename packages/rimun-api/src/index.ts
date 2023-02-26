@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+if (process.env.NODE_ENV !== "production") dotenv.config();
+
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import { logger } from "@sentry/utils";
