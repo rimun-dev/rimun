@@ -1,8 +1,6 @@
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { QueryCache, QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { TRPCClientError } from "@trpc/client";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
@@ -51,6 +49,24 @@ import { store, useStateSelector } from "./store";
 import { DeviceActions } from "./store/reducers/device";
 import { createTrpcClient, trpc } from "./trpc";
 
+const handleError = (err: unknown) => {
+  console.debug(err);
+  if (!(err instanceof TRPCClientError)) return;
+  const message = !!err.message
+    ? err.message.replace("TRPCClientError: ", "")
+    : "Something wrong happened, please try again later.";
+  store.dispatch(
+    DeviceActions.displayAlert({
+      status: "error",
+      message,
+    })
+  );
+};
+
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+});
+
 export default function App() {
   const authState = useStateSelector((state) => state.auth);
 
@@ -58,29 +74,16 @@ export default function App() {
     () =>
       new QueryClient({
         queryCache: new QueryCache({
-          onError: (e) => {
-            console.debug(e);
-            if (e instanceof TRPCClientError)
-              store.dispatch(
-                DeviceActions.displayAlert({
-                  status: "error",
-                  message: e.message,
-                })
-              );
-          },
+          onError: handleError,
         }),
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
-            onError: (err) => {
-              console.debug(err);
-              store.dispatch(
-                DeviceActions.displayAlert({
-                  status: "error",
-                  message: `${err}`,
-                })
-              );
-            },
+            onError: handleError,
+          },
+
+          mutations: {
+            onError: handleError,
           },
         },
       })
@@ -89,7 +92,10 @@ export default function App() {
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister }}
+      >
         <AlertPopup />
         <Routes>
           {authState.isAuthenticated ? (
@@ -168,7 +174,7 @@ export default function App() {
             </>
           )}
         </Routes>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </trpc.Provider>
   );
 }

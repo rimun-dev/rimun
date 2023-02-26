@@ -1,5 +1,5 @@
 import type { TrpcRouter } from "@rimun/api";
-import { createTRPCReact, httpBatchLink } from "@trpc/react-query";
+import { createTRPCReact, httpBatchLink, loggerLink } from "@trpc/react-query";
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
 import { store } from "./store";
@@ -10,6 +10,7 @@ export function createTrpcClient(url: string) {
   return trpc.createClient({
     transformer: superjson,
     links: [
+      loggerLink(),
       httpBatchLink({
         url,
         async headers() {
