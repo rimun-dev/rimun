@@ -1,11 +1,12 @@
+import { PhoneIcon } from "@heroicons/react/24/outline";
 import React from "react";
-import Icon, { IconName } from "../icons/Icon";
 
 interface CTAButtonProps extends React.HTMLProps<HTMLButtonElement> {
-  icon?: IconName;
+  icon?: typeof PhoneIcon;
 }
 
 const CTAButton: React.FC<CTAButtonProps> = ({ icon, children, ...props }) => {
+  const Icon = icon;
   return (
     <button
       {...props}
@@ -13,7 +14,7 @@ const CTAButton: React.FC<CTAButtonProps> = ({ icon, children, ...props }) => {
       className={`flex items-center justify-center px-4 py-3 transition-all hover:bg-opacity-75 text-sm text-white font-semibold bg-brand bg-opacity-100 rounded-lg ${props.className}`}
     >
       <span>{children}</span>
-      {icon && <Icon name={icon} className="ml-2" />}
+      {!!Icon && <Icon className="ml-2 w-4 h-4" />}
     </button>
   );
 };

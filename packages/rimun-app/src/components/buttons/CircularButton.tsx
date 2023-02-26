@@ -1,17 +1,20 @@
-import Icon, { IconName } from "../icons/Icon";
+import { PhoneIcon } from "@heroicons/react/24/outline";
 
 interface CircularButtonProps extends React.HTMLProps<HTMLButtonElement> {
-  icon: IconName;
+  icon: typeof PhoneIcon;
 }
 
-const CircularButton: React.FC<CircularButtonProps> = ({ icon, ...props }) => (
-  <button
-    {...props}
-    type="button"
-    className={`w-8 h-8 flex justify-center items-center rounded-full bg-slate-200 bg-opacity-50 hover:bg-opacity-75 transition-opacity ${props.className}`}
-  >
-    <Icon name={icon} className="h-4 w-4" />
-  </button>
-);
+const CircularButton: React.FC<CircularButtonProps> = ({ icon, ...props }) => {
+  const Icon = icon;
+  return (
+    <button
+      {...props}
+      type="button"
+      className={`w-8 h-8 flex justify-center items-center rounded-full bg-slate-200 bg-opacity-50 hover:bg-opacity-75 transition-opacity ${props.className}`}
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  );
+};
 
 export default CircularButton;
