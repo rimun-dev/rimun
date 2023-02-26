@@ -1,12 +1,8 @@
-import {
-  ArrowSmallLeftIcon,
-  ArrowSmallRightIcon,
-} from "@heroicons/react/24/outline";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import ItemChoice from "src/components/navigation/ItemChoice";
 import { DeviceActions } from "src/store/reducers/device";
 
@@ -47,7 +43,6 @@ export default function Registration() {
             onClick={() => navigate("/login")}
             className="flex items-center"
           >
-            <ArrowSmallLeftIcon className="mr-2" />
             Go back
           </CancelButton>
 
@@ -66,7 +61,6 @@ export default function Registration() {
             className="flex items-center"
           >
             Continue
-            <ArrowSmallRightIcon className="ml-2" />
           </SubmitButton>
         </div>
       </div>

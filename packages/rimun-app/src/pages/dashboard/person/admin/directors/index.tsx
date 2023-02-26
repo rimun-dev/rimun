@@ -18,7 +18,7 @@ export default function AdminDirectors() {
           {schoolData.school.person_applications.map((da) => (
             <PersonSearchResultItem
               key={da.id}
-              personApplicationData={da}
+              personData={da.person}
               onClick={() => {
                 // TODO: navigate to profile
               }}

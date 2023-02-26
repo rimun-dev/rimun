@@ -1,3 +1,4 @@
+import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import CTAButton from "src/components/buttons/CTAButton";
@@ -7,45 +8,37 @@ import ConfirmationModal from "src/components/layout/ConfirmationModal";
 import PersonItemBadge from "src/components/layout/list/utils/PersonItemBadge";
 import Spinner from "src/components/status/Spinner";
 import PageTitle from "src/components/typography/PageTitle";
-import { SearchRouterOutputs, trpc } from "src/trpc";
-import useRolesInformation from "src/utils/useRolesInformation";
+import { SearchRouterInputs, SearchRouterOutputs, trpc } from "src/trpc";
 
 export default function AdminTeam() {
   const [showModal, setShowModal] = React.useState(false);
 
-  const rolesInfo = useRolesInformation();
-
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(
-    {
-      limit: Number.MAX_SAFE_INTEGER,
-      filters: {
+  const queryInput: SearchRouterInputs["searchPersons"] = {
+    limit: Number.MAX_SAFE_INTEGER,
+    filters: {
+      application: {
         status_application: "ACCEPTED",
-        confirmed_group_id: rolesInfo.isLoading
-          ? undefined
-          : rolesInfo.getGroupIdByName("secretariat"),
+        confirmed_group: { name: "secretariat" },
       },
     },
-    { refetchOnWindowFocus: true, enabled: !rolesInfo.isLoading }
-  );
+  };
+
+  const { data, isLoading } = trpc.search.searchPersons.useQuery(queryInput, {
+    refetchOnWindowFocus: true,
+  });
 
   const trpcCtx = trpc.useContext();
 
-  if (isLoading || rolesInfo.isLoading || !data) return <Spinner />;
+  if (isLoading || !data) return <Spinner />;
 
   const handleUpdate = () =>
-    trpcCtx.search.searchPersons.invalidate({
-      limit: Number.MAX_SAFE_INTEGER,
-      filters: {
-        status_application: "ACCEPTED",
-        confirmed_group_id: rolesInfo.getGroupIdByName("secretariat"),
-      },
-    });
+    trpcCtx.search.searchPersons.invalidate(queryInput);
 
   return (
     <>
       <PageTitle>Secretariat Members</PageTitle>
 
-      <CTAButton icon="plus" onClick={() => setShowModal(true)}>
+      <CTAButton icon={PlusIcon} onClick={() => setShowModal(true)}>
         Add Team Member
       </CTAButton>
 
@@ -92,7 +85,7 @@ function TeamMemberItem(props: TeamMemberItemProps) {
         description={props.personApplicationData.confirmed_role?.name}
       />
 
-      <CircularButton icon="x" onClick={() => setShowModal(true)} />
+      <CircularButton icon={XMarkIcon} onClick={() => setShowModal(true)} />
 
       <ConfirmationModal
         isVisible={showModal}

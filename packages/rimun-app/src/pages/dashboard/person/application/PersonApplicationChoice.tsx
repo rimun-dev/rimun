@@ -4,8 +4,8 @@ import {
 } from "@heroicons/react/24/outline";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import SubmitButton from "src/components/buttons/SubmitButton";
 import CancelButton from "src/components/fields/base/CancelButton";
-import SubmitButton from "src/components/fields/base/SubmitButton";
 import ItemChoice from "src/components/navigation/ItemChoice";
 import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";

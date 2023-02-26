@@ -1,4 +1,4 @@
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useParams } from "react-router-dom";
 import CircularButton from "src/components/buttons/CircularButton";
@@ -75,7 +75,7 @@ function SchoolView(props: DelegationFocusViewProps) {
       <div className="flex justify-between items-center">
         <h3 className="font-bold">School</h3>
         <CircularButton
-          icon="pencil"
+          icon={PencilIcon}
           onClick={() => setShowAssignModal(true)}
         />
       </div>
@@ -120,7 +120,10 @@ function CommitteesView(props: DelegationFocusViewProps) {
           </span>
           )
         </h3>
-        <CircularButton icon="plus" onClick={() => setShowAssignModal(true)} />
+        <CircularButton
+          icon={PlusIcon}
+          onClick={() => setShowAssignModal(true)}
+        />
       </div>
 
       <ul className="divide-y">
@@ -222,7 +225,10 @@ function DelegatesView(props: DelegationFocusViewProps) {
           </span>
           ) (delegates/assigned committees~max delegates)
         </h3>
-        <CircularButton icon="plus" onClick={() => setShowAssignModal(true)} />
+        <CircularButton
+          icon={PlusIcon}
+          onClick={() => setShowAssignModal(true)}
+        />
       </div>
 
       <ul className="divide-y mt-4">
@@ -274,7 +280,7 @@ function DelegateItem(props: DelegateItemProps) {
 
   return (
     <div
-      className="relative"
+      className="relative py-4"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

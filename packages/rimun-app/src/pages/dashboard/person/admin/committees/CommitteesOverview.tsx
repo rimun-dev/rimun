@@ -1,4 +1,4 @@
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import CircularButton from "src/components/buttons/CircularButton";
@@ -18,7 +18,7 @@ export default function CommitteesOverview() {
   });
 
   const trpcCtx = trpc.useContext();
-  const handleUpdate = trpcCtx.info.getForums.invalidate;
+  const handleUpdate = () => trpcCtx.info.getForums.invalidate();
 
   if (isLoading || !data) return <Spinner />;
 
@@ -59,7 +59,7 @@ function ForumItem(props: ForumItemProps) {
           onClick={() => setShowAddModal(true)}
         >
           <span>Add Committee</span>
-          <PlusIcon />
+          <PlusIcon className="w-4 h-4" />
         </button>
       </div>
       <Card className="flex flex-col divide-y">
@@ -110,7 +110,7 @@ function CommitteeItem(props: CommitteeItemProps) {
         <DropDown
           items={[{ name: "Edit", onClick: () => setShowEditModal(true) }]}
         >
-          <CircularButton icon="dots-horizontal" />
+          <CircularButton icon={EllipsisHorizontalIcon} />
         </DropDown>
       </div>
       <EditCommitteeModalForm

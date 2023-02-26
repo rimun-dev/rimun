@@ -6,7 +6,7 @@ import { trpc } from "src/trpc";
 export default function SchoolList() {
   const { data, isLoading } = trpc.search.searchSchools.useQuery({
     limit: Number.MAX_SAFE_INTEGER,
-    filters: { status_application: "ACCEPTED" },
+    filters: { application: { status_application: "ACCEPTED" } },
   });
 
   const trpcCtx = trpc.useContext();
@@ -14,7 +14,7 @@ export default function SchoolList() {
   const handleUpdate = () => {
     trpcCtx.search.searchSchools.invalidate({
       limit: Number.MAX_SAFE_INTEGER,
-      filters: { status_application: "ACCEPTED" },
+      filters: { application: { status_application: "ACCEPTED" } },
     });
     trpcCtx.housing.getStats.invalidate();
   };

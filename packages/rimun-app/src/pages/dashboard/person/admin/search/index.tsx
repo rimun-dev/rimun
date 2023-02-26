@@ -1,3 +1,4 @@
+import { AdjustmentsVerticalIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import CancelButton from "src/components/fields/base/CancelButton";
@@ -15,9 +16,8 @@ import {
   SearchRouterOutputs,
   trpc,
 } from "src/trpc";
-import useRolesInformation from "src/utils/useRolesInformation";
 
-const MS_SEARCH_INTERVAL = 100;
+const MS_SEARCH_INTERVAL = 250;
 
 export default function AdminSearch() {
   const [query, setQuery] = React.useState("");
@@ -71,12 +71,8 @@ export default function AdminSearch() {
   }, [query, userType, personFilters, schoolFilters]);
 
   const isLoading =
-    personsQuery.isLoading ||
-    schoolsQuery.isLoading ||
-    personsQuery.isRefetching ||
-    schoolsQuery.isRefetching ||
-    !personsQuery.data ||
-    !schoolsQuery.data;
+    (personsQuery.isLoading && schoolsQuery.isLoading) ||
+    (personsQuery.isRefetching && schoolsQuery.isRefetching);
 
   return (
     <>
@@ -93,7 +89,7 @@ export default function AdminSearch() {
             <option onSelect={() => setUserType("SCHOOL")}>Schools</option>
           </Select>
           <CircularButton
-            icon="adjustment-vertical"
+            icon={AdjustmentsVerticalIcon}
             onClick={() => setShowFilters(!showFilters)}
             className="flex-shrink-0"
           />
@@ -116,11 +112,13 @@ export default function AdminSearch() {
       {isLoading && <Spinner className="mb-4" />}
 
       {!isLoading &&
-        (userType === "PERSON" ? (
-          <PersonSearchResults query={query} data={personsQuery.data} />
-        ) : (
-          <SchoolSearchResults query={query} data={schoolsQuery.data} />
-        ))}
+        (userType === "PERSON"
+          ? personsQuery.data && (
+              <PersonSearchResults query={query} data={personsQuery.data} />
+            )
+          : schoolsQuery.data && (
+              <SchoolSearchResults query={query} data={schoolsQuery.data} />
+            ))}
     </>
   );
 }
@@ -177,19 +175,18 @@ interface PersonSearchFiltersProps {
 }
 
 function PersonSearchFilters(props: PersonSearchFiltersProps) {
-  const rolesInfo = useRolesInformation();
-
-  if (rolesInfo.isLoading) return <Spinner />;
-
   return (
     <>
       <div className="grid lg:grid-cols-2 gap-4 p-4">
         <Label className="flex flex-col gap-2">
           Nationality
           <SelectCountryInput
-            selectedCountryId={props.filters.country_id ?? -1}
+            selectedCountryId={props.filters.person?.country_id ?? -1}
             setSelectedCountryId={(cid) =>
-              props.setFilters({ ...props.filters, country_id: cid })
+              props.setFilters({
+                ...props.filters,
+                person: { ...props.filters.person, country_id: cid },
+              })
             }
           />
         </Label>
@@ -197,12 +194,15 @@ function PersonSearchFilters(props: PersonSearchFiltersProps) {
         <Label className="flex flex-col gap-2">
           Gender
           <Select
-            value={props.filters.gender ?? undefined}
+            value={props.filters.person?.gender ?? undefined}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               props.setFilters({
                 ...props.filters,
-                gender: e.target
-                  .value as SearchRouterInputs["searchPersons"]["filters"]["gender"],
+                person: {
+                  ...props.filters.person,
+                  // @ts-ignore
+                  gender: e.target.value,
+                },
               })
             }
           >
@@ -216,12 +216,15 @@ function PersonSearchFilters(props: PersonSearchFiltersProps) {
         <Label className="flex flex-col gap-2">
           Application Status
           <Select
-            value={props.filters.status_application ?? -1}
+            value={props.filters.application?.status_application ?? -1}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               props.setFilters({
                 ...props.filters,
-                status_application: e.target
-                  .value as SearchRouterInputs["searchPersons"]["filters"]["status_application"],
+                application: {
+                  ...props.filters.application,
+                  // @ts-ignore
+                  status_application: e.target.value,
+                },
               })
             }
           >
@@ -235,24 +238,26 @@ function PersonSearchFilters(props: PersonSearchFiltersProps) {
         <Label className="flex flex-col gap-2">
           Group
           <Select
-            value={
-              rolesInfo.groups.find(
-                (g) => g.id === props.filters.confirmed_group_id
-              )?.id ?? -1
-            }
+            value={props.filters.application?.confirmed_group?.name}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               props.setFilters({
                 ...props.filters,
-                confirmed_group_id: Number.parseInt(e.target.value),
+                application: {
+                  ...props.filters.application,
+                  confirmed_group: { name: e.target.value },
+                },
               })
             }
           >
             <option>Nothing selected</option>
-            {rolesInfo.groups.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name.toUpperCase()}
-              </option>
-            ))}
+            <option value="secretariat">Secretariat</option>
+            <option value="staff">Staff</option>
+            <option value="director">Director</option>
+            <option value="chair">Chair</option>
+            <option value="delegate">Delegate</option>
+            <option value="icj">ICJ</option>
+            <option value="hsc">HSC</option>
+            <option value="guest">Guest</option>
           </Select>
         </Label>
       </div>
@@ -280,7 +285,7 @@ function PersonSearchResults(props: PersonSearchResultsProps) {
         {props.data.result.map((pa) => (
           <PersonSearchResultItem
             key={pa.id}
-            personApplicationData={pa}
+            personData={pa.person}
             query={props.query}
           />
         ))}
@@ -301,9 +306,12 @@ function SchoolSearchFilters(props: SchoolSearchFiltersProps) {
         <Label className="flex flex-col gap-2">
           Country
           <SelectCountryInput
-            selectedCountryId={props.filters.country_id ?? -1}
+            selectedCountryId={props.filters.school?.country_id ?? -1}
             setSelectedCountryId={(cid) =>
-              props.setFilters({ ...props.filters, country_id: cid })
+              props.setFilters({
+                ...props.filters,
+                school: { ...props.filters.school, country_id: cid },
+              })
             }
           />
         </Label>
@@ -311,12 +319,15 @@ function SchoolSearchFilters(props: SchoolSearchFiltersProps) {
         <Label className="flex flex-col gap-2">
           Application Status
           <Select
-            value={props.filters.status_application ?? -1}
+            value={props.filters.application?.status_application ?? -1}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               props.setFilters({
                 ...props.filters,
-                status_application: e.target
-                  .value as SearchRouterInputs["searchSchools"]["filters"]["status_application"],
+                application: {
+                  ...props.filters.application,
+                  // @ts-ignore
+                  status_application: e.target.value,
+                },
               })
             }
           >

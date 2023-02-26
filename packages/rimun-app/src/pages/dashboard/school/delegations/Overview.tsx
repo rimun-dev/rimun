@@ -1,3 +1,4 @@
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import CircularButton from "src/components/buttons/CircularButton";
 import Card from "src/components/layout/Card";
@@ -62,7 +63,7 @@ function SchoolDelegationItem(props: SchoolDelegationItemProps) {
 
       <div className="flex items-center justify-end col-span-1">
         <CircularButton
-          icon="chevron-right"
+          icon={ChevronRightIcon}
           onClick={() =>
             navigate(`/dashboard/delegations/${props.delegationData.id}`)
           }

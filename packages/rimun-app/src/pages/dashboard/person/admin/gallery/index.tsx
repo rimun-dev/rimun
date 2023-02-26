@@ -1,3 +1,9 @@
+import {
+  ArrowsPointingOutIcon,
+  ChevronDownIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import CTAButton from "src/components/buttons/CTAButton";
@@ -24,7 +30,7 @@ export default function AdminGallery() {
     <>
       <PageTitle>Photo Gallery</PageTitle>
 
-      <CTAButton icon="plus" onClick={() => setShowModal(true)}>
+      <CTAButton icon={PlusIcon} onClick={() => setShowModal(true)}>
         Upload Images
       </CTAButton>
 
@@ -63,7 +69,7 @@ function SessionGalleryList(props: SessionGalleryListProps) {
           {props.sessionData.title}"
         </h2>
         <CircularButton
-          icon="chevron-down"
+          icon={ChevronDownIcon}
           className={`transition-transform ${
             showImages ? "rotate-180" : undefined
           }`}
@@ -113,11 +119,11 @@ function GalleryImageItem(props: GalleryImageItemProps) {
         {isFocused && (
           <div className="absolute right-2 top-2 flex items-center">
             <CircularButton
-              icon="arrows-pointing-out"
+              icon={ArrowsPointingOutIcon}
               onClick={() => setShowFull(true)}
             />
             <CircularButton
-              icon="x"
+              icon={XMarkIcon}
               className="ml-2"
               onClick={() => setShowModal(true)}
             />
@@ -141,6 +147,11 @@ function GalleryImageItem(props: GalleryImageItemProps) {
       >
         <div
           className="absolute w-full h-full bg-slate-900 bg-opacity-75"
+          onClick={() => setShowFull(false)}
+        />
+        <CircularButton
+          icon={XMarkIcon}
+          className="absolute right-8 top-8 z-50"
           onClick={() => setShowFull(false)}
         />
         <BaseRemoteImage

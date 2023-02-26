@@ -1,3 +1,9 @@
+import {
+  ChevronDownIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import CTAButton from "src/components/buttons/CTAButton";
@@ -29,13 +35,12 @@ export default function AdminFaqs() {
       <PageTitle>Frequently Asked Questions</PageTitle>
 
       <div className="flex gap-4">
-        <CTAButton icon="plus" onClick={() => setShowFaqModal(true)}>
+        <CTAButton icon={PlusIcon} onClick={() => setShowFaqModal(true)}>
           Create F.A.Q.
         </CTAButton>
         <CTAButton
-          icon="plus"
+          icon={PlusIcon}
           onClick={() => setShowFaqCategoryModal(true)}
-          className="bg-slate-200 text-black"
         >
           Create Category
         </CTAButton>
@@ -101,15 +106,15 @@ function FaqItem(props: FaqItemProps) {
           }`}
         >
           <CircularButton
-            icon="pencil"
+            icon={PencilIcon}
             onClick={() => setShowUpdateModal(true)}
           />
           <CircularButton
-            icon="trash"
+            icon={TrashIcon}
             onClick={() => setShowDeleteModal(true)}
           />
           <CircularButton
-            icon="chevron-down"
+            icon={ChevronDownIcon}
             className={`transition-transform ${
               showAnswer ? "rotate-180" : undefined
             }`}

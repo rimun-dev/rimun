@@ -1,4 +1,8 @@
-import { DocumentTextIcon } from "@heroicons/react/24/outline";
+import {
+  DocumentTextIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import CTAButton from "src/components/buttons/CTAButton";
@@ -27,7 +31,7 @@ export default function AdminDocuments() {
     <>
       <PageTitle>Public Resources</PageTitle>
 
-      <CTAButton icon="plus" onClick={() => setShowModal(true)}>
+      <CTAButton icon={PlusIcon} onClick={() => setShowModal(true)}>
         Upload Document
       </CTAButton>
 
@@ -82,7 +86,7 @@ function DocumentItem(props: DocumentItemProps) {
       </div>
 
       {isFocused && (
-        <CircularButton icon="x" onClick={() => setShowModal(true)} />
+        <CircularButton icon={XMarkIcon} onClick={() => setShowModal(true)} />
       )}
 
       <ConfirmationModal

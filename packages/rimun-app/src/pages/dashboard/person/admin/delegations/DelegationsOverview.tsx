@@ -1,3 +1,4 @@
+import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import CircularButton from "src/components/buttons/CircularButton";
@@ -37,8 +38,8 @@ export default function DelegationsOverview() {
       <PageTitle>Delegations</PageTitle>
 
       <CTAButton
+        icon={PlusIcon}
         className="mb-4"
-        icon="plus"
         onClick={() => setShowAddModal(true)}
       >
         Create Delegation
@@ -159,7 +160,7 @@ function SchoolDelegationItem(props: DelegationItemProps) {
             { name: "Delete", onClick: () => setShowDelModal(true) },
           ]}
         >
-          <CircularButton icon="dots-horizontal" />
+          <CircularButton icon={EllipsisHorizontalIcon} />
         </DropDown>
       </div>
 
@@ -223,7 +224,7 @@ function HSCDelegationItem(props: DelegationItemProps) {
             { name: "Delete", onClick: () => setShowDelModal(true) },
           ]}
         >
-          <CircularButton icon="dots-horizontal" />
+          <CircularButton icon={EllipsisHorizontalIcon} />
         </DropDown>
       </div>
 

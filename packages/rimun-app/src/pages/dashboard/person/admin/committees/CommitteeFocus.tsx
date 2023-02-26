@@ -1,4 +1,9 @@
-import { DocumentArrowDownIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  DocumentArrowDownIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import { useParams } from "react-router-dom";
 import CircularButton from "src/components/buttons/CircularButton";
@@ -15,7 +20,6 @@ import { useStateDispatch } from "src/store";
 import { DeviceActions } from "src/store/reducers/device";
 import { CommitteesRouterOutputs, trpc } from "src/trpc";
 import { downloadDocument } from "src/utils/download";
-import useRolesInformation from "src/utils/useRolesInformation";
 
 interface CommitteeFocusViewProps {
   committeeData: CommitteesRouterOutputs["getCommittee"];
@@ -28,25 +32,24 @@ export default function CommitteeFocus() {
   const { data, isLoading } = trpc.committees.getCommittee.useQuery(
     Number.parseInt(params.id!),
     {
-      enabled: !!params.id,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
     }
   );
-
-  const rolesInfo = useRolesInformation();
 
   const trpcCtx = trpc.useContext();
 
   const handleUpdate = () =>
     trpcCtx.committees.getCommittee.invalidate(Number.parseInt(params.id!));
 
-  if (isLoading || !data || rolesInfo.isLoading) return <Spinner />;
+  if (isLoading || !data) return <Spinner />;
 
   return (
     <>
       <PageTitle>{data.name}</PageTitle>
-      <div className="grid grid-cols-5 gap-4">
+      <p className="text-lg -mt-3 mb-4">{data.forum.name}</p>
+
+      <div className="sm:grid grid-cols-5 gap-4">
         <ChairsView committeeData={data} handleUpdate={handleUpdate} />
         <div className="col-span-3 flex flex-col gap-4">
           <ReportView committeeData={data} handleUpdate={handleUpdate} />
@@ -69,7 +72,10 @@ function ChairsView(props: CommitteeFocusViewProps) {
     <Card className="col-span-2 p-4">
       <div className="flex justify-between items-center">
         <h3 className="font-bold">Chairs</h3>
-        <CircularButton icon="pencil" onClick={() => setShowAddModal(true)} />
+        <CircularButton
+          icon={PencilIcon}
+          onClick={() => setShowAddModal(true)}
+        />
       </div>
       <div className="pt-4">
         {applications.map((a) => (
@@ -113,10 +119,6 @@ function ChairItem(props: ChairItemProps) {
     },
   });
 
-  const rolesInfo = useRolesInformation();
-
-  if (rolesInfo.isLoading) return <Spinner />;
-
   return (
     <div
       className="relative"
@@ -128,7 +130,7 @@ function ChairItem(props: ChairItemProps) {
         description={props.personApplicationData.confirmed_role?.name}
       />
       <CircularButton
-        icon="trash"
+        icon={TrashIcon}
         className={`${isHovered ? "absolute" : "hidden"} right-0 top-2`}
         onClick={() => setShowDelModal(true)}
       />
@@ -158,12 +160,15 @@ function ReportView(props: CommitteeFocusViewProps) {
     <Card className="p-4">
       <div className="flex justify-between items-center">
         <h3 className="font-bold">Report</h3>
-        <CircularButton icon="pencil" onClick={() => setShowAddModal(true)} />
+        <CircularButton
+          icon={PencilIcon}
+          onClick={() => setShowAddModal(true)}
+        />
       </div>
 
       {!!props.committeeData.report ? (
         <div className="flex items-center text-blue-500 hover:underline cursor-pointer gap-2">
-          <DocumentArrowDownIcon />
+          <DocumentArrowDownIcon className="w-6 h-6" />
           <a
             onClick={() =>
               downloadDocument(
@@ -196,12 +201,12 @@ function TopicsView(props: CommitteeFocusViewProps) {
     <Card className="p-4">
       <div className="flex justify-between items-center">
         <h3 className="font-bold">Topics</h3>
-        <CircularButton icon="plus" onClick={() => setShowAddModal(true)} />
+        <CircularButton icon={PlusIcon} onClick={() => setShowAddModal(true)} />
       </div>
       {props.committeeData.topics.length > 0 ? (
         <ul className="divide-y">
           {props.committeeData.topics.map((t) => (
-            <TopicItem topic={t} onDeleted={props.handleUpdate} />
+            <TopicItem key={t.id} topic={t} onDeleted={props.handleUpdate} />
           ))}
         </ul>
       ) : (
@@ -251,7 +256,7 @@ function TopicItem(props: TopicItemProps) {
       <TrashIcon
         className={
           isHovered
-            ? "block cursor-pointer flex-shrink-0 text-red-500"
+            ? "block cursor-pointer flex-shrink-0 text-red-500 w-4 h-4"
             : "hidden"
         }
         onClick={() => setShowDelModal(true)}
@@ -284,7 +289,7 @@ function DelegatesView(props: CommitteeFocusViewProps) {
           </p>
         )}
         {applications.map((a) => (
-          <DelegateItem personApplicationData={a} />
+          <DelegateItem key={a.id} personApplicationData={a} />
         ))}
       </div>
     </Card>

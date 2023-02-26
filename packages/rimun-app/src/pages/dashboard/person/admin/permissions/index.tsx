@@ -1,3 +1,8 @@
+import {
+  ChevronDownIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import GivePermissionModalForm from "src/components/forms/team/GivePermissionModalForm";
@@ -60,9 +65,9 @@ function ResourceList(props: ResourceListProps) {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <CircularButton icon="plus" onClick={() => setShowModal(true)} />
+          <CircularButton icon={PlusIcon} onClick={() => setShowModal(true)} />
           <CircularButton
-            icon="chevron-down"
+            icon={ChevronDownIcon}
             className={`transition-transform ${
               showList ? "rotate-180" : undefined
             }`}
@@ -121,7 +126,7 @@ function PermissionItem(props: PermissionItemProps) {
             : "opacity-0 pointer-events-none"
         }`}
       >
-        <CircularButton icon="x" onClick={() => setShowModal(true)} />
+        <CircularButton icon={XMarkIcon} onClick={() => setShowModal(true)} />
       </div>
 
       <ConfirmationModal

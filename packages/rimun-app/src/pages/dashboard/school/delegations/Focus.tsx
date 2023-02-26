@@ -119,7 +119,7 @@ function CommitteeItem(props: CommitteeItemProps) {
         committee={props.committee}
         isVisible={showAddModal}
         setIsVisible={setShowAddModal}
-        filters={{ school_id: authState.account.school!.id }}
+        filters={{ application: { school_id: authState.account.school!.id } }}
         onAssigned={props.handleUpdate}
       />
 

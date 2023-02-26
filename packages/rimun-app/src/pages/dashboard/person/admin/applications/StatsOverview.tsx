@@ -1,32 +1,21 @@
 import Card from "src/components/layout/Card";
 import Spinner from "src/components/status/Spinner";
 import { trpc } from "src/trpc";
-import useRolesInformation from "src/utils/useRolesInformation";
 
 export default function StatsOverview() {
-  const rolesInfo = useRolesInformation();
-
   const { data, isLoading } = trpc.applications.getStats.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
-  if (rolesInfo.isLoading || isLoading || !data) return <Spinner />;
+  if (isLoading || !data) return <Spinner />;
 
   const nDelegates =
-    data.find((s) => s.group_id === rolesInfo.getGroupIdByName("delegate"))
-      ?.n_confirmed ?? 0;
-  const nChair =
-    data.find((s) => s.group_id === rolesInfo.getGroupIdByName("chair"))
-      ?.n_confirmed ?? 0;
-  const nIcj =
-    data.find((s) => s.group_id === rolesInfo.getGroupIdByName("icj"))
-      ?.n_confirmed ?? 0;
-  const nStaff =
-    data.find((s) => s.group_id === rolesInfo.getGroupIdByName("staff"))
-      ?.n_confirmed ?? 0;
+    data.find((s) => s.group.name === "delegate")?.n_confirmed ?? 0;
+  const nChair = data.find((s) => s.group.name === "chair")?.n_confirmed ?? 0;
+  const nIcj = data.find((s) => s.group.name === "icj")?.n_confirmed ?? 0;
+  const nStaff = data.find((s) => s.group.name === "staff")?.n_confirmed ?? 0;
   const nHistorical =
-    data.find((s) => s.group_id === rolesInfo.getGroupIdByName("hsc"))
-      ?.n_confirmed ?? 0;
+    data.find((s) => s.group.name === "hsc")?.n_confirmed ?? 0;
 
   return (
     <Card className="w-full overflow-x-auto">

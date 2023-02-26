@@ -1,28 +1,27 @@
 import Card from "src/components/layout/Card";
 import PersonHousingRequestItem from "src/components/layout/list/PersonHousingRequestItem";
 import Spinner from "src/components/status/Spinner";
-import { trpc } from "src/trpc";
-import useRolesInformation from "src/utils/useRolesInformation";
+import { SearchRouterInputs, trpc } from "src/trpc";
 
 export default function HSCList() {
-  const rolesInfo = useRolesInformation();
-
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(
-    {
-      limit: Number.MAX_SAFE_INTEGER,
-      filters: {
+  const queryInput: SearchRouterInputs["searchPersons"] = {
+    limit: Number.MAX_SAFE_INTEGER,
+    filters: {
+      application: {
         status_application: "ACCEPTED",
-        confirmed_group_id: rolesInfo.isLoading
-          ? -1
-          : rolesInfo.getGroupIdByName("hsc"),
+        confirmed_group: { name: "hsc" },
       },
     },
-    { enabled: !rolesInfo.isLoading }
-  );
+  };
+
+  const { data, isLoading } = trpc.search.searchPersons.useQuery(queryInput);
 
   const trpcCtx = trpc.useContext();
 
-  if (isLoading || rolesInfo.isLoading || !data) return <Spinner />;
+  const handleUpdate = () =>
+    trpcCtx.search.searchPersons.invalidate(queryInput);
+
+  if (isLoading || !data) return <Spinner />;
 
   return (
     <Card className="overflow-y-hidden overflow-x-auto">
@@ -37,17 +36,8 @@ export default function HSCList() {
             return (
               <PersonHousingRequestItem
                 key={a.id}
-                person={a.person}
-                application={a}
-                onUpdated={() =>
-                  trpcCtx.search.searchPersons.invalidate({
-                    limit: Number.MAX_SAFE_INTEGER,
-                    filters: {
-                      status_application: "ACCEPTED",
-                      confirmed_group_id: rolesInfo.getGroupIdByName("hsc"),
-                    },
-                  })
-                }
+                personApplicationData={a}
+                onUpdated={handleUpdate}
               />
             );
           })}

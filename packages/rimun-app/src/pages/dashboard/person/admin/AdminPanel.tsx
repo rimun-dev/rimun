@@ -18,22 +18,17 @@ import {
 } from "@heroicons/react/24/outline";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Spinner from "src/components/status/Spinner";
 import PageTitle from "src/components/typography/PageTitle";
 import useAuthenticatedState from "src/utils/useAuthenticatedState";
-import usePermissionsInformation from "src/utils/usePermissionsInfo";
 
 export default function AdminPanel() {
   const authState = useAuthenticatedState();
-  const permissionsInfo = usePermissionsInformation();
-
-  if (permissionsInfo.isLoading) return <Spinner />;
 
   const isNotAuthorized = (resource: string) =>
     authState.account.is_school ||
     (!authState.account.is_admin &&
       !authState.account?.person?.permissions.find(
-        (p) => p.resource_id === permissionsInfo.getResourceIdByName(resource)
+        (p) => p.resource.name === resource
       ));
 
   return (

@@ -1,3 +1,4 @@
+import { PencilIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import EditProfilePictureModalForm from "src/components/forms/settings/EditProfilePictureModalForm";
@@ -19,7 +20,7 @@ export default function ProfilePicture(props: ProfilePictureProps) {
       <div className="relative p-4 mt-4">
         <AvatarCircle className="w-32 h-32" path={picturePath} />
         <CircularButton
-          icon="pencil"
+          icon={PencilIcon}
           className="absolute left-2 bottom-2 shadow-md border border-slate-300"
           onClick={() => setShowModal(true)}
         />

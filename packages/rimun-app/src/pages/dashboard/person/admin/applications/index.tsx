@@ -1,16 +1,10 @@
 import PersonApplicationList from "src/components/layout/list/PersonApplicationList";
 import TabsMenu from "src/components/navigation/TabsMenu";
-import Spinner from "src/components/status/Spinner";
 import PageTitle from "src/components/typography/PageTitle";
 import SchoolApplicationList from "src/pages/dashboard/person/admin/applications/SchoolApplicationList";
 import StatsOverview from "src/pages/dashboard/person/admin/applications/StatsOverview";
-import useRolesInformation from "src/utils/useRolesInformation";
 
 export default function AdminApplications() {
-  const rolesInfo = useRolesInformation();
-
-  if (rolesInfo.isLoading) return <Spinner />;
-
   return (
     <>
       <PageTitle>Applications</PageTitle>
@@ -24,7 +18,7 @@ export default function AdminApplications() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  requested_group_id: rolesInfo.getGroupIdByName("delegate")!,
+                  application: { requested_group: { name: "delegate" } },
                 }}
               />
             ),
@@ -33,9 +27,7 @@ export default function AdminApplications() {
             name: "ICJ",
             component: () => (
               <PersonApplicationList
-                filters={{
-                  requested_group_id: rolesInfo.getGroupIdByName("icj")!,
-                }}
+                filters={{ application: { requested_group: { name: "icj" } } }}
               />
             ),
           },
@@ -44,7 +36,7 @@ export default function AdminApplications() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  requested_group_id: rolesInfo.getGroupIdByName("chair")!,
+                  application: { requested_group: { name: "chair" } },
                 }}
               />
             ),
@@ -54,7 +46,7 @@ export default function AdminApplications() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  requested_group_id: rolesInfo.getGroupIdByName("staff")!,
+                  application: { requested_group: { name: "staff" } },
                 }}
               />
             ),
@@ -63,9 +55,7 @@ export default function AdminApplications() {
             name: "HSC",
             component: () => (
               <PersonApplicationList
-                filters={{
-                  requested_group_id: rolesInfo.getGroupIdByName("hsc")!,
-                }}
+                filters={{ application: { requested_group: { name: "hsc" } } }}
               />
             ),
           },

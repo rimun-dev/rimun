@@ -1,3 +1,4 @@
+import { PlusIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import CTAButton from "src/components/buttons/CTAButton";
 import AddDirectorToSchoolModalForm from "src/components/forms/teachers/AddDirectorToSchoolModalForm";
@@ -21,8 +22,10 @@ export default function SchoolTeachers() {
     trpcCtx.search.searchPersons.invalidate({ filters });
 
   const filters: SearchRouterInputs["searchPersons"]["filters"] = {
-    school_id: authState.account.school!.id,
-    confirmed_group: { name: "director" },
+    application: {
+      school_id: authState.account.school!.id,
+      confirmed_group: { name: "director" },
+    },
   };
 
   const mutation = trpc.directors.removeDirector.useMutation({
@@ -47,8 +50,8 @@ export default function SchoolTeachers() {
       </p>
 
       <CTAButton
+        icon={PlusIcon}
         className="mb-4"
-        icon="plus"
         onClick={() => setShowAddModal(true)}
       >
         Add Teacher

@@ -24,8 +24,10 @@ export default function SchoolStudents() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  school_id: authState.account.school!.id,
-                  requested_group: { name: "delegate" }!,
+                  application: {
+                    school_id: authState.account.school!.id,
+                    requested_group: { name: "delegate" }!,
+                  },
                 }}
               />
             ),
@@ -35,8 +37,10 @@ export default function SchoolStudents() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  school_id: authState.account.school!.id,
-                  requested_group: { name: "icj" }!,
+                  application: {
+                    school_id: authState.account.school!.id,
+                    requested_group: { name: "icj" }!,
+                  },
                 }}
               />
             ),
@@ -46,8 +50,10 @@ export default function SchoolStudents() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  school_id: authState.account.school!.id,
-                  requested_group: { name: "chair" }!,
+                  application: {
+                    school_id: authState.account.school!.id,
+                    requested_group: { name: "chair" }!,
+                  },
                 }}
               />
             ),
@@ -57,8 +63,10 @@ export default function SchoolStudents() {
             component: () => (
               <PersonApplicationList
                 filters={{
-                  school_id: authState.account.school!.id,
-                  requested_group: { name: "staff" }!,
+                  application: {
+                    school_id: authState.account.school!.id,
+                    requested_group: { name: "staff" }!,
+                  },
                 }}
               />
             ),

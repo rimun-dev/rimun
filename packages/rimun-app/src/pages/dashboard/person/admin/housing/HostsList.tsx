@@ -4,29 +4,27 @@ import Select from "src/components/fields/base/utils/Select";
 import Card from "src/components/layout/Card";
 import PersonHostItem from "src/components/layout/list/PersonHostItem";
 import Spinner from "src/components/status/Spinner";
-import { trpc } from "src/trpc";
+import { SearchRouterInputs, trpc } from "src/trpc";
 
 export default function HostList() {
   const [schoolFilter, setSchoolFilter] = React.useState<number>();
 
-  const { data, isLoading } = trpc.search.searchPersons.useQuery({
+  const queryInput = {
     limit: Number.MAX_SAFE_INTEGER,
     filters: {
-      status_application: "ACCEPTED",
-      housing_is_available: true,
+      application: {
+        status_application: "ACCEPTED",
+        housing_is_available: true,
+      },
     },
-  });
+  } as SearchRouterInputs["searchPersons"];
+
+  const { data, isLoading } = trpc.search.searchPersons.useQuery(queryInput);
 
   const trpcCtx = trpc.useContext();
 
   const handleUpdate = () =>
-    trpcCtx.search.searchPersons.invalidate({
-      limit: Number.MAX_SAFE_INTEGER,
-      filters: {
-        status_application: "ACCEPTED",
-        housing_is_available: true,
-      },
-    });
+    trpcCtx.search.searchPersons.invalidate(queryInput);
 
   if (!data || isLoading) return <Spinner />;
 
