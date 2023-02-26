@@ -1,5 +1,6 @@
 // import FTPClient from "ftp";
 import * as ftp from "basic-ftp";
+import { FTPError } from "basic-ftp";
 import { readFileSync, rmSync } from "fs";
 import { Readable } from "stream";
 import * as uuid from "uuid";
@@ -50,24 +51,48 @@ const ftpConfig = {
   port: Number.parseInt(process.env.FTP_PORT ?? "21"),
 } as ftp.AccessOptions;
 
+// FIXME: workaround for connection limit enforced by FTP server
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+const SLEEP_TIME = 2500;
+
 namespace FTPStorage {
   export async function upload(
     data: Buffer,
     type: string,
     rootFolder: string = ""
   ) {
-    const ext = type.split("/")[1];
-    const dir = `${rootFolder}/${makeBucketDirName()}`;
-    const path = `${uuid.v4()}.${ext}`;
-    const dirPath = `${dir}/${path}`;
-
     const ftpClient = new ftp.Client();
-    await ftpClient.access(ftpConfig);
-    await ftpClient.ensureDir(dir);
-    await ftpClient.uploadFrom(Readable.from(data), path);
-    ftpClient.close();
 
-    return dirPath;
+    while (true) {
+      try {
+        const ext = type.split("/")[1];
+        const dir = `${rootFolder}/${makeBucketDirName()}`;
+        const path = `${uuid.v4()}.${ext}`;
+        const dirPath = `${dir}/${path}`;
+
+        await ftpClient.access(ftpConfig);
+        await ftpClient.ensureDir(dir);
+        await ftpClient.uploadFrom(Readable.from(data), path);
+        ftpClient.close();
+
+        return dirPath;
+      } catch (e) {
+        if (
+          !(e instanceof FTPError) &&
+          !(e instanceof Error && e.name.includes("Timeout"))
+        )
+          throw e;
+        await sleep(SLEEP_TIME);
+        continue;
+      } finally {
+        ftpClient.close();
+      }
+    }
   }
 
   export async function remove(path: string) {
@@ -82,15 +107,23 @@ namespace FTPStorage {
   }
 
   export async function download(path: string) {
-    const ftpClient = new ftp.Client();
-    await ftpClient.access(ftpConfig);
-    const ext = path.split(".")[1];
-    const tempFileName = `${uuid.v4()}.${ext}`;
-    await ftpClient.downloadTo(tempFileName, path);
-    const buff = readFileSync(tempFileName);
-    rmSync(tempFileName);
-    ftpClient.close();
-    return buff;
+    while (true) {
+      try {
+        const ftpClient = new ftp.Client();
+        await ftpClient.access(ftpConfig);
+        const ext = path.split(".")[1];
+        const tempFileName = `${uuid.v4()}.${ext}`;
+        await ftpClient.downloadTo(tempFileName, path);
+        const buff = readFileSync(tempFileName);
+        rmSync(tempFileName);
+        ftpClient.close();
+        return buff;
+      } catch (e) {
+        if (!(e instanceof FTPError)) throw e;
+        await sleep(SLEEP_TIME);
+        continue;
+      }
+    }
   }
 }
 
