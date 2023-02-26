@@ -8,17 +8,14 @@ interface AvatarCircleProps extends React.HTMLProps<HTMLDivElement> {
 }
 
 export default function AvatarCircle(props: AvatarCircleProps) {
-  const [isError, setIsError] = React.useState(false);
   return (
     <BaseCircle {...props}>
-      <UserIcon className="w-6 h-6 text-slate-400" />
       <BaseRemoteImage
         path={props.path}
-        onError={() => setIsError(true)}
-        onLoad={() => setIsError(false)}
-        className={`absolute w-full h-full ${
-          isError ? "hidden" : undefined
-        } object-cover`}
+        className={`absolute w-full h-full object-cover`}
+        placeholderElement={() => (
+          <UserIcon className="w-6 h-6 text-slate-400" />
+        )}
       />
     </BaseCircle>
   );
