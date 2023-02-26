@@ -1,3 +1,4 @@
+import { PlusIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { Link } from "react-router-dom";
 import Banner from "src/components/status/Banner";
@@ -29,7 +30,7 @@ export default function NewsFeed() {
       <PageTitle>News Feed</PageTitle>
 
       {canCreatePosts && (
-        <CTAButton icon="plus" onClick={() => setShowCreateModal(true)}>
+        <CTAButton icon={PlusIcon} onClick={() => setShowCreateModal(true)}>
           Create Blog Post
         </CTAButton>
       )}

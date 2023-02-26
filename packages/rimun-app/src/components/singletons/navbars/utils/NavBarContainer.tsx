@@ -1,4 +1,8 @@
-import { ArrowLeftCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftCircleIcon,
+  Bars3Icon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "src/components/brand/Logo";
@@ -48,7 +52,7 @@ export default function NavBarContainer(props: {
         </div>
       </div>
       <CircularButton
-        icon={isMobileVisible ? "x" : "bars-3"}
+        icon={isMobileVisible ? XMarkIcon : Bars3Icon}
         className={`sm:hidden absolute top-4 right-4 w-10 h-10 z-50 shadow-md`}
         onClick={() => setIsMobileVisible(!isMobileVisible)}
       />

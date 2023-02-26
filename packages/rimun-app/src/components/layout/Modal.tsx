@@ -1,3 +1,4 @@
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { HTMLProps } from "react";
 import CircularButton from "../buttons/CircularButton";
 
@@ -43,6 +44,6 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
     className={`border-b border-white border-opacity-5 p-4 flex justify-between items-center ${props.className}`}
   >
     <h2 className="text-xl font-bold">{children}</h2>
-    <CircularButton icon="x" onClick={onDismiss} />
+    <CircularButton icon={XMarkIcon} onClick={onDismiss} />
   </div>
 );

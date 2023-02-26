@@ -1,6 +1,11 @@
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  InformationCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
-import useStateSelector from "src/utils/useStateSelector";
-import Icon, { IconName } from "../icons/Icon";
+import { useStateSelector } from "src/store";
 
 const FADE_OUT_TIMEOUT_MS = 5000;
 
@@ -12,21 +17,21 @@ export default function AlertPopup() {
   );
 
   let bgClass = "bg-green-500";
-  let icon: IconName = "check-circle";
+  let Icon = CheckCircleIcon;
 
   if (alert)
     switch (alert.status) {
       case "error":
         bgClass = "bg-red-500";
-        icon = "x-circle";
+        Icon = XCircleIcon;
         break;
       case "warn":
         bgClass = "bg-orange-500";
-        icon = "exclamation-circle";
+        Icon = ExclamationCircleIcon;
         break;
       case "info":
         bgClass = "bg-blue-500";
-        icon = "information-circle";
+        Icon = InformationCircleIcon;
         break;
     }
 
@@ -44,10 +49,12 @@ export default function AlertPopup() {
   return (
     <div
       className={`fixed flex shadow-lg left-0 right-0 w-96 z-50 m-auto ${bgClass} ${
-        !displayAlert || !alert ? "opacity-0 pointer-events-none -top-16" : "opacity-100 top-6"
+        !displayAlert || !alert
+          ? "opacity-0 pointer-events-none -top-16"
+          : "opacity-100 top-6"
       } transition-all text-white rounded-lg p-4`}
     >
-      <Icon name={icon} className="shrink-0 mr-2 h-6 w-6" />
+      <Icon className="shrink-0 mr-2 h-6 w-6" />
       {alert && alert.message}
     </div>
   );

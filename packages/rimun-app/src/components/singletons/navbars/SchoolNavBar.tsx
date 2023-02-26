@@ -1,6 +1,6 @@
 import {
   AcademicCapIcon,
-  CogIcon,
+  Cog8ToothIcon,
   EnvelopeIcon,
   FlagIcon,
   NewspaperIcon,
@@ -42,7 +42,11 @@ const SchoolNavBar: React.FC<SchoolNavBarProps> = () => {
         icon={FlagIcon}
         active={hasApplied}
       />
-      <NavBarLink name="Settings" to="/dashboard/settings" icon={CogIcon} />
+      <NavBarLink
+        name="Settings"
+        to="/dashboard/settings"
+        icon={Cog8ToothIcon}
+      />
     </NavBarContainer>
   );
 };

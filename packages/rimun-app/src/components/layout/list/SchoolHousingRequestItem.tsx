@@ -1,3 +1,4 @@
+import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import ConfirmationModal from "src/components/layout/ConfirmationModal";
@@ -53,7 +54,7 @@ export default function SchoolHousingRequestItem(
             { name: "Accept", onClick: () => setShowAcceptModal(true) },
           ]}
         >
-          <CircularButton icon="dots-horizontal" />
+          <CircularButton icon={EllipsisHorizontalIcon} />
         </DropDown>
       </div>
 

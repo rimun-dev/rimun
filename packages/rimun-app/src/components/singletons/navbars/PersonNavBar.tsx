@@ -1,5 +1,5 @@
 import {
-  CogIcon,
+  Cog8ToothIcon,
   EnvelopeIcon,
   KeyIcon,
   NewspaperIcon,
@@ -25,7 +25,11 @@ const PersonNavBar: React.FC<PersonNavBarProps> = () => {
         (authState.account.person?.permissions.length ?? 0) > 0) && (
         <NavBarLink name="Admin" to="/dashboard/admin" icon={KeyIcon} />
       )}
-      <NavBarLink name="Settings" to="/dashboard/settings" icon={CogIcon} />
+      <NavBarLink
+        name="Settings"
+        to="/dashboard/settings"
+        icon={Cog8ToothIcon}
+      />
     </NavBarContainer>
   );
 };

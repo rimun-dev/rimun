@@ -1,3 +1,4 @@
+import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import Card from "src/components/layout/Card";
@@ -76,7 +77,7 @@ function PersonItem(props: PersonItemProps) {
         {Modal != null && (
           <div className="flex items-center gap-2 justify-end col-span-1">
             <CircularButton
-              icon="dots-horizontal"
+              icon={EllipsisHorizontalIcon}
               onClick={() => setShowModal(!showModal)}
             />
           </div>

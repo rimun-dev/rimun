@@ -1,4 +1,6 @@
 import {
+  ChevronDownIcon,
+  EllipsisHorizontalIcon,
   HeartIcon,
   MapPinIcon,
   PhoneIcon,
@@ -35,7 +37,7 @@ export default function PersonHostItem(props: PersonHostItemProps) {
     const Icon = icon;
     return (
       <div className="flex gap-2 items-center">
-        <Icon className="text-xs text-slate-500" />
+        <Icon className="text-xs text-slate-500 w-4 h-4" />
         <p>{condition || value ? value : "N/A"}</p>
       </div>
     );
@@ -69,10 +71,10 @@ export default function PersonHostItem(props: PersonHostItemProps) {
               },
             ]}
           >
-            <CircularButton icon="dots-horizontal" />
+            <CircularButton icon={EllipsisHorizontalIcon} />
           </DropDown>
           <CircularButton
-            icon="chevron-down"
+            icon={ChevronDownIcon}
             className={`transition-transform ${
               showDetails ? "rotate-180" : undefined
             }`}
@@ -99,7 +101,7 @@ export default function PersonHostItem(props: PersonHostItemProps) {
             />
             <HostFeature
               icon={UserIcon}
-              value={props.hostApplicationData.housing_pets}
+              value={props.hostApplicationData.housing_gender_preference}
             />
           </div>
 

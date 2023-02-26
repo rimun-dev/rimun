@@ -1,6 +1,6 @@
 import React from "react";
+import SubmitButton from "../buttons/SubmitButton";
 import CancelButton from "../fields/base/CancelButton";
-import SubmitButton from "../fields/base/SubmitButton";
 import Modal, { ModalHeader, ModalProps } from "./Modal";
 
 interface ConfirmationModalProps extends ModalProps {

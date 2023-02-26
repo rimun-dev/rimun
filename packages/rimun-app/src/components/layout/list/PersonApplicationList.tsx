@@ -1,3 +1,7 @@
+import {
+  ChevronDownIcon,
+  EllipsisHorizontalIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import EditPersonApplicationModalForm from "src/components/forms/applications/EditPersonApplicationModalForm";
@@ -102,12 +106,12 @@ function PersonApplicationItem(props: PersonApplicationItemProps) {
         <div className="flex items-center gap-2 justify-end col-span-1">
           {!notAllowedToUpdate && (
             <CircularButton
-              icon="dots-horizontal"
+              icon={EllipsisHorizontalIcon}
               onClick={() => setShowModal(!showModal)}
             />
           )}
           <CircularButton
-            icon="chevron-down"
+            icon={ChevronDownIcon}
             className={`transition-transform ${
               isOpen ? "rotate-180" : undefined
             }`}
