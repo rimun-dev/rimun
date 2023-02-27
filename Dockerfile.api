@@ -9,13 +9,14 @@ COPY --chown=node:node tsconfig.base.json .
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/tsconfig.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/src ./packages/rimun-api/src
+COPY --chown=node:node packages/rimun-api/prisma ./packages/rimun-api/prisma
 
 RUN chown -R node:node /tmp/build
 
 USER node
 
 RUN yarn --non-interactive
-RUN npx prisma generate
+RUN npx prisma generate --schema=packages/rimun-api/prisma/schema.prisma
 RUN yarn workspace @rimun/api run build
 
 ###
@@ -39,7 +40,7 @@ ENV HOST="0.0.0.0"
 ENV NODE_ENV=production
 
 RUN yarn --pure-lockfile --non-interactive --production
-RUN npx prisma generate
+RUN npx prisma generate --schema=packages/rimun-api/dist/prisma/schema.prisma
 
 EXPOSE 3000
 
