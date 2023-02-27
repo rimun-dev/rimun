@@ -1,5 +1,6 @@
 import { Form, Formik } from "formik";
 import SubmitButton from "src/components/buttons/SubmitButton";
+import MardownEditorField from "src/components/fields/base/MardownEditorField";
 import SelectField from "src/components/fields/base/SelectField";
 import TextInputField from "src/components/fields/base/TextInputField";
 import Label from "src/components/fields/base/utils/Label";
@@ -85,6 +86,8 @@ export default function UpdateBlogPostModalForm(
             </Label>
 
             <div className="h-4" />
+
+            <MardownEditorField name="body" />
 
             {/* <MDEditor
               value={values.body}

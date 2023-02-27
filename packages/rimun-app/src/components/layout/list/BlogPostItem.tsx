@@ -45,7 +45,7 @@ export default function BlogPostItem({
           <PersonItemBadge
             person={blogPost.author}
             description={
-              blogPost.author.applications[0]!.confirmed_role?.name ??
+              blogPost.author.applications[0]?.confirmed_role?.name ??
               "Member of the RIMUN team"
             }
           />

@@ -14,4 +14,7 @@
   input:checked + .toggle-bg {
     @apply bg-brand border-brand;
   }
+  input {
+    @apply font-normal;
+  }
 }

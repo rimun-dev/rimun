@@ -26,7 +26,7 @@ export default function NewsFeed() {
   const hasApplied = (authState.account.person?.applications.length ?? 0) > 0;
 
   return (
-    <>
+    <div className="max-w-5xl mx-auto">
       <PageTitle>News Feed</PageTitle>
 
       {canCreatePosts && (
@@ -56,19 +56,21 @@ export default function NewsFeed() {
       )}
 
       <div className="flex flex-col gap-4 mt-4">
-        {data.map((post) => (
-          <BlogPostItem
-            key={post.id}
-            blogPost={post}
-            canEdit={canCreatePosts}
-          />
-        ))}
+        {data
+          .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+          .map((post) => (
+            <BlogPostItem
+              key={post.id}
+              blogPost={post}
+              canEdit={canCreatePosts}
+            />
+          ))}
       </div>
 
       <CreateBlogPostModalForm
         isVisible={showCreateModal}
         setIsVisible={setShowCreateModal}
       />
-    </>
+    </div>
   );
 }
