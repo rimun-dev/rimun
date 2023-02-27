@@ -73,7 +73,6 @@ const delegationsRouter = trpc.router({
   getDelegation: authenticatedProcedure
     .input(identifierSchema)
     .query(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx, { resourceName: "delegation" });
       const delegation = await ctx.prisma.delegation.findUnique({
         where: { id: input },
         include: {
@@ -117,15 +116,25 @@ const delegationsRouter = trpc.router({
 
       const currentSession = await getCurrentSession(ctx);
 
-      await ctx.prisma.personApplication.update({
-        where: {
-          person_id_session_id: {
-            person_id: input.person_id,
+      await ctx.prisma.$transaction([
+        ctx.prisma.personApplication.updateMany({
+          where: {
+            committee_id: input.committee_id,
             session_id: currentSession.id,
+            delegation_id: input.delegation_id,
           },
-        },
-        data: input,
-      });
+          data: { committee_id: null },
+        }),
+        ctx.prisma.personApplication.update({
+          where: {
+            person_id_session_id: {
+              person_id: input.person_id,
+              session_id: currentSession.id,
+            },
+          },
+          data: input,
+        }),
+      ]);
     }),
 
   /**
@@ -166,8 +175,6 @@ const delegationsRouter = trpc.router({
       })
     )
     .query(async ({ input, ctx }) => {
-      await checkPersonPermission(ctx, { resourceName: "delegation" });
-
       const currentSession = await getCurrentSession(ctx);
 
       return await ctx.prisma.delegation.findMany({
