@@ -24,7 +24,7 @@ USER node
 ENV PUBLIC_URL /dashboard
 
 RUN yarn --non-interactive
-RUN npx prisma generate --schema=packages/rimun-api/dist/prisma/schema.prisma
+RUN npx prisma generate --schema=packages/rimun-api/prisma/schema.prisma
 RUN yarn workspace @rimun/api run build
 RUN yarn workspace @rimun/app run build
 
