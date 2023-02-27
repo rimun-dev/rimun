@@ -6,16 +6,16 @@ COPY --chown=node:node yarn.lock .
 COPY --chown=node:node package.json .
 COPY --chown=node:node tsconfig.base.json .
 
-COPY --chown=node:node packages/app/package.json ./packages/app/
-COPY --chown=node:node packages/app/tsconfig.json ./packages/app/
-COPY --chown=node:node packages/app/tailwind.config.js ./packages/app/
-COPY --chown=node:node packages/app/src ./packages/app/src
-COPY --chown=node:node packages/app/public ./packages/app/public
+COPY --chown=node:node packages/rimun-app/package.json ./packages/rimun-app/
+COPY --chown=node:node packages/rimun-app/tsconfig.json ./packages/rimun-app/
+COPY --chown=node:node packages/rimun-app/tailwind.config.js ./packages/rimun-app/
+COPY --chown=node:node packages/rimun-app/src ./packages/rimun-app/src
+COPY --chown=node:node packages/rimun-app/public ./packages/rimun-app/public
 
-COPY --chown=node:node packages/api/package.json ./packages/api/
-COPY --chown=node:node packages/api/tsconfig.json ./packages/api/
-COPY --chown=node:node packages/api/tsconfig.prod.json ./packages/api/
-COPY --chown=node:node packages/api/src ./packages/api/src
+COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
+COPY --chown=node:node packages/rimun-api/tsconfig.json ./packages/rimun-api/
+COPY --chown=node:node packages/rimun-api/tsconfig.prod.json ./packages/rimun-api/
+COPY --chown=node:node packages/rimun-api/src ./packages/rimun-api/src
 
 RUN chown -R node:node /tmp/build
 
@@ -31,8 +31,8 @@ RUN yarn workspace @rimun/app run build
 
 FROM nginx:alpine as runtime-container
 
-COPY packages/app/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build-container /tmp/build/packages/app/build /usr/share/nginx/html/admin
+COPY packages/rimun-app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build-container /tmp/build/packages/rimun-app/build /usr/share/nginx/html/admin
 
 ENV PORT 8080
 ENV HOST 0.0.0.0
