@@ -14,7 +14,6 @@ COPY --chown=node:node packages/rimun-app/public ./packages/rimun-app/public
 
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/tsconfig.json ./packages/rimun-api/
-COPY --chown=node:node packages/rimun-api/tsconfig.prod.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/src ./packages/rimun-api/src
 
 RUN chown -R node:node /tmp/build
