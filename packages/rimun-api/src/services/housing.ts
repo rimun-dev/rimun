@@ -4,7 +4,6 @@ import { authenticatedProcedure, trpc } from "../trpc";
 import {
   checkPersonPermission,
   getCurrentSession,
-  getGroup,
   getPersonUser,
   identifierSchema,
 } from "./utils";
@@ -14,12 +13,11 @@ const housingRouter = trpc.router({
     await checkPersonPermission(ctx, { resourceName: "housing" });
 
     const currentSession = await getCurrentSession(ctx);
-    const hscGroup = await getGroup("hsc", ctx);
 
     const hscRequestsPersonIds = (
       await ctx.prisma.personApplication.findMany({
         where: {
-          confirmed_group_id: hscGroup.id,
+          confirmed_group: { name: "hsc" },
           session_id: currentSession.id,
           status_application: "ACCEPTED",
           status_housing: "ACCEPTED",
@@ -40,7 +38,19 @@ const housingRouter = trpc.router({
     });
 
     const nSchoolRequests = await ctx.prisma.schoolGroupAssignment.aggregate({
-      where: { session_id: currentSession.id, n_confirmed: { not: null } },
+      where: {
+        session_id: currentSession.id,
+        school: {
+          applications: {
+            some: {
+              session_id: currentSession.id,
+              status_application: "ACCEPTED",
+              status_housing: "ACCEPTED",
+            },
+          },
+        },
+        n_confirmed: { not: null },
+      },
       _sum: { n_confirmed: true },
     });
 
