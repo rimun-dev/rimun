@@ -18,8 +18,10 @@ export default function HSCList() {
 
   const trpcCtx = trpc.useContext();
 
-  const handleUpdate = () =>
+  const handleUpdate = () => {
     trpcCtx.search.searchPersons.invalidate(queryInput);
+    trpcCtx.housing.getStats.invalidate();
+  };
 
   if (isLoading || !data) return <Spinner />;
 
@@ -27,8 +29,8 @@ export default function HSCList() {
     <Card className="overflow-y-hidden overflow-x-auto">
       <div style={{ minWidth: "628px" }}>
         <div className="grid grid-cols-5 p-2 text-xs text-slate-500 font-bold border-b">
-          <div className="col-span-3">Name</div>
-          <div className="col-span-1">Status</div>
+          <div className="col-span-2">Name</div>
+          <div className="col-span-2">Status</div>
         </div>
 
         <div className="flex flex-col divide-y">

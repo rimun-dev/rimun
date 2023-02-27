@@ -36,7 +36,9 @@ export default function HistoricalHousingRequestItem(
           status={getTagStatusFromHousing(
             props.personApplicationData.status_housing
           )}
-        />
+        >
+          {props.personApplicationData.status_housing}
+        </Tag>
       </div>
 
       <div className="col-span-1 flex items-center justify-end">

@@ -39,7 +39,7 @@ export default function AdminPanel() {
           name="Search"
           path="search"
           icon={MagnifyingGlassIcon}
-          description="Quickly find attendees or schools"
+          description="Quickly find attendees or schools for this session"
         />
         <AdminPanelItem
           name="Applications"

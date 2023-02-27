@@ -77,7 +77,7 @@ export default function EditPersonApplicationModalForm(
         }}
         validationSchema={Yup.object({
           status_application: Yup.string()
-            .oneOf(["hold", "accepted", "refused"])
+            .oneOf(["HOLD", "ACCEPTED", "REFUSED"])
             .required("Please select the application status."),
           // requested_group_id: Yup.number().optional(),
           // confirmed_group_id: Yup.number().optional(),
@@ -91,9 +91,9 @@ export default function EditPersonApplicationModalForm(
                 name="status_application"
                 className="w-full"
                 options={[
-                  { name: "Hold", value: "hold" },
-                  { name: "Accepted", value: "accepted" },
-                  { name: "Refused", value: "refused" },
+                  { name: "Hold", value: "HOLD" },
+                  { name: "Accepted", value: "ACCEPTED" },
+                  { name: "Refused", value: "REFUSED" },
                 ]}
               />
             </Label>

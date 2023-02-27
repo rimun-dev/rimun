@@ -9,7 +9,7 @@ import {
 import React from "react";
 import CircularButton from "src/components/buttons/CircularButton";
 import AddGuestModalForm from "src/components/forms/housing/AddGuestModalForm";
-import DelGuestModalForm from "src/components/forms/housing/DelGuestModalForm";
+import ConfirmationModal from "src/components/layout/ConfirmationModal";
 import DropDown from "src/components/layout/DropDown";
 import PersonItemBadge from "src/components/layout/list/utils/PersonItemBadge";
 import { SearchRouterOutputs } from "src/trpc";
@@ -25,66 +25,46 @@ export default function PersonHostItem(props: PersonHostItemProps) {
   const [showDelMatchModal, setShowDelMatchModal] = React.useState(false);
   const [showDetails, setShowDetails] = React.useState(false);
 
-  function HostFeature({
-    icon,
-    value,
-    condition,
-  }: {
-    icon: typeof PhoneIcon;
-    value?: string | null;
-    condition?: boolean;
-  }) {
-    const Icon = icon;
-    return (
-      <div className="flex gap-2 items-center">
-        <Icon className="text-xs text-slate-500 w-4 h-4" />
-        <p>{condition || value ? value : "N/A"}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="divide-y">
-      <div className="grid grid-cols-5 gap-4 items-center p-4">
-        <PersonItemBadge
-          className="col-span-2"
-          person={props.hostApplicationData.person}
-          description={
-            props.hostApplicationData.school
-              ? `${props.hostApplicationData.school.name}, ${props.hostApplicationData.school_year}${props.hostApplicationData.school_section}`
-              : "No School Information"
-          }
+    <div className="grid grid-cols-5 gap-4 items-center p-4">
+      <PersonItemBadge
+        className="col-span-2"
+        person={props.hostApplicationData.person}
+        description={
+          props.hostApplicationData.school
+            ? `${props.hostApplicationData.school.name}, ${props.hostApplicationData.school_year}${props.hostApplicationData.school_section}`
+            : "No School Information"
+        }
+      />
+
+      <div className="col-span-2 font-mono">
+        {props.hostApplicationData.person.host_matches.length}/
+        {props.hostApplicationData.housing_n_guests}
+      </div>
+
+      <div className="col-span-1 flex items-center justify-end gap-2">
+        <DropDown
+          items={[
+            { name: "Add Guest", onClick: () => setShowAddMatchModal(true) },
+            {
+              name: "Remove Guest",
+              onClick: () => setShowDelMatchModal(true),
+            },
+          ]}
+        >
+          <CircularButton icon={EllipsisHorizontalIcon} />
+        </DropDown>
+        <CircularButton
+          icon={ChevronDownIcon}
+          className={`transition-transform ${
+            showDetails ? "rotate-180" : undefined
+          }`}
+          onClick={() => setShowDetails(!showDetails)}
         />
-
-        <div className="col-span-2 font-mono">
-          {props.hostApplicationData.person.host_matches.length}/
-          {props.hostApplicationData.housing_n_guests}
-        </div>
-
-        <div className="col-span-1 flex items-center justify-end gap-2">
-          <DropDown
-            items={[
-              { name: "Add Guest", onClick: () => setShowAddMatchModal(true) },
-              {
-                name: "Remove Guest",
-                onClick: () => setShowDelMatchModal(true),
-              },
-            ]}
-          >
-            <CircularButton icon={EllipsisHorizontalIcon} />
-          </DropDown>
-          <CircularButton
-            icon={ChevronDownIcon}
-            className={`transition-transform ${
-              showDetails ? "rotate-180" : undefined
-            }`}
-            onClick={() => setShowDetails(!showDetails)}
-          />
-        </div>
       </div>
 
       {showDetails && (
-        <div className="flex p-4 ">
+        <div className="flex p-4 col-span-5 ">
           <div className="text-xs flex flex-col gap-2 md:w-2/5 ">
             <HostFeature
               icon={MapPinIcon}
@@ -110,7 +90,11 @@ export default function PersonHostItem(props: PersonHostItemProps) {
             {props.hostApplicationData.person.host_matches.length === 0 &&
               "No guests yet."}
             {props.hostApplicationData.person.host_matches.map((match) => (
-              <PersonItemBadge person={match.guest} format="small" />
+              <PersonItemBadge
+                key={match.id}
+                person={match.guest}
+                format="small"
+              />
             ))}
           </div>
         </div>
@@ -122,12 +106,33 @@ export default function PersonHostItem(props: PersonHostItemProps) {
         host={props.hostApplicationData.person}
         onUpdate={props.onUpdate}
       />
-      <DelGuestModalForm
+
+      <ConfirmationModal
         isVisible={showDelMatchModal}
         setIsVisible={setShowDelMatchModal}
-        hostApplicationData={props.hostApplicationData}
-        onUpdate={props.onUpdate}
-      />
+        onConfirm={() => {}}
+        title="Remove Guest"
+      >
+        Are you sure you want to remove this guest?
+      </ConfirmationModal>
+    </div>
+  );
+}
+
+function HostFeature({
+  icon,
+  value,
+  condition,
+}: {
+  icon: typeof PhoneIcon;
+  value?: string | null;
+  condition?: boolean;
+}) {
+  const Icon = icon;
+  return (
+    <div className="flex gap-2 items-center">
+      <Icon className="text-xs text-slate-500 w-4 h-4" />
+      <p>{condition || value ? value : "N/A"}</p>
     </div>
   );
 }

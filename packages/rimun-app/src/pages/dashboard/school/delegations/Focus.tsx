@@ -20,7 +20,6 @@ export default function SchoolDelegationFocus() {
   const { data, isLoading } = trpc.delegations.getDelegation.useQuery(
     delegationId,
     {
-      enabled: !!params.id,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
     }
@@ -42,20 +41,22 @@ export default function SchoolDelegationFocus() {
       </p>
 
       <Card className="divide-y">
-        {data.delegation_committee_assignments.map((dca) => {
-          const application = data.person_applications.find(
-            (a) => a.committee_id === dca.id
-          );
-          return (
-            <CommitteeItem
-              key={dca.id}
-              committee={dca.committee}
-              delegation={data}
-              delegateData={application}
-              handleUpdate={handleUpdate}
-            />
-          );
-        })}
+        {data.delegation_committee_assignments
+          .sort((a, b) => a.id - b.id)
+          .map((dca) => {
+            const application = data.person_applications.find(
+              (a) => a.committee_id === dca.committee_id
+            );
+            return (
+              <CommitteeItem
+                key={dca.id}
+                committee={dca.committee}
+                delegation={data}
+                delegateData={application}
+                handleUpdate={handleUpdate}
+              />
+            );
+          })}
       </Card>
     </div>
   );
@@ -105,7 +106,6 @@ function CommitteeItem(props: CommitteeItemProps) {
             description={
               props.delegateData.is_ambassador ? "Ambassador" : "Delegate"
             }
-            format="small"
           />
           <CircularButton
             icon={XMarkIcon}
