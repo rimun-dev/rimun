@@ -33,7 +33,7 @@ RUN yarn workspace @rimun/app run build
 FROM nginx:alpine as runtime-container
 
 COPY packages/rimun-app/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build-container /tmp/build/packages/rimun-app/build /usr/share/nginx/html/admin
+COPY --from=build-container /tmp/build/packages/rimun-app/build /usr/share/nginx/html/dashboard
 
 ENV PORT 8080
 ENV HOST 0.0.0.0
