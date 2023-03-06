@@ -9,7 +9,7 @@
         }
       },
       {
-        "source": "/{,/**}",
+        "source": "/**",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }],
         "run": {
           "serviceId": "rimun-app",
