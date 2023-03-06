@@ -26,7 +26,7 @@ const searchRouter = trpc.router({
   /**
    * Search within persons with an application for the current session.
    */
-  searchPersons: authenticatedProcedure
+  searchPersons: trpc.procedure
     .input(
       searchTextQueryBaseSchema.extend({
         filters: z.object({
@@ -43,6 +43,16 @@ const searchRouter = trpc.router({
               housing_is_available: z.boolean().optional(),
               confirmed_group: z
                 .object({ name: z.string().optional() })
+                .optional(),
+              confirmed_role: z
+                .object({
+                  name: z.string().optional(),
+                  forum: z
+                    .object({
+                      acronym: z.string().optional(),
+                    })
+                    .optional(),
+                })
                 .optional(),
               requested_group: z
                 .object({ name: z.string().optional() })

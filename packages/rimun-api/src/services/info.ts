@@ -19,7 +19,22 @@ const infoRouter = trpc.router({
     const currentSession = await getCurrentSession(ctx);
 
     const forums = await ctx.prisma.forum.findMany({
-      include: { committees: { where: { session_id: currentSession.id } } },
+      include: {
+        committees: {
+          where: { session_id: currentSession.id },
+          include: {
+            report: true,
+            topics: true,
+            person_applications: {
+              where: { confirmed_group: { name: "chair" } },
+              include: {
+                person: { include: { account: { select: { email: true } } } },
+                confirmed_role: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     const committees_stats: { [cid: number]: number } = {};
@@ -54,6 +69,26 @@ const infoRouter = trpc.router({
         where: input,
       });
     }),
+
+  getCurrentSession: trpc.procedure.query(async ({ ctx }) => {
+    return await ctx.prisma.session.findFirst({
+      where: { is_active: true },
+    });
+  }),
+
+  getTeam: trpc.procedure.query(async ({ ctx }) => {
+    const currentSession = await getCurrentSession(ctx);
+    return await ctx.prisma.personApplication.findMany({
+      where: {
+        session_id: currentSession.id,
+        confirmed_group: { name: "secretariat" },
+      },
+      include: {
+        confirmed_role: true,
+        person: { include: { account: { select: { email: true } } } },
+      },
+    });
+  }),
 });
 
 export default infoRouter;
