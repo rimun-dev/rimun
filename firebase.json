@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "rimun-api",
+          "region": "europe-west8"
+        }
+      },
+      {
+        "source": "/{,/**}",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }],
+        "run": {
+          "serviceId": "rimun-app",
+          "region": "europe-west8"
+        }
+      }
+    ]
+  }
+}
