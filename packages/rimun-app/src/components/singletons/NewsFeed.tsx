@@ -57,7 +57,11 @@ export default function NewsFeed() {
 
       <div className="flex flex-col gap-4 mt-4">
         {data
-          .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          )
           .map((post) => (
             <BlogPostItem
               key={post.id}
