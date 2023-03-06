@@ -147,6 +147,7 @@ model Forum {
   acronym     String      @unique
   name        String      @unique
   description String?
+  image_path  String?
   committees  Committee[]
   roles       Role[]
 
