@@ -21,7 +21,7 @@ RUN chown -R node:node /tmp/build
 
 USER node
 
-ENV PUBLIC_URL /dashboard
+ENV PUBLIC_URL /
 
 RUN yarn --non-interactive
 RUN npx prisma generate --schema=packages/rimun-api/prisma/schema.prisma
@@ -33,7 +33,7 @@ RUN yarn workspace @rimun/app run build
 FROM nginx:alpine as runtime-container
 
 COPY packages/rimun-app/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build-container /tmp/build/packages/rimun-app/build /usr/share/nginx/html/dashboard
+COPY --from=build-container /tmp/build/packages/rimun-app/build /usr/share/nginx/html
 
 ENV PORT 8080
 ENV HOST 0.0.0.0
