@@ -1,0 +1,24 @@
+#landing {
+  #contact {
+    .hero {
+      background: url(../../../assets/img/pages/contact/contact-sm.jpg);
+    }
+    @media screen and (min-width: 628px) {
+      .hero {
+        background-image: url(../../../assets/img/pages/contact/contact-md.jpg);
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      .hero {
+        background-image: url(../../../assets/img/pages/contact/contact-lg.jpg);
+      }
+    }
+
+    .container {
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+      max-width: 550px;
+      justify-content: center;
+    }
+  }
+}

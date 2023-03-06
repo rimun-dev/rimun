@@ -1,0 +1,251 @@
+#landing {
+  #forums {
+    #forums-nav {
+      background: var(--gradient-primary-accent);
+      padding-top: 1.25rem;
+      padding-bottom: 1.25rem;
+      width: 100%;
+      position: relative;
+    }
+    #forums-nav > div.container {
+      position: relative;
+    }
+    #forums-btn {
+      border: 1px solid var(--color-background);
+      color: var(--color-background);
+      border-radius: 0.25rem;
+      text-transform: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #forums-btn span {
+      margin-left: 0.5rem;
+    }
+    #forums-btn svg {
+      opacity: 0.8;
+    }
+    #forums-dropdown {
+      z-index: 5;
+      opacity: 0;
+      display: block;
+      position: absolute;
+      background-color: var(--color-background);
+      border-radius: 0.5rem;
+      transition: all 350ms ease-in-out;
+      padding-left: 1.75rem;
+      padding-right: 1.75rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      width: 250px;
+      top: 3rem;
+      box-shadow: 0 4px 6px 2px rgba(0, 0, 0, 0.1),
+        0 2px 4px 2px rgba(0, 0, 0, 0.06);
+    }
+    #forums-dropdown.open {
+      opacity: 1;
+    }
+    #forums-dropdown li {
+      list-style: none;
+      padding-top: 0.45rem;
+      padding-bottom: 0.45rem;
+    }
+    #forums-dropdown li.selected a {
+      font-weight: 900;
+      color: var(--color-primary);
+    }
+    #forums-dropdown a {
+      display: flex;
+      align-items: center;
+    }
+    #forums-nav #clickout {
+      display: none;
+      top: 0;
+      left: 0;
+      position: fixed;
+      z-index: 4;
+      width: 100%;
+      height: 100%;
+    }
+    #forums-nav.open #clickout {
+      display: block;
+    }
+
+    #forum-bg {
+      height: 350px;
+      width: 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    #forum-name {
+      height: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-end;
+    }
+    #forum-name h1 {
+      color: white;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 3.5rem;
+      padding-bottom: 2rem;
+    }
+    #forum-description {
+      text-justify: distribute;
+      padding-bottom: 3rem;
+      padding-top: 3rem;
+      line-height: 2.125rem;
+      font-size: 1.2rem;
+    }
+    #forum-description p {
+      padding-top: 1rem;
+    }
+    @media screen and (max-width: 1024px) {
+      #forum-name h1 {
+        font-size: 3rem;
+      }
+    }
+    #forum-committees {
+      display: grid;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    #forum-mains {
+      margin-bottom: 2rem;
+    }
+    .main {
+      display: flex;
+      margin-bottom: 2rem;
+      margin-top: 2rem;
+    }
+    .main__text {
+      margin-left: 1rem;
+    }
+    .main__text p {
+      line-height: 25px;
+    }
+    .main__text__name {
+      color: var(--color-text-dark);
+      font-weight: 600;
+    }
+    .main__text__role {
+      font-weight: 300;
+    }
+    @media screen and (max-width: 768px) {
+      #forum-committees {
+        padding: 0;
+      }
+    }
+
+    .committee {
+      overflow: hidden;
+    }
+    @media screen and (min-width: 768px) {
+      .committee {
+        border: 1px solid var(--color-secondary);
+        box-shadow: var(--shadow-md);
+      }
+    }
+    @media screen and (max-width: 768px) {
+      .committee {
+        border-top: 1px solid var(--color-secondary);
+      }
+      .committee.open {
+        border-bottom: 1px solid var(--color-secondary);
+      }
+    }
+    .committee-header {
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 2rem;
+      border-bottom: 1px solid var(--color-secondary);
+    }
+    .committee-header span {
+      font-weight: 500;
+      color: var(--color-text-dark);
+      font-size: 1.2rem;
+      padding-right: 0.25rem;
+    }
+    .committee .committee-body {
+      height: 0;
+      opacity: 0;
+      transition: all 300ms ease-in-out;
+      line-height: 1.75;
+      margin-left: -5rem;
+      padding: 2rem;
+    }
+    .committee.open .committee-body {
+      height: auto;
+      opacity: 1;
+      padding-bottom: 1.75rem;
+      margin-left: 0;
+    }
+    .committee-body h3 {
+      font-size: 17px;
+      color: var(--color-text);
+    }
+    .committee-body__section {
+      margin-bottom: 2rem;
+    }
+    .committee-body__section:last-child {
+      margin-bottom: 0;
+    }
+    .committee__header__icon {
+      width: 25px;
+      height: 25px;
+    }
+    .committee__header__icon svg {
+      min-width: 35px;
+      transition: all 300ms ease-in-out;
+    }
+    .committee.open .committee-header svg {
+      transform: rotate(45deg);
+    }
+    .committee-body {
+      display: grid;
+      gap: 1rem;
+    }
+    .topics {
+      list-style: none;
+    }
+    .topic__name {
+      margin-right: 1rem;
+      font-weight: 500;
+    }
+    .topic__description {
+      font-weight: 300;
+    }
+    .topic svg {
+      color: var(--color-primary);
+      margin-right: 0.5rem;
+    }
+    .chair {
+      display: flex;
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .chair__text {
+      margin-left: 1rem;
+    }
+    .chair__text p {
+      line-height: 25px;
+    }
+    .chair__text__name {
+      color: var(--color-text-dark);
+      font-weight: 600;
+    }
+    .chair__text__role {
+      font-weight: 300;
+    }
+    .guide__link {
+      display: flex;
+      align-items: center;
+    }
+    .guide__link svg {
+      margin-right: 0.5rem;
+    }
+  }
+}

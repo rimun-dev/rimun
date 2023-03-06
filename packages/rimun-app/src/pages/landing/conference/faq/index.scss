@@ -1,0 +1,92 @@
+#landing {
+  #faqs {
+    .hero {
+      background-position: bottom !important;
+      background: url(../../../../assets/img/pages/conference/faqs/faqs-sm.jpg);
+    }
+    @media screen and (min-width: 628px) {
+      .hero {
+        background-image: url(../../../../assets/img/pages/conference/faqs/faqs-md.jpg);
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      .hero {
+        background-image: url(../../../../assets/img/pages/conference/faqs/faqs-lg.jpg);
+      }
+    }
+
+    .container {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+    }
+    @media screen and (max-width: 768px) {
+      .container {
+        padding: 0;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
+    }
+
+    .faq-category h2 {
+      margin-bottom: 1rem;
+    }
+    @media screen and (max-width: 1024px) {
+      .faq-category h2 {
+        text-align: center;
+      }
+    }
+
+    .faq {
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    @media screen and (min-width: 768px) {
+      .faq {
+        border: 1px solid var(--color-secondary);
+        box-shadow: var(--shadow-md);
+      }
+    }
+    @media screen and (max-width: 768px) {
+      .faq {
+        border-top: 1px solid var(--color-secondary);
+      }
+      .faq.open {
+        border-bottom: 1px solid var(--color-secondary);
+      }
+    }
+    .faq__header {
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 2rem;
+      border-bottom: 1px solid var(--color-secondary);
+    }
+    .faq__header span {
+      font-weight: 500;
+      color: var(--color-text-dark);
+      font-size: 1.2rem;
+      padding-right: 0.25rem;
+    }
+    .faq .faq__body {
+      height: 0;
+      opacity: 0;
+      transition: all 300ms ease-in-out;
+      line-height: 1.75;
+      margin-left: -5rem;
+      padding: 2rem;
+    }
+    .faq.open .faq__body {
+      height: auto;
+      opacity: 1;
+      padding-bottom: 1.75rem;
+      margin-left: 0;
+    }
+    .faq__header svg {
+      min-width: 35px;
+      transition: all 300ms ease-in-out;
+    }
+    .faq.open .faq__header svg {
+      transform: rotate(45deg);
+    }
+  }
+}

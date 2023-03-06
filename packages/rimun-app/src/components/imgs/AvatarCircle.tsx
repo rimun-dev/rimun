@@ -5,6 +5,7 @@ import BaseRemoteImage from "src/components/imgs/BaseRemoteImage";
 
 interface AvatarCircleProps extends React.HTMLProps<HTMLDivElement> {
   path?: string;
+  format?: "sm" | "md" | "lg";
 }
 
 export default function AvatarCircle(props: AvatarCircleProps) {

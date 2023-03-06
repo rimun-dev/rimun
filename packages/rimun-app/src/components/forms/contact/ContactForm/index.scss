@@ -1,0 +1,27 @@
+#landing {
+  #contact {
+    #mail-form {
+      width: 100%;
+      display: grid;
+      gap: 1.75rem;
+    }
+    #mail-form label,
+    #mail-form input[type="text"],
+    #mail-form input[type="email"],
+    #mail-form textarea {
+      width: 100%;
+    }
+    #mail-form textarea {
+      height: 15rem;
+    }
+    ::-webkit-input-placeholder,
+    ::-moz-placeholder,
+    :-moz-placeholder,
+    ::-ms-input-placeholder,
+    :-ms-input-placeholder,
+    ::placeholder {
+      color: var(--color-text);
+      opacity: 0.4;
+    }
+  }
+}

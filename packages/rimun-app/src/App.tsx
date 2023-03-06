@@ -4,6 +4,17 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { TRPCClientError } from "@trpc/client";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
+import Landing from "src/pages/landing";
+import LandingBlog from "src/pages/landing/blog";
+import LandingConferenceFaq from "src/pages/landing/conference/faq";
+import LandingConferenceForums from "src/pages/landing/conference/forums";
+import LandingConferenceResources from "src/pages/landing/conference/resources";
+import LandingConferenceTeam from "src/pages/landing/conference/team";
+import LandingConferenceTheme from "src/pages/landing/conference/theme";
+import LandingContact from "src/pages/landing/contact";
+import LandingGallery from "src/pages/landing/gallery";
+import AlbumFocus from "src/pages/landing/gallery/AlbumFocus";
+import LandingHome from "src/pages/landing/home";
 import AlertPopup from "./components/singletons/AlertPopup";
 import NewsFeed from "./components/singletons/NewsFeed";
 import NotFound from "./components/singletons/NotFound";
@@ -97,7 +108,30 @@ export default function App() {
         persistOptions={{ persister }}
       >
         <AlertPopup />
+
         <Routes>
+          <Route path="/" element={<Landing />}>
+            <Route index element={<LandingHome />} />
+            <Route path="conference">
+              <Route path="theme" element={<LandingConferenceTheme />} />
+              <Route path="team" element={<LandingConferenceTeam />} />
+              <Route
+                path="resources"
+                element={<LandingConferenceResources />}
+              />
+              <Route path="faq" element={<LandingConferenceFaq />} />
+              <Route
+                path="forums/:acronym"
+                element={<LandingConferenceForums />}
+              />
+            </Route>
+            <Route path="gallery">
+              <Route index element={<LandingGallery />} />
+              <Route path="albums/:edition" element={<AlbumFocus />} />
+            </Route>
+            <Route path="blog" element={<LandingBlog />} />
+            <Route path="contact" element={<LandingContact />} />
+          </Route>
           {authState.isAuthenticated ? (
             !authState.account.is_school ? (
               <Route path="/dashboard" element={<PersonDashboard />}>

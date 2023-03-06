@@ -1,0 +1,60 @@
+#landing {
+  #team {
+    .hero {
+      background: url(../../../../assets/img/pages/conference/team/team-sm.jpg);
+    }
+    @media screen and (min-width: 628px) {
+      .hero {
+        background-image: url(../../../../assets/img/pages/conference/team/team-md.jpg);
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      .hero {
+        background-image: url(../../../../assets/img/pages/conference/team/team-lg.jpg);
+      }
+    }
+
+    #team-list {
+      display: grid;
+      gap: 2rem;
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+    }
+    .title {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+    }
+    @media screen and (min-width: 768px) {
+      #team-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      #team-list {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    .team-member {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 1px solid var(--color-secondary);
+      border-radius: 10px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+    .team-member__name {
+      margin-top: 1rem;
+    }
+    .team-member__role {
+      margin-top: 0.2rem;
+      margin-bottom: 1rem;
+    }
+    .team-member__email {
+      color: var(--color-accent);
+    }
+  }
+}

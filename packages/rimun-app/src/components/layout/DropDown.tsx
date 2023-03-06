@@ -34,7 +34,7 @@ const DropDown: React.FC<DropDownProps> = (props) => {
             <li key={item.name} className="text-xs">
               <button
                 type="button"
-                className="hover:text-blue-500 transition-colors"
+                className="hover:text-blue-500 text-slate-700 transition-colors"
                 onClick={() => {
                   item.onClick();
                   setShowDropdown(false);

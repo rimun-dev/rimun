@@ -1,0 +1,45 @@
+#landing {
+  #theme {
+    #theme-body {
+      text-align: justify;
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+      font-size: 19px;
+      line-height: 34px;
+      max-width: 728px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #111827;
+    }
+    #theme-body >>> p {
+      margin-bottom: 2rem;
+      padding: 4rem;
+    }
+    #theme-cta {
+      background: var(--color-primary);
+      height: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #theme-cta .container {
+      text-align: center;
+      color: white;
+      font-size: 1.1rem;
+    }
+    #theme-cta a {
+      margin-top: 1.5rem;
+      border-color: white;
+      color: white;
+    }
+    #theme-focus {
+      display: grid;
+      gap: 3rem;
+      margin-top: 3rem;
+      margin-bottom: 4rem;
+      max-width: 728px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+}
