@@ -13,6 +13,7 @@ import registrationRouter from "./registration";
 import resourcesRouter from "./resources";
 import searchRouter from "./search";
 import teamRouter from "./team";
+import timelineRouter from "./timeline";
 
 export const appRouter = trpc.router({
   applications: applicationsRouter,
@@ -29,4 +30,5 @@ export const appRouter = trpc.router({
   resources: resourcesRouter,
   search: searchRouter,
   team: teamRouter,
+  timeline: timelineRouter,
 });
