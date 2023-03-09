@@ -64,6 +64,7 @@ const profilesRouter = trpc.router({
       const profile = await ctx.prisma.school.findUnique({
         where: { id: input },
         include: {
+          country: true,
           applications: { where: { session_id: currentSession.id }, take: 1 },
           school_group_assignments: {
             include: { group: true },
@@ -259,6 +260,7 @@ const profilesRouter = trpc.router({
     const profile = await ctx.prisma.school.findUnique({
       where: { account_id: ctx.userId },
       include: {
+        country: true,
         applications: { where: { session_id: currentSession.id }, take: 1 },
         school_group_assignments: {
           include: { group: true },
