@@ -1,5 +1,6 @@
 import { AdjustmentsVerticalIcon } from "@heroicons/react/24/outline";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import CircularButton from "src/components/buttons/CircularButton";
 import CancelButton from "src/components/fields/base/CancelButton";
 import Label from "src/components/fields/base/utils/Label";
@@ -84,9 +85,15 @@ export default function AdminSearch() {
           className={`flex gap-2 p-4 ${showFilters ? "border-b" : "border-0"}`}
         >
           <SearchBar {...{ query, setQuery }} />
-          <Select className="flex-shrink-0">
-            <option onSelect={() => setUserType("PERSON")}>Persons</option>
-            <option onSelect={() => setUserType("SCHOOL")}>Schools</option>
+          <Select
+            className="flex-shrink-0"
+            value={userType}
+            onChange={(e: React.FormEvent<HTMLSelectElement>) =>
+              setUserType(e.currentTarget.value as "PERSON" | "SCHOOL")
+            }
+          >
+            <option value={"PERSON"}>Persons</option>
+            <option value={"SCHOOL"}>Schools</option>
           </Select>
           <CircularButton
             icon={AdjustmentsVerticalIcon}
@@ -275,6 +282,7 @@ interface PersonSearchResultsProps {
 }
 
 function PersonSearchResults(props: PersonSearchResultsProps) {
+  const navigate = useNavigate();
   return (
     <>
       <p className="text-right text-xs mt-4">
@@ -286,7 +294,11 @@ function PersonSearchResults(props: PersonSearchResultsProps) {
           <PersonSearchResultItem
             key={pa.id}
             personData={pa.person}
+            description={pa.person.account?.email}
             query={props.query}
+            onClick={() =>
+              navigate(`/dashboard/admin/profiles/person/${pa.person.id}`)
+            }
           />
         ))}
       </Card>
@@ -352,6 +364,7 @@ interface SchoolSearchResultsProps {
 }
 
 function SchoolSearchResults(props: SchoolSearchResultsProps) {
+  const navigate = useNavigate();
   return (
     <>
       <p className="text-right text-xs mt-4">
@@ -364,6 +377,9 @@ function SchoolSearchResults(props: SchoolSearchResultsProps) {
             key={sa.id}
             schoolApplicationData={sa}
             query={props.query}
+            onClick={() =>
+              navigate(`/dashboard/admin/profiles/school/${sa.school.id}`)
+            }
           />
         ))}
       </Card>
@@ -374,6 +390,7 @@ function SchoolSearchResults(props: SchoolSearchResultsProps) {
 interface SchoolSearchItemProps {
   query: string;
   schoolApplicationData: SearchRouterOutputs["searchSchools"]["result"][0];
+  onClick?: () => void;
 }
 
 export function SchoolSearchItem(props: SchoolSearchItemProps) {
@@ -381,6 +398,7 @@ export function SchoolSearchItem(props: SchoolSearchItemProps) {
     <button
       type="button"
       className="flex gap-4 items-center border border-slate-100 rounded-sm p-4 hover:bg-blue-50 w-full transition-colors text-left"
+      onClick={props.onClick}
     >
       <FlagCircle country={props.schoolApplicationData.school.country} />
       <div>

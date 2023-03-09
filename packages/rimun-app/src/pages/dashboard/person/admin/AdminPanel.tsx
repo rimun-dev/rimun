@@ -127,7 +127,6 @@ export default function AdminPanel() {
           path="hall-of-fame"
           icon={TrophyIcon}
           description="Manage events in the timeline."
-          isDisabled
         />
         <AdminPanelItem
           name="Sponsors"

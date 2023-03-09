@@ -14,7 +14,8 @@
   input:checked + .toggle-bg {
     @apply bg-brand border-brand;
   }
-  input {
+  input,
+  textarea {
     @apply font-normal;
   }
 }

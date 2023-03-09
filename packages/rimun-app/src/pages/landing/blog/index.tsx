@@ -14,9 +14,15 @@ export default function LandingBlog() {
   return (
     <div id="blog">
       <div className="text-container">
-        {data.map((p) => (
-          <PostCard key={p.id} postData={p} />
-        ))}
+        {data
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          )
+          .map((p) => (
+            <PostCard key={p.id} postData={p} />
+          ))}
       </div>
     </div>
   );

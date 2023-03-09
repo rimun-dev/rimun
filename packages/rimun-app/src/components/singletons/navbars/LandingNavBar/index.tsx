@@ -49,6 +49,10 @@ export default function LandingNavBar() {
                     onClick: () => navigate("/conference/forums/ga"),
                   },
                   {
+                    name: "Hall of Fame",
+                    onClick: () => navigate("/conference/hall-of-fame"),
+                  },
+                  {
                     name: "Our Team",
                     onClick: () => navigate("/conference/team"),
                   },

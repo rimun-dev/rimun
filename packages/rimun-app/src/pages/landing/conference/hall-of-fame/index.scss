@@ -1,0 +1,15 @@
+#landing {
+  #hall-of-fame {
+    .hero {
+      background: url(../../../../assets/img/pages/conference/hall-of-fame/hall-of-fame.jpg);
+    }
+
+    #timeline {
+      padding-top: 4rem;
+      padding-bottom: 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}

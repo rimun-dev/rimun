@@ -65,6 +65,7 @@ function ResourceItem(props: ResourceItemProps) {
         <a
           href={`${CDN_ENDPOINT}/${props.resourceData.path}`}
           target="_blank"
+          rel="noreferrer"
           className="text-blue-500 hover:underline"
         >
           Download

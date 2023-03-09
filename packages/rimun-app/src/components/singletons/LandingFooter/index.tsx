@@ -58,6 +58,7 @@ export default function LandingFooter() {
                 href="https://github.com/marinoandrea"
                 className="underline hover:text-slate-100 transition-colors"
                 target="_blank"
+                rel="noreferrer"
               >
                 Andrea Marino
               </a>

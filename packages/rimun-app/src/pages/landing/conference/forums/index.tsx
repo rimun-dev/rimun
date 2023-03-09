@@ -188,6 +188,7 @@ function CommitteeItem(props: CommitteeItemProps) {
             <a
               className="guide__link text-blue-500 hover:underline"
               target="_blank"
+              rel="noreferrer"
               href={`${CDN_ENDPOINT}/${props.committeeData.report?.document_path}`}
               download
             >

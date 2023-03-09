@@ -8,6 +8,7 @@ interface PersonSearchResultItemProps {
     | SearchRouterOutputs["searchPersons"]["result"][0]["person"]
     | DirectorsRouterOutputs["getAllDirectors"][0]["school"]["person_applications"][0]["person"]
     | SearchRouterOutputs["searchPersonsWithoutApplication"]["result"][0];
+  description?: string;
   onClick?: () => void;
 }
 
@@ -28,6 +29,7 @@ export default function PersonSearchResultItem(
             target={props.personData.full_name}
           />
         </p>
+        <p className="text-xs">{props.description}</p>
       </div>
     </button>
   );

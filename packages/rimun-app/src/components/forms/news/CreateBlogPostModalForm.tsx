@@ -98,6 +98,7 @@ export default function CreateBlogPostModalForm(
               <a
                 href="https://www.markdownguide.org/basic-syntax/"
                 target="_blank"
+                rel="noreferrer"
                 className="text-blue-600 hover:underline"
               >
                 Documentation

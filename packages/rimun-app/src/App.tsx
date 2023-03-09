@@ -4,10 +4,15 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { TRPCClientError } from "@trpc/client";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
+import AdminHallOfFame from "src/pages/dashboard/person/admin/hall-of-fame";
+import AdminProfiles from "src/pages/dashboard/person/admin/profiles";
+import AdminPersonProfile from "src/pages/dashboard/person/admin/profiles/PersonProfile";
+import AdminSchoolProfile from "src/pages/dashboard/person/admin/profiles/SchoolProfile";
 import Landing from "src/pages/landing";
 import LandingBlog from "src/pages/landing/blog";
 import LandingConferenceFaq from "src/pages/landing/conference/faq";
 import LandingConferenceForums from "src/pages/landing/conference/forums";
+import LandingConferenceHallOfFame from "src/pages/landing/conference/hall-of-fame";
 import LandingConferenceResources from "src/pages/landing/conference/resources";
 import LandingConferenceTeam from "src/pages/landing/conference/team";
 import LandingConferenceTheme from "src/pages/landing/conference/theme";
@@ -124,7 +129,12 @@ export default function App() {
                 path="forums/:acronym"
                 element={<LandingConferenceForums />}
               />
+              <Route
+                path="hall-of-fame"
+                element={<LandingConferenceHallOfFame />}
+              />
             </Route>
+
             <Route path="gallery">
               <Route index element={<LandingGallery />} />
               <Route path="albums/:edition" element={<AlbumFocus />} />
@@ -158,6 +168,7 @@ export default function App() {
                   <Route path="permissions" element={<AdminPermissions />} />
                   <Route path="gallery" element={<AdminGallery />} />
                   <Route path="housing" element={<AdminHousing />} />
+                  <Route path="hall-of-fame" element={<AdminHallOfFame />} />
                   <Route path="committees" element={<AdminCommittees />}>
                     <Route index element={<CommitteesOverview />} />
                     <Route path=":id" element={<CommitteeFocus />} />
@@ -165,6 +176,10 @@ export default function App() {
                   <Route path="delegations" element={<AdminDelegations />}>
                     <Route index element={<DelegationsOverview />} />
                     <Route path=":id" element={<DelegationFocus />} />
+                  </Route>
+                  <Route path="profiles" element={<AdminProfiles />}>
+                    <Route path="school/:id" element={<AdminSchoolProfile />} />
+                    <Route path="person/:id" element={<AdminPersonProfile />} />
                   </Route>
                 </Route>
                 <Route path="settings" element={<PersonSettings />} />

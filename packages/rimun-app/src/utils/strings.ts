@@ -64,3 +64,29 @@ export function romanize(num: number): string {
   while (i--) roman = (key[+digits.pop() + i * 10] || "") + roman;
   return Array(+digits.join("") + 1).join("M") + roman;
 }
+
+export function renderGender(v?: string | null) {
+  switch (v) {
+    case "m":
+      return "Male";
+    case "f":
+      return "Female";
+    case "nb":
+      return "Non-binary";
+    default:
+      return "Not selected";
+  }
+}
+
+export function renderTshirtSize(v?: string | null) {
+  switch (v) {
+    case "s":
+      return "Small";
+    case "m":
+      return "Medium";
+    case "l":
+      return "Large";
+    default:
+      return "Not selected";
+  }
+}

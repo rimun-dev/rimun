@@ -71,3 +71,6 @@ export type SearchRouterOutputs = inferRouterOutputs<TrpcRouter>["search"];
 
 export type TeamRouterInputs = inferRouterInputs<TrpcRouter>["team"];
 export type TeamRouterOutputs = inferRouterOutputs<TrpcRouter>["team"];
+
+export type TimelineRouterInputs = inferRouterInputs<TrpcRouter>["timeline"];
+export type TimelineRouterOutputs = inferRouterOutputs<TrpcRouter>["timeline"];
