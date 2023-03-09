@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import config from "../config";
 import mailTransport from "../email";
 import Storage from "../storage";
 import { Context, trpc } from "../trpc";
@@ -65,7 +66,7 @@ const registrationRouter = trpc.router({
         subject: "[RIMUN] Welcome!",
         text: getWelcomeEmailText(account.person!.full_name),
         html: getWelcomeEmailHTML(account.person!.full_name),
-        from: process.env.MAIL_USERNAME,
+        from: config.MAIL_USERNAME,
         to: [account.email],
       });
     }),
@@ -105,7 +106,7 @@ const registrationRouter = trpc.router({
         subject: "[RIMUN] Welcome!",
         text: getWelcomeEmailText(account.school!.name),
         html: getWelcomeEmailHTML(account.school!.name),
-        from: process.env.MAIL_USERNAME,
+        from: config.MAIL_USERNAME,
         to: [account.email],
       });
     }),
