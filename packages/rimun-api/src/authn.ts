@@ -1,11 +1,9 @@
-import { TRPCError } from "@trpc/server";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import config from "./config";
 
 /** Authorization header prefix. */
 const HEADER_PREFIX = "Bearer ";
-
-const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * An `express` specific function which verifies authentication
@@ -38,27 +36,15 @@ export async function extractUserIdentityFromRequest(
 export async function extractUserIdentity(
   token: string
 ): Promise<jwt.JwtPayload | null> {
-  if (!JWT_SECRET)
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "No JWT secret setup.",
-    });
-
   try {
-    return jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
+    return jwt.verify(token, config.JWT_SECRET) as jwt.JwtPayload;
   } catch (e) {
     return null;
   }
 }
 
 export async function createToken(userId: string) {
-  if (!JWT_SECRET)
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "No JWT secret setup.",
-    });
-
-  return jwt.sign({ iss: "rimun-api", sub: userId }, JWT_SECRET, {
+  return jwt.sign({ iss: "rimun-api", sub: userId }, config.JWT_SECRET, {
     expiresIn: "60d",
   });
 }

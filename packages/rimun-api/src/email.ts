@@ -1,13 +1,14 @@
 import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import config from "./config";
 
 const mailTransport = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: process.env.MAIL_PORT,
+  host: config.MAIL_HOST,
+  port: config.MAIL_PORT,
   pool: true,
   secure: true,
   maxConnections: 3,
-  auth: { user: process.env.MAIL_USERNAME, pass: process.env.MAIL_PASSWORD },
+  auth: { user: config.MAIL_USERNAME, pass: config.MAIL_PASSWORD },
   tls: { rejectUnauthorized: false },
 } as SMTPTransport.Options);
 

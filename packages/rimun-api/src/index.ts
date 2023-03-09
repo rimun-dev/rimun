@@ -9,6 +9,7 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
+import config from "./config";
 import { appRouter } from "./services";
 import { createContext } from "./trpc";
 
@@ -25,7 +26,7 @@ function applyMiddleware(app: express.Express) {
 
   if (process.env.NODE_ENV === "production") {
     Sentry.init({
-      dsn: process.env.SENTRY_DSN,
+      dsn: config.SENTRY_DSN,
       integrations: [
         new Sentry.Integrations.Http({ tracing: true }),
         new Tracing.Integrations.Express({ app }),
@@ -66,10 +67,7 @@ export type TrpcRouter = typeof appRouter;
 function main() {
   const app = createApp();
 
-  app.listen(
-    process.env.PORT ? Number.parseInt(process.env.PORT) : 3000,
-    process.env.HOST ?? "0.0.0.0"
-  );
+  app.listen(config.PORT ? config.PORT : 3000, config.HOST ?? "0.0.0.0");
 }
 
 main();

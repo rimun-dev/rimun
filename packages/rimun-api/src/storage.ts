@@ -4,17 +4,18 @@ import { FTPError } from "basic-ftp";
 import { readFileSync, rmSync } from "fs";
 import { Readable } from "stream";
 import * as uuid from "uuid";
+import config from "./config";
 
 /*
   The following is a simple implementation for Supabase bucket storage.
   However, due to budget reasons we are still relying on the old FTP server
   for static file storage.
 export const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_KEY!
+  config.SUPABASE_URL!,
+  config.SUPABASE_KEY!
 );
 
-const bucket = supabase.storage.from(process.env.SUPABASE_BUCKET!);
+const bucket = supabase.storage.from(config.SUPABASE_BUCKET!);
 
 namespace SupabaseStorage {
   export async function upload(
@@ -34,7 +35,7 @@ namespace SupabaseStorage {
 }
 */
 
-// const STATIC_FOLDER = process.env.STATIC_FOLDER ?? "static";
+// const STATIC_FOLDER = config.STATIC_FOLDER ?? "static";
 
 export function makeBucketDirName(): string {
   const date = new Date(Date.now());
@@ -45,10 +46,10 @@ export function makeBucketDirName(): string {
 }
 
 const ftpConfig = {
-  host: process.env.FTP_HOST,
-  user: process.env.FTP_USER,
-  password: process.env.FTP_PASSWORD,
-  port: Number.parseInt(process.env.FTP_PORT ?? "21"),
+  host: config.FTP_HOST,
+  user: config.FTP_USER,
+  password: config.FTP_PASSWORD,
+  port: config.FTP_PORT ?? 21,
 } as ftp.AccessOptions;
 
 // FIXME: workaround for connection limit enforced by FTP server
@@ -85,8 +86,10 @@ namespace FTPStorage {
         if (
           !(e instanceof FTPError) &&
           !(e instanceof Error && e.name.includes("Timeout"))
-        )
+        ) {
+          console.debug(e);
           throw e;
+        }
         await sleep(SLEEP_TIME);
         continue;
       } finally {
