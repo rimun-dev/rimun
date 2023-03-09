@@ -437,3 +437,22 @@ model Topic {
   @@unique([committee_id, name])
   @@map("topic")
 }
+
+enum TimelineEventType {
+  EDITION
+  OTHER
+}
+
+model TimelineEvent {
+  id            Int               @id @default(autoincrement())
+  created_at    DateTime          @default(now())
+  updated_at    DateTime          @default(now())
+  type          TimelineEventType
+  name          String
+  date          DateTime
+  description   String?
+  picture_path  String?
+  document_path String?
+
+  @@map("timeline_event")
+}
