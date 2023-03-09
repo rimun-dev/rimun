@@ -1,5 +1,5 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import config from "../config";
 import mailTransport from "../email";
 import { trpc } from "../trpc";
 
@@ -13,16 +13,11 @@ const contactRouter = trpc.router({
       })
     )
     .mutation(async ({ input }) => {
-      if (!process.env.MAIL_CONTACT_RECIPIENT)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "MAIL_CONTACT_RECIPIENT env variable not set",
-        });
       await mailTransport.sendMail({
         subject: `[Contact Form] Message from ${input.name}`,
         text: input.body,
-        from: process.env.MAIL_USERNAME,
-        to: [process.env.MAIL_CONTACT_RECIPIENT],
+        from: config.MAIL_USERNAME,
+        to: [config.MAIL_CONTACT_RECIPIENT],
       });
     }),
 });
