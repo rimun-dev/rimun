@@ -40,16 +40,22 @@ export default function LandingConferenceHallOfFame() {
             )
             .map((event, idx) =>
               idx % 2 === 0 ? (
-                <div className="grid grid-cols-5 py-8 items-center">
-                  <EventDate className="text-right" eventData={event} />
+                <div
+                  key={event.id}
+                  className="grid grid-cols-5 py-8 items-center"
+                >
+                  <EventDate className="text-right" event={event} />
                   <EventDot />
-                  <EventCard eventData={event} />
+                  <EventCard event={event} />
                 </div>
               ) : (
-                <div className="grid grid-cols-5 py-8 items-center">
-                  <EventCard eventData={event} />
+                <div
+                  key={event.id}
+                  className="grid grid-cols-5 py-8 items-center"
+                >
+                  <EventCard event={event} />
                   <EventDot />
-                  <EventDate className="text-left" eventData={event} />
+                  <EventDate className="text-left" event={event} />
                 </div>
               )
             )}
@@ -60,14 +66,14 @@ export default function LandingConferenceHallOfFame() {
 }
 
 function EventDate(
-  props: { eventData: TimelineEvent } & React.HTMLProps<HTMLDivElement>
+  props: { event: TimelineEvent } & React.HTMLProps<HTMLDivElement>
 ) {
   return (
     <div
       {...props}
       className={`col-span-2 font-bold text-xl ${props.className}`}
     >
-      {props.eventData.date.toLocaleDateString()}
+      {new Date(props.event.date).toLocaleDateString()}
     </div>
   );
 }
@@ -82,33 +88,30 @@ function EventDot() {
   );
 }
 
-function EventCard(props: { eventData: TimelineEvent }) {
+function EventCard(props: { event: TimelineEvent }) {
   return (
     <Card className={`col-span-2 overflow-hidden relative shadow-xl`}>
-      {props.eventData.type === "EDITION" && (
+      {props.event.type === "EDITION" && (
         <Logo className="absolute top-4 right-4 w-12 h-12 text-white opacity-60" />
       )}
       <div className="max-h-40 w-full bg-slate-50 over overflow-hidden">
         <BaseRemoteImage
-          path={props.eventData.picture_path ?? ""}
+          path={props.event.picture_path ?? ""}
           className="object-cover"
         />
       </div>
       <div className="p-4">
-        <h3 className="font-bold">{props.eventData.name}</h3>
+        <h3 className="font-bold">{props.event.name}</h3>
         <p className="text-xs mt-2 text-ellipsis line-clamp-3">
-          {props.eventData.description}
+          {props.event.description}
         </p>
-        {!!props.eventData.document_path && (
+        {!!props.event.document_path && (
           <div className="flex items-center text-xs gap-1 pt-2">
             <DocumentArrowDownIcon className="w-4 h-4 text-blue-400" />
             <a
               className="hover:underline cursor-pointer text-blue-500"
               onClick={() =>
-                downloadDocument(
-                  props.eventData.document_path!,
-                  props.eventData.name
-                )
+                downloadDocument(props.event.document_path!, props.event.name)
               }
             >
               More Information
