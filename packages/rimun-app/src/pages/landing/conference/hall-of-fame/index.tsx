@@ -2,6 +2,7 @@ import {
   CalendarDaysIcon,
   DocumentArrowDownIcon,
 } from "@heroicons/react/24/outline";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import Logo from "src/components/brand/Logo";
 import BaseRemoteImage from "src/components/imgs/BaseRemoteImage";
 import Card from "src/components/layout/Card";
@@ -102,9 +103,9 @@ function EventCard(props: { event: TimelineEvent }) {
       </div>
       <div className="p-4">
         <h3 className="font-bold">{props.event.name}</h3>
-        <p className="text-xs mt-2 text-ellipsis line-clamp-3">
-          {props.event.description}
-        </p>
+        <ReactMarkdown className="text-xs mt-2 text-ellipsis line-clamp-3">
+          {props.event.description ?? ""}
+        </ReactMarkdown>
         {!!props.event.document_path && (
           <div className="flex items-center text-xs gap-1 pt-2">
             <DocumentArrowDownIcon className="w-4 h-4 text-blue-400" />
