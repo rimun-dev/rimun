@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createToken, extractUserIdentity } from "../authn";
+import config from "../config";
 import mailTransport from "../email";
 import { trpc } from "../trpc";
 import {
@@ -115,7 +116,7 @@ const authRouter = trpc.router({
         subject: "[RIMUN] Recover Password",
         text: getRecoverEmailText(token),
         html: getRecoverEmailHTML(token),
-        from: process.env.MAIL_USERNAME,
+        from: config.MAIL_USERNAME,
         to: [account.email],
       });
     }),
@@ -135,7 +136,7 @@ function getRecoverEmailHTML(token: string) {
     <p>To reset your password follow this link:</p>
 
     <p>
-    <a href="${process.env.PASSWORD_RECOVERY_URL}/${token}">Reset password page</a>
+    <a href="${config.PASSWORD_RECOVERY_URL}/${token}">Reset password page</a>
     </p>
 
     <p>If you have not sent any request just ignore this email.</p>
@@ -161,7 +162,7 @@ function getRecoverEmailText(token: string) {
 
   To reset your password follow this link:
   
-  ${process.env.PASSWORD_RECOVERY_URL}/${token}
+  ${config.PASSWORD_RECOVERY_URL}/${token}
   
   If you have not sent any request just ignore this email.
   
