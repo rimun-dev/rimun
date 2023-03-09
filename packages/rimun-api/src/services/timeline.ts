@@ -117,9 +117,9 @@ const timelineRouter = trpc.router({
       if (!deleted) throw new TRPCError({ code: "NOT_FOUND" });
     }),
 
-  getEvents: trpc.procedure.query(async ({ ctx }) => {
-    return await ctx.prisma.timelineEvent.findMany();
-  }),
+  getEvents: trpc.procedure.query(
+    async ({ ctx }) => await ctx.prisma.timelineEvent.findMany()
+  ),
 });
 
 export default timelineRouter;
