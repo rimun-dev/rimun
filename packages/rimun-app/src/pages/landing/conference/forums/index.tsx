@@ -26,7 +26,7 @@ export default function LandingConferenceForums() {
       <ForumPage
         forumData={
           data.forums.find((f) =>
-            location.pathname.includes(f.acronym.toLowerCase())
+            location.pathname.includes(`/${f.acronym.toLowerCase()}`)
           )!
         }
       />
@@ -55,7 +55,9 @@ function Menu(props: { data: InfoRouterOutputs["getForums"] }) {
               <li
                 key={f.id}
                 className={
-                  location.pathname.includes(f.acronym) ? "selected" : undefined
+                  location.pathname.includes(`/${f.acronym.toLowerCase()}`)
+                    ? "selected"
+                    : undefined
                 }
               >
                 <Link to={`/conference/forums/${f.acronym.toLowerCase()}`}>
