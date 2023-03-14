@@ -17,9 +17,11 @@ import LandingConferenceResources from "src/pages/landing/conference/resources";
 import LandingConferenceTeam from "src/pages/landing/conference/team";
 import LandingConferenceTheme from "src/pages/landing/conference/theme";
 import LandingContact from "src/pages/landing/contact";
+import LandingCookies from "src/pages/landing/cookies";
 import LandingGallery from "src/pages/landing/gallery";
 import AlbumFocus from "src/pages/landing/gallery/AlbumFocus";
 import LandingHome from "src/pages/landing/home";
+import LandingTerms from "src/pages/landing/terms";
 import AlertPopup from "./components/singletons/AlertPopup";
 import NewsFeed from "./components/singletons/NewsFeed";
 import NotFound from "./components/singletons/NotFound";
@@ -141,6 +143,8 @@ export default function App() {
             </Route>
             <Route path="blog" element={<LandingBlog />} />
             <Route path="contact" element={<LandingContact />} />
+            <Route path="cookies" element={<LandingCookies />} />
+            <Route path="terms" element={<LandingTerms />} />
           </Route>
           {authState.isAuthenticated ? (
             !authState.account.is_school ? (

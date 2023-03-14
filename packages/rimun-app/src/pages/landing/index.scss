@@ -85,6 +85,11 @@ body {
     margin-bottom: 2rem;
   }
 
+  .text-container > h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
   .section {
     padding-top: var(--padding-section);
     padding-bottom: var(--padding-section);
