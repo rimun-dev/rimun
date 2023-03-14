@@ -83,6 +83,9 @@
   #navbar.home #menu li {
     color: var(--color-background);
   }
+  #navbar.home #menu.open li {
+    color: var(--color-text-dark);
+  }
   #navbar.scrolled #menu li {
     color: var(--color-text-dark);
   }
