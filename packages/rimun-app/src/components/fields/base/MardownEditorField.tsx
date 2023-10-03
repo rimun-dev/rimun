@@ -22,7 +22,7 @@ export default function MardownEditorField(props: MardownEditorFieldProps) {
           placeholder="Type here..."
         />
         <ReactMarkdown
-          className="text-justify p-4 bg-slate-50"
+          className="text-justify p-4 bg-slate-50 overflow-y-auto"
           rehypePlugins={[rehypeRaw]}
         >
           {field.value}
