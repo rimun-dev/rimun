@@ -9,6 +9,7 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { trpc } from "../../../trpc";
 import "./index.scss";
 
 export default function LandingHome() {
@@ -23,6 +24,33 @@ export default function LandingHome() {
 }
 
 function Hero() {
+  const query = trpc.info.getCurrentSession.useQuery();
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const startDay = query.data?.date_start?.getDate();
+  const endDay = query.data?.date_end?.getDate();
+  const month = months[query.data?.date_end?.getMonth() ?? 0];
+  const year = query.data?.date_end?.getFullYear();
+
+  const sessionDateString =
+    query.isLoading || !query.data
+      ? ""
+      : `${startDay} - ${endDay} ${month} ${year}`;
+
   return (
     <div id="hero">
       <div id="blur">
@@ -43,7 +71,7 @@ function Hero() {
               </Link>
               <div id="dates">
                 <CalendarDaysIcon className="w-4 h-4" />
-                <span>24th - 28th March 2023</span>
+                <span>{sessionDateString}</span>
               </div>
             </div>
 
