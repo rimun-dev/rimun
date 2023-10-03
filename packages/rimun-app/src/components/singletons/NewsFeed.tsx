@@ -21,8 +21,10 @@ export default function NewsFeed() {
 
   const canCreatePosts =
     authState.account.is_admin ||
-    authState.account.person?.applications[0]?.confirmed_group?.name ===
-      "secretariat";
+    authState.account.person?.applications.sort(
+      (a, b) => b.created_at.getTime() - a.created_at.getTime()
+    )[0]?.confirmed_group?.name === "secretariat";
+
   const hasApplied = (authState.account.person?.applications.length ?? 0) > 0;
 
   return (
