@@ -9,7 +9,7 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
-import { trpc } from "../../../trpc";
+import { trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingHome() {
@@ -41,10 +41,13 @@ function Hero() {
     "December",
   ];
 
-  const startDay = query.data?.date_start?.getDate();
-  const endDay = query.data?.date_end?.getDate();
-  const month = months[query.data?.date_end?.getMonth() ?? 0];
-  const year = query.data?.date_end?.getFullYear();
+  const dateStart = new Date(query.data?.date_start ?? "");
+  const dateEnd = new Date(query.data?.date_end ?? "");
+
+  const startDay = dateStart.getDate();
+  const endDay = dateEnd.getDate();
+  const month = months[dateEnd.getMonth()];
+  const year = dateEnd.getFullYear();
 
   const sessionDateString =
     query.isLoading || !query.data
