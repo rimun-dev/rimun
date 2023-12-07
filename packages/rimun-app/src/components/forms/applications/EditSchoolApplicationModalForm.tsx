@@ -118,9 +118,9 @@ export default function EditSchoolApplicationModalForm(
                 name="status_application"
                 className="w-full"
                 options={[
-                  { name: "Hold", value: "hold" },
-                  { name: "Accepted", value: "accepted" },
-                  { name: "Refused", value: "refused" },
+                  { name: "Hold", value: "HOLD" },
+                  { name: "Accepted", value: "ACCEPTED" },
+                  { name: "Refused", value: "REFUSED" },
                 ]}
               />
             </Label>
