@@ -100,7 +100,7 @@ export default function EditSchoolApplicationModalForm(
         }}
         validationSchema={Yup.object({
           status_application: Yup.string()
-            .oneOf(["hold", "accepted", "refused"])
+            .oneOf(["HOLD", "ACCEPTED", "REFUSED"])
             .required("Please select the application status."),
           assignments: Yup.array(
             Yup.object({
