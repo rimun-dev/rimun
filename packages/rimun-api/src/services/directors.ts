@@ -28,7 +28,9 @@ const directorsRouter = trpc.router({
           message: "You must first apply to this session.",
         });
 
-      const picture = await getThumbnailImageBuffer(input.picture);
+      const { picture: pictureData, ...inputData } = input;
+
+      const picture = await getThumbnailImageBuffer(pictureData);
       const picture_path = await Storage.upload(
         picture.data,
         picture.type,
@@ -37,7 +39,7 @@ const directorsRouter = trpc.router({
 
       const person = await ctx.prisma.person.create({
         data: {
-          ...input,
+          ...inputData,
           full_name: `${input.name} ${input.surname}`,
           picture_path,
         },
