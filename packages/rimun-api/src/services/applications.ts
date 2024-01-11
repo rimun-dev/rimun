@@ -270,14 +270,19 @@ const applicationsRouter = trpc.router({
         });
       }
 
-      const application = await ctx.prisma.schoolApplication.findUnique({
+      const application = await ctx.prisma.schoolApplication.update({
         where: {
           school_id_session_id: {
             school_id: input.school_id,
             session_id: currentSession.id,
           },
         },
+        data: {
+          status_application: input.status_application,
+          status_housing: input.status_housing,
+        },
       });
+
       if (!application)
         throw new TRPCError({
           code: "BAD_REQUEST",
