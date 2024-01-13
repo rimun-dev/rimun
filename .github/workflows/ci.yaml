@@ -1,0 +1,99 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - id: auth
+        name: authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+          service_account: registry-automation@${{ secrets.GCLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          access_token_lifetime: 300s
+
+      - name: set up Google Cloud SDK
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: configure Docker for GCP
+        run: gcloud auth configure-docker
+
+      # build images
+      - name: build @rimun/api
+        run: docker build -f Dockerfile.api . -t eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-api:${{ github.sha }}
+
+      - name: build @rimun/app
+        run: docker build -f Dockerfile.app . -t eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-app:${{ github.sha }}
+
+      # push images
+      - name: push @rimun/api
+        run: docker push eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-api:${{ github.sha }}
+
+      - name: push @rimun/app
+        run: docker push eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-app:${{ github.sha }}
+
+  deploy:
+    needs: build
+
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - id: auth
+        name: authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+          service_account: registry-automation@${{ secrets.GCLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          access_token_lifetime: 300s
+
+      - name: deploy @rimun/api
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: rimun-api
+          region: ${{ vars.GCLOUD_REGION }}
+          image: eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-api:${{ github.sha }}
+          env_vars: |
+            SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+            PASSWORD_RECOVERY_URL=${{ vars.PASSWORD_RECOVERY_URL }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            MAIL_HOST=${{ vars.MAIL_HOST }}
+            MAIL_PORT=${{ vars.MAIL_PORT }}
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            FTP_HOST=${{ vars.FTP_HOST }}
+            FTP_USER=${{ secrets.FTP_USER }}
+            FTP_PASSWORD=${{ secrets.FTP_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            MAIL_CONTACT_RECIPIENT=${{ vars.MAIL_CONTACT_RECIPIENT }}
+
+      - name: deploy @rimun/app
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: rimun-app
+          region: ${{ vars.GCLOUD_REGION }}
+          image: eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-app:${{ github.sha }}
+
+  migrate:
+    needs: deploy
+
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: node
+        uses: actions/setup-node@v3
+
+      - name: deploy
+        run: DATABASE_URL=${{ secrets.DATABASE_URL }} npx prisma migrate deploy --schema=packages/rimun-api/prisma/schema.prisma
