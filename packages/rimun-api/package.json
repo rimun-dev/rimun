@@ -5,9 +5,9 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "watch": "npx tsc -w",
-    "build": "npx tsc",
-    "dev": "nodemon dist/src/index.js"
+    "build": "tsc --build --verbose",
+    "serve": "NODE_ENV=development nodemon -e ts -r tsconfig-paths/register -w src/ src/index.ts",
+    "start": "node --trace-uncaught -r tsconfig-paths/register dist/src/index.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -23,6 +23,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
+    "find-yarn-workspace-root": "^2.0.0",
     "ftp": "^0.3.10",
     "helmet": "^7.1.0",
     "jimp": "^0.22.4",

@@ -1,4 +1,11 @@
+import { config as dotenv } from "dotenv";
+import workspacesRoot from "find-yarn-workspace-root";
 import { z } from "zod";
+
+if (process.env.NODE_ENV === "development") {
+  const rootDirectory = workspacesRoot();
+  dotenv({ path: `${rootDirectory}/.env` });
+}
 
 const envSchema = z.object({
   HOST: z.string().optional(),

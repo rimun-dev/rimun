@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
-
-if (process.env.NODE_ENV !== "production") dotenv.config();
+import config from "./config";
 
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
@@ -10,7 +8,6 @@ import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import config from "./config";
 import { appRouter } from "./services";
 import { createContext } from "./trpc";
 
