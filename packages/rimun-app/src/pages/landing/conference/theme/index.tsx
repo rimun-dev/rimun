@@ -1,7 +1,7 @@
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import rehypeRaw from "rehype-raw";
-import BaseRemoteImage from "src/components/imgs/BaseRemoteImage";
 import Spinner from "src/components/status/Spinner";
+import { CDN_ENDPOINT } from "src/config";
 import { trpc } from "src/trpc";
 
 export default function LandingConferenceTheme() {
@@ -11,11 +11,10 @@ export default function LandingConferenceTheme() {
 
   return (
     <div id="theme">
-      <div className="hero">
-        <BaseRemoteImage
-          path={data.image_path ?? ""}
-          className="object-fit left-0 -top-56 absolute z-0"
-        />
+      <div
+        className="hero"
+        style={{ backgroundImage: `url(${CDN_ENDPOINT}/${data.image_path})` }}
+      >
         <div className="hero__overlay" />
         <div className="hero__title">{data.title}</div>
         <div className="hero__description">{data.subtitle}</div>
