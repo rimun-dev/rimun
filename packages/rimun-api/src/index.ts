@@ -9,13 +9,15 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import config from "./config";
 import { appRouter } from "./services";
 import { createContext } from "./trpc";
 
 function applyMiddleware(app: express.Express) {
+  app.use(helmet());
   app.use(cors({ credentials: true, origin: true }));
-  app.use(express.json({ limit: "250MB" }));
+  app.use(express.json({ limit: "25MB" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(
     rateLimit({
