@@ -201,10 +201,7 @@ export async function resetSchoolSessionData(
 
   await ctx.prisma.housingMatch.deleteMany({
     where: {
-      OR: {
-        host_id: { in: personIds },
-        guest_id: { in: personIds },
-      },
+      OR: [{ host_id: { in: personIds } }, { guest_id: { in: personIds } }],
     },
   });
 }
@@ -231,10 +228,7 @@ export async function resetSchoolHousingSessionData(
 
     await ctx.prisma.housingMatch.deleteMany({
       where: {
-        OR: {
-          host_id: { in: personIds },
-          guest_id: { in: personIds },
-        },
+        OR: [{ host_id: { in: personIds } }, { guest_id: { in: personIds } }],
       },
     });
   }
