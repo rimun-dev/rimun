@@ -37,7 +37,6 @@
     "@types/express": "^4.17.17",
     "@types/ftp": "^0.3.33",
     "@types/jsonwebtoken": "^9.0.1",
-    "@types/node": "^18.14.0",
     "@types/nodemailer": "^6.4.7",
     "@types/uuid": "^9.0.0",
     "nodemon": "^3.1.0",
