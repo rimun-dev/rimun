@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
-import Jimp from "jimp";
+import sharp from "sharp";
 import { z } from "zod";
 import { Context } from "../trpc";
 
@@ -278,10 +278,12 @@ export async function checkUserPermissionToUpdatePersonApplication(
 }
 
 export async function getImageBuffer(base64: string) {
-  const { type, data } = parseBase64Image(base64);
+  const { data } = parseBase64Image(base64);
   try {
-    const jimp = (await Jimp.read(Buffer.from(data, "base64"))).quality(90);
-    return { data: await jimp.getBufferAsync(type), type };
+    const image = await sharp(Buffer.from(data, "base64"))
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    return { data: image, type: "jpeg" };
   } catch {
     throw new TRPCError({
       code: "BAD_REQUEST",
@@ -291,12 +293,13 @@ export async function getImageBuffer(base64: string) {
 }
 
 export async function getThumbnailImageBuffer(base64: string) {
-  const { type, data } = parseBase64Image(base64);
+  const { data } = parseBase64Image(base64);
   try {
-    const jimp = (await Jimp.read(Buffer.from(data, "base64")))
-      .resize(256, Jimp.AUTO)
-      .quality(70);
-    return { data: await jimp.getBufferAsync(type), type };
+    const image = await sharp(Buffer.from(data, "base64"))
+      .jpeg({ quality: 70 })
+      .resize({ width: 256 })
+      .toBuffer();
+    return { data: image, type: "jpeg" };
   } catch (e) {
     console.debug(e);
     throw new TRPCError({

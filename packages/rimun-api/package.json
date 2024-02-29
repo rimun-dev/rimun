@@ -24,7 +24,6 @@
     "find-yarn-workspace-root": "^2.0.0",
     "ftp": "^0.3.10",
     "helmet": "^7.1.0",
-    "jimp": "^0.22.4",
     "jsonwebtoken": "^9.0.0",
     "nodemailer": "^6.9.1",
     "superjson": "^1.12.2",
@@ -32,8 +31,6 @@
     "uuid": "^9.0.0",
     "winston": "^3.8.2",
     "zod": "^3.20.6",
-    "@pdf-lib/fontkit": "^1.1.1",
-    "pdf-lib": "^1.17.1",
     "sharp": "^0.33.2"
   },
   "devDependencies": {
