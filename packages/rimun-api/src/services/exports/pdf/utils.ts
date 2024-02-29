@@ -28,13 +28,19 @@ export function fixNonWinAnsiString(s: string, font: PDFFont) {
   function renderSimilarChar(char: string) {
     switch (char) {
       case "Ș":
+      case "Ş":
         return "S";
-      case "ć":
-        return "c";
+      case "Ł":
+        return "L";
+      case "ł":
       case "ğ":
         return "g";
       case "ı":
         return "i";
+      case "ń":
+        return "n";
+      case "ă":
+        return "a";
       case "ş":
       case "ș":
         return "s";
@@ -48,7 +54,7 @@ export function fixNonWinAnsiString(s: string, font: PDFFont) {
     }
   }
 
-  let out: string[] = [];
+  const out: string[] = [];
   for (let i = 0; i < s.length; i++) {
     const char = s[i];
     if (!font.getCharacterSet().includes(char.charCodeAt(0)))
@@ -81,7 +87,7 @@ export function formatOrdinal(n: number) {
   return `${n}${suffix}`;
 }
 
-const fileCache: Map<string, Uint8Array> = new Map();
+const fileCache = new Map<string, Uint8Array>();
 
 export async function getFileBytes(path: string) {
   if (!fileCache.has(path)) {
