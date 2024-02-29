@@ -11,7 +11,7 @@ import sharp from "sharp";
 import { z } from "zod";
 
 import { BLUE, GREEN, PATH_FONT_PINYONSCRIPT, RED, YELLOW } from "./constants";
-import type { AttendeeData, InfoRouterOutputs } from "./types";
+import type { AttendeeData, SessionData } from "./types";
 import {
   convertPointToPixel,
   fixNonWinAnsiString,
@@ -39,8 +39,8 @@ type RenderOptions = z.infer<typeof renderOptionsSchema>;
  * @returns Base64 encoded PDF file
  */
 export async function generateBadges(
-  attendees: any[],
-  session: any,
+  attendees: AttendeeData[],
+  session: SessionData,
   retrieveProfilePicture: (path: string) => Promise<Buffer | null>,
   nBlankPerRole = 10,
   renderOptions = renderOptionsSchema.parse({})
@@ -99,7 +99,7 @@ export function makeDummyAttendee(
 
 async function renderBadge(
   attendee: AttendeeData,
-  sessionData: InfoRouterOutputs["getCurrentSession"],
+  sessionData: SessionData,
   opts: RenderOptions,
   serifFont: Uint8Array,
   retrieveProfilePicture: (path: string) => Promise<Buffer | null>

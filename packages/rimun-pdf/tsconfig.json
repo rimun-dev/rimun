@@ -10,6 +10,5 @@
     "outDir": "./build",
     "baseUrl": "."
   },
-  "include": ["./src/**/*.ts", "*.ts", "./src/**/*.tsx", "*.tsx"],
-  "references": [{ "path": "../rimun-api/tsconfig.json" }]
+  "include": ["./src/**/*.ts", "*.ts", "./src/**/*.tsx", "*.tsx"]
 }
