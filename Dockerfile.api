@@ -1,36 +1,55 @@
-FROM node:16.18.0 as build-container
+FROM node:alpine as deps-container
+
+WORKDIR /tmp/deps
+
+COPY --chown=node:node package.json .
+COPY --chown=node:node package-lock.json .
+COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
+COPY --chown=node:node packages/rimun-pdf/package.json ./packages/rimun-pdf/
+
+RUN npm -w @rimun/api ci --include=dev
+
+COPY --chown=node:node prisma ./prisma
+
+RUN npm run db:generate
+
+###
+
+FROM node:alpine as build-container
 
 WORKDIR /tmp/build
 
-COPY --chown=node:node yarn.lock .
 COPY --chown=node:node package.json .
 COPY --chown=node:node tsconfig.base.json .
 
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/tsconfig.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/src ./packages/rimun-api/src
-COPY --chown=node:node packages/rimun-api/prisma ./packages/rimun-api/prisma
+
+COPY --chown=node:node packages/rimun-pdf/package.json ./packages/rimun-pdf/
+COPY --chown=node:node packages/rimun-pdf/tsconfig.json ./packages/rimun-pdf/
+COPY --chown=node:node packages/rimun-pdf/src ./packages/rimun-pdf/src
+
+COPY --chown=node:node --from=deps-container /tmp/deps/node_modules ./node_modules
 
 RUN chown -R node:node /tmp/build
 
 USER node
 
-RUN yarn --non-interactive
-RUN npx prisma generate --schema=packages/rimun-api/prisma/schema.prisma
-RUN yarn workspace @rimun/api run build
+RUN npm -w @rimun/pdf run build
+RUN npm -w @rimun/api run build
 
 ###
 
-FROM node:16.18.0 as runtime-container
+FROM node:alpine as runtime-container
 
 WORKDIR /app
 
 COPY --chown=node:node package.json ./
-COPY --chown=node:node yarn.lock ./
-
-COPY --chown=node:node packages/rimun-api/prisma ./packages/rimun-api/dist/prisma
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
+COPY --chown=node:node --from=deps-container /tmp/deps/node_modules ./node_modules
 COPY --chown=node:node --from=build-container /tmp/build/packages/rimun-api/dist ./packages/rimun-api/dist
+COPY --chown=node:node --from=build-container /tmp/build/packages/rimun-pdf/build ./packages/rimun-pdf/build
 
 RUN chown -R node:node /app
 
@@ -38,9 +57,6 @@ USER node
 
 ENV HOST="0.0.0.0"
 ENV NODE_ENV=production
-
-RUN yarn --pure-lockfile --non-interactive --production
-RUN npx prisma generate --schema=packages/rimun-api/dist/prisma/schema.prisma
 
 EXPOSE 3000
 

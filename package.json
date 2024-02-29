@@ -13,6 +13,7 @@
   },
   "scripts": {
     "db:push": "npx prisma db push",
+    "db:seed": "npx ts-node prisma/seed.ts",
     "db:generate": "npx prisma generate",
     "db:gui": "npx prisma studio"
   },

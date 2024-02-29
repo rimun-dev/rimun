@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-api:
     runs-on: "ubuntu-latest"
 
     steps:
@@ -27,22 +27,41 @@ jobs:
       - name: configure Docker for GCP
         run: gcloud auth configure-docker
 
-      # build images
       - name: build @rimun/api
         run: docker build -f Dockerfile.api . -t eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-api:${{ github.sha }}
 
-      - name: build @rimun/app
-        run: docker build -f Dockerfile.app . -t eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-app:${{ github.sha }}
-
-      # push images
       - name: push @rimun/api
         run: docker push eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-api:${{ github.sha }}
+
+  build-app:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - id: auth
+        name: authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+          service_account: registry-automation@${{ secrets.GCLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          access_token_lifetime: 300s
+
+      - name: set up Google Cloud SDK
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: configure Docker for GCP
+        run: gcloud auth configure-docker
+
+      - name: build @rimun/app
+        run: docker build -f Dockerfile.app . -t eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-app:${{ github.sha }}
 
       - name: push @rimun/app
         run: docker push eu.gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/rimun-app:${{ github.sha }}
 
   deploy:
-    needs: build
+    needs: [build-api, build-app]
 
     runs-on: "ubuntu-latest"
 
@@ -96,4 +115,4 @@ jobs:
         uses: actions/setup-node@v3
 
       - name: deploy
-        run: DATABASE_URL=${{ secrets.DATABASE_URL }} npx prisma migrate deploy --schema=packages/rimun-api/prisma/schema.prisma
+        run: DATABASE_URL=${{ secrets.DATABASE_URL }} npx prisma migrate deploy
