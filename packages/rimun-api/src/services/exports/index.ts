@@ -1,8 +1,8 @@
 import * as ftp from "basic-ftp";
 import { randomUUID } from "crypto";
 import { mkdir, readFile, rm } from "fs/promises";
-import { ftpConfig } from "~/storage";
-import { authenticatedProcedure, trpc } from "~/trpc";
+import { ftpConfig } from "../../storage";
+import { authenticatedProcedure, trpc } from "../../trpc";
 import { checkPersonPermission, getCurrentSession } from "../utils";
 import { generateBadges } from "./pdf";
 
