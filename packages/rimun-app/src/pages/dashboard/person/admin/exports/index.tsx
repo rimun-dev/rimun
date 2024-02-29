@@ -32,6 +32,8 @@ export default function AdminExports() {
           Obtain an excel sheet containing relevant information about the
           attendees.
         </ExportElement>
+
+        {/*
         <ExportElement
           isLoading={badgesQuery.isFetching || badgesQuery.isRefetching}
           onDownload={() => badgesQuery.refetch()}
@@ -40,7 +42,6 @@ export default function AdminExports() {
           Obtain a PDF document containing all attendees' badges (plus some
           extra blanks). Note: this takes a while.
         </ExportElement>
-        {/*
         <ExportElement
           isLoading={attendeesTSVQuery.isRefetching}
           onDownload={() => attendeesTSVQuery.refetch()}
