@@ -7,6 +7,5 @@
 This repository contains the TypeScript packages implementing the full stack RIMUN's web application.
 The following packages are managed via `npm workspaces`:
 
-- `rimun-api`: a tRPC + Express Node application implementing the backend logic for the application.
-- `rimun-app`: a React frontend application for RIMUN's platform and public website.
-- `rimun-pdf`: a utility library for creating custom PDFs on clients.
+- `rimun-api`: a tRPC + Express Node application implementing the backend logic.
+- `rimun-app`: a React + Vite frontend application for RIMUN's platform and public website.

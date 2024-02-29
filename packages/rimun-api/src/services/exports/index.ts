@@ -1,10 +1,10 @@
-import { generateBadges } from "@rimun/pdf";
 import * as ftp from "basic-ftp";
 import { randomUUID } from "crypto";
-import { mkdir, readFile, rmdir, stat } from "fs/promises";
+import { mkdir, readFile, rmdir } from "fs/promises";
 import { ftpConfig } from "src/storage";
-import { authenticatedProcedure, trpc } from "../trpc";
-import { checkPersonPermission, getCurrentSession } from "./utils";
+import { authenticatedProcedure, trpc } from "../../trpc";
+import { checkPersonPermission, getCurrentSession } from "../utils";
+import { generateBadges } from "./pdf";
 
 const ATTENDEES_TSV_HEADER = [
   "Name",
@@ -79,13 +79,15 @@ const exportsRouter = trpc.router({
 
     const pictures = new Map<string, string>();
 
+    try {
+      await mkdir("temp");
+    } catch (e) {
+      console.error(e);
+    }
+
     for (const attendee of result) {
       const path = attendee.person.picture_path;
       const ext = path.split(".")[1];
-
-      if (!(await stat("temp")).isDirectory()) {
-        await mkdir("temp");
-      }
 
       const tempFileName = `temp/${randomUUID()}.${ext}`;
       try {
