@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "exclude": [
+    "node_modules",
+    "./src/**/*.test.ts",
+    "./src/**/*.spec.ts",
+    "./src/**/*.mock.ts"
+  ],
+  "compilerOptions": {
+    "outDir": "./build",
+    "baseUrl": "."
+  },
+  "include": ["./src/**/*.ts", "*.ts", "./src/**/*.tsx", "*.tsx"],
+  "references": [{ "path": "../rimun-api/tsconfig.json" }]
+}
