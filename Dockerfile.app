@@ -5,7 +5,6 @@ WORKDIR /tmp/deps
 COPY --chown=node:node package.json .
 COPY --chown=node:node package-lock.json .
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
-COPY --chown=node:node packages/rimun-pdf/package.json ./packages/rimun-pdf/
 COPY --chown=node:node packages/rimun-app/package.json ./packages/rimun-app/
 
 RUN npm ci --include=dev
@@ -24,7 +23,6 @@ WORKDIR /tmp/build
 COPY --chown=node:node package.json .
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-api/package.json ./packages/rimun-api/
-COPY --chown=node:node packages/rimun-pdf/package.json ./packages/rimun-pdf/
 COPY --chown=node:node packages/rimun-app/package.json ./packages/rimun-app/
 
 # copy tsconfigs
@@ -32,7 +30,6 @@ COPY --chown=node:node tsconfig.base.json .
 COPY --chown=node:node packages/rimun-api/tsconfig.json ./packages/rimun-api/
 COPY --chown=node:node packages/rimun-app/tsconfig.json ./packages/rimun-app/
 COPY --chown=node:node packages/rimun-app/tsconfig.node.json ./packages/rimun-app/
-COPY --chown=node:node packages/rimun-pdf/tsconfig.json ./packages/rimun-pdf/
 
 # copy source code
 COPY --chown=node:node packages/rimun-app/index.html ./packages/rimun-app/
@@ -44,8 +41,6 @@ COPY --chown=node:node packages/rimun-app/public ./packages/rimun-app/public
 
 COPY --chown=node:node packages/rimun-api/src ./packages/rimun-api/src
 
-COPY --chown=node:node packages/rimun-pdf/src ./packages/rimun-pdf/src
-
 # copy deps
 COPY --chown=node:node --from=deps-container /tmp/deps/node_modules ./node_modules
 
@@ -53,7 +48,6 @@ RUN chown -R node:node /tmp/build
 
 USER node
 
-RUN npm -w @rimun/pdf run build
 RUN npm -w @rimun/api run build
 RUN npm -w @rimun/app run build
 
