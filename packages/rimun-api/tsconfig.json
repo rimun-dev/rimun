@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "noErrorTruncation": true
   },
   "exclude": [
     "node_modules",
@@ -10,5 +11,6 @@
     "./src/**/*.spec.ts",
     "./src/**/*.mock.ts"
   ],
-  "include": ["./src/**/*.ts", "*.ts"]
+  "include": ["./src/**/*.ts", "*.ts"],
+  "references": [{ "path": "../rimun-pdf/tsconfig.json" }]
 }

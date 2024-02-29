@@ -1,3 +1,8 @@
+import { generateBadges } from "@rimun/pdf";
+import * as ftp from "basic-ftp";
+import { randomUUID } from "crypto";
+import { mkdir, readFile, rmdir, stat } from "fs/promises";
+import { ftpConfig } from "src/storage";
 import { authenticatedProcedure, trpc } from "../trpc";
 import { checkPersonPermission, getCurrentSession } from "./utils";
 
@@ -48,6 +53,73 @@ const exportsRouter = trpc.router({
     }
 
     return output;
+  }),
+
+  generateBadge: authenticatedProcedure.query(async ({ ctx }) => {
+    const currentSession = await getCurrentSession(ctx);
+
+    const result = await ctx.prisma.personApplication.findMany({
+      where: {
+        session_id: currentSession.id,
+        status_application: "ACCEPTED",
+      },
+      include: {
+        person: { include: { account: true, country: true } },
+        school: { include: { country: true } },
+        confirmed_group: true,
+        confirmed_role: true,
+        committee: true,
+        delegation: { include: { country: true } },
+      },
+    });
+
+    // TODO: move into storage
+    const ftpClient = new ftp.Client();
+    await ftpClient.access(ftpConfig);
+
+    const pictures = new Map<string, string>();
+
+    for (let attendee of result) {
+      const path = attendee.person.picture_path;
+      const ext = path.split(".")[1];
+
+      if (!(await stat("temp")).isDirectory()) {
+        await mkdir("temp");
+      }
+
+      const tempFileName = `temp/${randomUUID()}.${ext}`;
+      try {
+        await ftpClient.downloadTo(tempFileName, path);
+        pictures.set(path, tempFileName);
+      } catch {
+        continue;
+      }
+    }
+
+    const badges = await generateBadges(
+      result,
+      currentSession,
+      async (path) => {
+        const tempFileName = pictures.get(path);
+
+        if (!tempFileName) {
+          return null;
+        }
+
+        const data = await readFile(tempFileName);
+        return data;
+      }
+    );
+
+    ftpClient.close();
+
+    try {
+      await rmdir("temp");
+    } catch (e) {
+      console.error(e);
+    }
+
+    return badges;
   }),
 });
 

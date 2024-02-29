@@ -45,7 +45,7 @@ export function makeBucketDirName(): string {
   return `${y}/${m}/${d}`;
 }
 
-const ftpConfig = {
+export const ftpConfig = {
   host: config.FTP_HOST,
   user: config.FTP_USER,
   password: config.FTP_PASSWORD,
@@ -110,7 +110,8 @@ namespace FTPStorage {
   }
 
   export async function download(path: string) {
-    while (true) {
+    let retryCnt = 5;
+    while (retryCnt-- > 0) {
       try {
         const ftpClient = new ftp.Client();
         await ftpClient.access(ftpConfig);
@@ -123,10 +124,13 @@ namespace FTPStorage {
         return buff;
       } catch (e) {
         if (!(e instanceof FTPError)) throw e;
+        console.log(e);
         await sleep(SLEEP_TIME);
         continue;
       }
     }
+
+    throw new Error();
   }
 }
 
