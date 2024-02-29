@@ -5,10 +5,9 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "tsc --build --verbose && npm run postbuild",
+    "build": "tsc --build --verbose",
     "serve": "NODE_ENV=development nodemon -e ts -r tsconfig-paths/register -w src/ src/index.ts",
-    "start": "node --trace-uncaught -r tsconfig-paths/register dist/src/index.js",
-    "postbuild": "mkdir -p dist/src/services/exports/pdf/assets && cp -R src/services/exports/pdf/assets dist/src/services/exports/pdf"
+    "start": "node --trace-uncaught -r tsconfig-paths/register dist/src/index.js"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
