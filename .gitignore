@@ -140,6 +140,7 @@ build
 docker
 db-data
 db-gui-data
+temp
 
 # macOS
 .DS_Store
