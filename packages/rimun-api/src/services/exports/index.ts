@@ -1,6 +1,6 @@
 import * as ftp from "basic-ftp";
 import { randomUUID } from "crypto";
-import { mkdir, readFile, rmdir } from "fs/promises";
+import { mkdir, readFile, rm } from "fs/promises";
 import { ftpConfig } from "src/storage";
 import { authenticatedProcedure, trpc } from "../../trpc";
 import { checkPersonPermission, getCurrentSession } from "../utils";
@@ -116,7 +116,7 @@ const exportsRouter = trpc.router({
     ftpClient.close();
 
     try {
-      await rmdir("temp");
+      await rm("temp", { recursive: true, force: true });
     } catch (e) {
       console.error(e);
     }
