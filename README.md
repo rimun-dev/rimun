@@ -9,3 +9,4 @@ The following packages are managed via `npm workspaces`:
 
 - `rimun-api`: a tRPC + Express Node application implementing the backend logic.
 - `rimun-app`: a React + Vite frontend application for RIMUN's platform and public website.
+- `rimun-pdf`: a command line utility for generating RIMUN PDF assets

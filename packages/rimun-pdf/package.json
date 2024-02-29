@@ -1,0 +1,23 @@
+{
+  "name": "@rimun/pdf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --build --verbose && npm run postbuild",
+    "generate": "node dist/index.js",
+    "postbuild": "mkdir -p dist/src/assets && cp -R src/assets dist/src"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "pdf-lib": "^1.17.1",
+    "basic-ftp": "^5.0.2",
+    "sharp": "^0.33.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.23"
+  }
+}

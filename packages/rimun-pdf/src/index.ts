@@ -1,0 +1,1 @@
+export { generateBadges } from "./badges";
