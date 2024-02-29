@@ -4,7 +4,6 @@ import Card from "src/components/layout/Card";
 import Spinner from "src/components/status/Spinner";
 import PageTitle from "src/components/typography/PageTitle";
 import { trpc } from "src/trpc";
-import { downloadBase64File } from "src/utils/download";
 
 export default function AdminExports() {
   const attendeesTSVQuery = trpc.exports.getAttendeesTSV.useQuery(undefined, {
@@ -12,11 +11,6 @@ export default function AdminExports() {
     onSuccess: (data) => {
       window.open(`data:text/csv;charset=utf-8,${data}`);
     },
-  });
-
-  const badgesQuery = trpc.exports.generateBadge.useQuery(undefined, {
-    enabled: false,
-    onSuccess: downloadBase64File,
   });
 
   return (
@@ -34,6 +28,10 @@ export default function AdminExports() {
         </ExportElement>
 
         {/*
+          const badgesQuery = trpc.exports.generateBadge.useQuery(undefined, {
+            enabled: false,
+            onSuccess: downloadBase64File,
+                });
         <ExportElement
           isLoading={badgesQuery.isFetching || badgesQuery.isRefetching}
           onDownload={() => badgesQuery.refetch()}
