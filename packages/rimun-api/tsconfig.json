@@ -11,6 +11,6 @@
     "./src/**/*.spec.ts",
     "./src/**/*.mock.ts"
   ],
-  "include": ["./src/**/*.ts", "*.ts"],
+  "include": ["./src/**/*.ts", "*.ts", "../../.eslintrc.cjs"],
   "references": [{ "path": "../rimun-pdf/tsconfig.json" }]
 }

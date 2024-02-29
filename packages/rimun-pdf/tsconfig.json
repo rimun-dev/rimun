@@ -10,5 +10,11 @@
     "outDir": "./build",
     "baseUrl": "."
   },
-  "include": ["./src/**/*.ts", "*.ts", "./src/**/*.tsx", "*.tsx"]
+  "include": [
+    "./src/**/*.ts",
+    "*.ts",
+    "./src/**/*.tsx",
+    "*.tsx",
+    "../../.eslintrc.cjs"
+  ]
 }

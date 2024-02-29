@@ -36,7 +36,7 @@ const exportsRouter = trpc.router({
     });
 
     let output = ATTENDEES_TSV_HEADER + "\n";
-    for (let r of result) {
+    for (const r of result) {
       output +=
         [
           r.person.name,
@@ -75,11 +75,11 @@ const exportsRouter = trpc.router({
 
     // TODO: move into storage
     const ftpClient = new ftp.Client();
-    await ftpClient.access(ftpConfig);
+    await ftpClient.access(ftpConfig as ftp.AccessOptions);
 
     const pictures = new Map<string, string>();
 
-    for (let attendee of result) {
+    for (const attendee of result) {
       const path = attendee.person.picture_path;
       const ext = path.split(".")[1];
 

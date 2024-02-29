@@ -1,4 +1,5 @@
 // import FTPClient from "ftp";
+import { TRPCError } from "@trpc/server";
 import * as ftp from "basic-ftp";
 import { FTPError } from "basic-ftp";
 import { readFileSync, rmSync } from "fs";
@@ -50,7 +51,7 @@ export const ftpConfig = {
   user: config.FTP_USER,
   password: config.FTP_PASSWORD,
   port: config.FTP_PORT ?? 21,
-} as ftp.AccessOptions;
+} satisfies ftp.AccessOptions;
 
 // FIXME: workaround for connection limit enforced by FTP server
 function sleep(ms: number) {
@@ -60,16 +61,14 @@ function sleep(ms: number) {
 }
 
 const SLEEP_TIME = 2500;
+const N_RETRIES = 5;
 
 namespace FTPStorage {
-  export async function upload(
-    data: Buffer,
-    type: string,
-    rootFolder: string = ""
-  ) {
+  export async function upload(data: Buffer, type: string, rootFolder = "") {
     const ftpClient = new ftp.Client();
 
-    while (true) {
+    let retryCnt = N_RETRIES;
+    while (retryCnt-- > 0) {
       try {
         const ext = type.split("/")[1];
         const dir = `${rootFolder}/${makeBucketDirName()}`;
@@ -96,6 +95,8 @@ namespace FTPStorage {
         ftpClient.close();
       }
     }
+
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
   }
 
   export async function remove(path: string) {
@@ -110,7 +111,7 @@ namespace FTPStorage {
   }
 
   export async function download(path: string) {
-    let retryCnt = 5;
+    let retryCnt = N_RETRIES;
     while (retryCnt-- > 0) {
       try {
         const ftpClient = new ftp.Client();
@@ -130,7 +131,7 @@ namespace FTPStorage {
       }
     }
 
-    throw new Error();
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
   }
 }
 

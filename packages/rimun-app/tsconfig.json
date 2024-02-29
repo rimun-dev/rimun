@@ -24,7 +24,7 @@
       "react": ["./node_modules/@types/react"]
     }
   },
-  "include": ["src", "src/context/.ts"],
+  "include": ["src", "src/context/.ts", "../../.eslintrc.cjs"],
   "references": [
     { "path": "./tsconfig.node.json" },
     { "path": "../rimun-api/tsconfig.json" }

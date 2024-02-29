@@ -33,7 +33,7 @@ export default function AdminExports() {
           attendees.
         </ExportElement>
         <ExportElement
-          isLoading={badgesQuery.isRefetching}
+          isLoading={badgesQuery.isFetching || badgesQuery.isRefetching}
           onDownload={() => badgesQuery.refetch()}
           name="Badges"
         >
