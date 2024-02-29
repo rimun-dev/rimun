@@ -53,4 +53,4 @@ ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["node", "/app/packages/rimun-api/dist/src/index.js"]
+CMD ["node", "--trace-uncaught", "-r", "tsconfig-paths/register", "/app/packages/rimun-api/dist/src/index.js"]
