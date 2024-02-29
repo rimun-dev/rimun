@@ -22,6 +22,7 @@
     ]
   },
   "dependencies": {
+    "@rimun/api": "*",
     "@heroicons/react": "^2.0.16",
     "@reduxjs/toolkit": "^1.9.2",
     "@tailwindcss/line-clamp": "^0.4.2",
@@ -44,10 +45,10 @@
     "rehype-raw": "^6.1.1",
     "rehype-sanitize": "^5.0.1",
     "sass": "^1.58.3",
-    "yup": "^0.32.11"
+    "yup": "^0.32.11",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@rimun/api": "*",
     "@types/file-saver": "^2.0.5",
     "@types/react": "^17.0.20",
     "@types/react-dom": "^18.2.19",

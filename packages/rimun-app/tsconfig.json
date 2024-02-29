@@ -1,17 +1,33 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "exclude": [
-    "node_modules",
-    "./src/**/*.test.ts",
-    "./src/**/*.spec.ts",
-    "./src/**/*.mock.ts"
-  ],
   "compilerOptions": {
-    "outDir": "./build",
-    "baseUrl": ".",
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "WebWorker"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx",
-    "noEmit": true
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "src/*": ["./src/*"],
+      "react": ["./node_modules/@types/react"]
+    }
   },
-  "include": ["./src/**/*.ts", "*.ts", "./src/**/*.tsx", "*.tsx"],
-  "references": [{ "path": "../rimun-api" }]
+  "include": ["src", "src/context/.ts"],
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "../rimun-api/tsconfig.json" }
+  ],
+  "extends": "../../tsconfig.base.json"
 }

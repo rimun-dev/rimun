@@ -208,19 +208,19 @@ function Features() {
 }
 
 const images = {
-  unhcr: require("../../../assets/img/partners/unhcr.webp"),
-  ffi: require("../../../assets/img/partners/future-food-institute.webp"),
-  intersos: require("../../../assets/img/partners/intersos.png"),
-  ec: require("../../../assets/img/partners/european-commission.png"),
-  stc: require("../../../assets/img/partners/save-the-children.jpg"),
-  cd: require("../../../assets/img/partners/camera-deputati.png"),
-  "blood-water": require("../../../assets/img/partners/blood-water.png"),
-  enea: require("../../../assets/img/partners/enea.png"),
-  pat: require("../../../assets/img/partners/pat.png"),
-  rural: require("../../../assets/img/partners/rural.png"),
-  treeapp: require("../../../assets/img/partners/treeapp.png"),
-  wet: require("../../../assets/img/partners/wet.png"),
-  crea: require("../../../assets/img/partners/crea.png"),
+  unhcr: "/assets/img/partners/unhcr.webp",
+  ffi: "/assets/img/partners/future-food-institute.webp",
+  intersos: "/assets/img/partners/intersos.png",
+  ec: "/assets/img/partners/european-commission.png",
+  stc: "/assets/img/partners/save-the-children.jpg",
+  cd: "/assets/img/partners/camera-deputati.png",
+  "blood-water": "/assets/img/partners/blood-water.png",
+  enea: "/assets/img/partners/enea.png",
+  pat: "/assets/img/partners/pat.png",
+  rural: "/assets/img/partners/rural.png",
+  treeapp: "/assets/img/partners/treeapp.png",
+  wet: "/assets/img/partners/wet.png",
+  crea: "/assets/img/partners/crea.png",
 };
 
 function Partners() {

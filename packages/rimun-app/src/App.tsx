@@ -38,6 +38,7 @@ import DelegationFocus from "./pages/dashboard/person/admin/delegations/Delegati
 import DelegationsOverview from "./pages/dashboard/person/admin/delegations/DelegationsOverview";
 import AdminDirectors from "./pages/dashboard/person/admin/directors";
 import AdminDocuments from "./pages/dashboard/person/admin/documents";
+import AdminExports from "./pages/dashboard/person/admin/exports";
 import AdminFaqs from "./pages/dashboard/person/admin/faqs";
 import AdminGallery from "./pages/dashboard/person/admin/gallery";
 import AdminHousing from "./pages/dashboard/person/admin/housing";
@@ -173,6 +174,7 @@ export default function App() {
                   <Route path="gallery" element={<AdminGallery />} />
                   <Route path="housing" element={<AdminHousing />} />
                   <Route path="hall-of-fame" element={<AdminHallOfFame />} />
+                  <Route path="exports" element={<AdminExports />} />
                   <Route path="committees" element={<AdminCommittees />}>
                     <Route index element={<CommitteesOverview />} />
                     <Route path=":id" element={<CommitteeFocus />} />

@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { createLogger } from "redux-logger";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { STORE_VERSION } from "src/config";
@@ -16,7 +15,6 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: [createLogger()],
 });
 
 const persistor = persistStore(store);
@@ -27,4 +25,4 @@ export type AppDispatch = typeof store.dispatch;
 export const useStateDispatch: () => AppDispatch = useDispatch;
 export const useStateSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export { store, persistor };
+export { persistor, store };

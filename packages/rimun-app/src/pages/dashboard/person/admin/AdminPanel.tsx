@@ -87,7 +87,6 @@ export default function AdminPanel() {
           path="exports"
           icon={DocumentArrowDownIcon}
           description="Download PDF and Excel files"
-          isDisabled
         />
         <AdminPanelItem
           name="Gallery"

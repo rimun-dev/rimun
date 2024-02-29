@@ -23,6 +23,9 @@ export function createTrpcClient(url: string) {
   });
 }
 
+export type RouterInputs = inferRouterInputs<TrpcRouter>;
+export type RouterOutputs = inferRouterOutputs<TrpcRouter>;
+
 export type ApplicationsRouterInputs =
   inferRouterInputs<TrpcRouter>["applications"];
 export type ApplicationsRouterOutputs =
