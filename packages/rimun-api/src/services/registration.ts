@@ -3,7 +3,7 @@ import { z } from "zod";
 import config from "../config";
 import mailTransport from "../email";
 import Storage from "../storage";
-import { Context, trpc } from "../trpc";
+import { trpc, type Context } from "../trpc";
 import {
   accountBaseSchema,
   getThumbnailImageBuffer,
@@ -62,13 +62,15 @@ const registrationRouter = trpc.router({
         include: { person: true },
       });
 
-      await mailTransport.sendMail({
-        subject: "[RIMUN] Welcome!",
-        text: getWelcomeEmailText(account.person!.full_name),
-        html: getWelcomeEmailHTML(account.person!.full_name),
-        from: config.MAIL_USERNAME,
-        to: [account.email],
-      });
+      mailTransport
+        .sendMail({
+          subject: "[RIMUN] Welcome!",
+          text: getWelcomeEmailText(account.person!.full_name),
+          html: getWelcomeEmailHTML(account.person!.full_name),
+          from: config.MAIL_USERNAME,
+          to: [account.email],
+        })
+        .catch(console.error);
     }),
 
   /** Register a school account. */
@@ -102,13 +104,15 @@ const registrationRouter = trpc.router({
         include: { school: true },
       });
 
-      await mailTransport.sendMail({
-        subject: "[RIMUN] Welcome!",
-        text: getWelcomeEmailText(account.school!.name),
-        html: getWelcomeEmailHTML(account.school!.name),
-        from: config.MAIL_USERNAME,
-        to: [account.email],
-      });
+      mailTransport
+        .sendMail({
+          subject: "[RIMUN] Welcome!",
+          text: getWelcomeEmailText(account.school!.name),
+          html: getWelcomeEmailHTML(account.school!.name),
+          from: config.MAIL_USERNAME,
+          to: [account.email],
+        })
+        .catch(console.error);
     }),
 });
 
