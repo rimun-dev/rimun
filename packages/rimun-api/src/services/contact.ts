@@ -14,11 +14,11 @@ const contactRouter = trpc.router({
     )
     .mutation(async ({ input }) => {
       await mailTransport.sendMail({
-        subject: `[Contact Form] Message from ${input.name}`,
-        text: input.body,
-        from: config.MAIL_USERNAME,
-        to: [config.MAIL_CONTACT_RECIPIENT],
-      });
+          subject: `[Contact Form] Message from ${input.name} (${input.email})`,
+          text: `From: ${input.email}\nName: ${input.name}\n\n${input.body}`,
+          from: config.MAIL_USERNAME,
+          to: [config.MAIL_CONTACT_RECIPIENT],
+        });
     }),
 });
 
