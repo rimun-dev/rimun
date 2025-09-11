@@ -1,4 +1,4 @@
-FROM node:alpine as deps-container
+FROM node as deps-container
 
 WORKDIR /tmp/deps
 
@@ -14,7 +14,7 @@ RUN npm run db:generate
 
 ###
 
-FROM node:alpine as build-container
+FROM node as build-container
 
 WORKDIR /tmp/build
 
@@ -35,7 +35,7 @@ RUN npm -w @rimun/api run build
 
 ###
 
-FROM node:alpine as runtime-container
+FROM node as runtime-container
 
 WORKDIR /app
 
