@@ -1,11 +1,11 @@
 import fontkit from "@pdf-lib/fontkit";
 import {
   PDFDocument,
-  PDFFont,
-  PDFPage,
-  RGB,
-  rgb,
   StandardFonts,
+  rgb,
+  type PDFFont,
+  type PDFPage,
+  type RGB,
 } from "pdf-lib";
 import sharp from "sharp";
 import { z } from "zod";
@@ -137,7 +137,7 @@ async function renderBadge(
   }
 
   if (attendee.confirmed_role) {
-    await drawRoleBanner(
+    drawRoleBanner(
       page,
       attendee.confirmed_group?.name === "delegate"
         ? committeeName ?? attendee.confirmed_role.name
@@ -148,16 +148,16 @@ async function renderBadge(
     );
   }
 
-  const ordinal = formatOrdinal(sessionData!.edition_display);
+  const ordinal = formatOrdinal(sessionData.edition_display);
 
-  await drawSessionInfo(
+  drawSessionInfo(
     page,
     timesItalicFont,
     `${ordinal} Session ${sessionData?.date_start?.getFullYear()}`,
     opts
   );
-  await drawTitle(page, pinyonFont, opts);
-  await drawName(
+  drawTitle(page, pinyonFont, opts);
+  drawName(
     page,
     timesFont,
     timesItalicFont,
@@ -168,7 +168,7 @@ async function renderBadge(
   );
 
   if (attendee.school)
-    await drawSchool(
+    drawSchool(
       page,
       timesItalicBoldFont,
       timesItalicFont,
@@ -178,7 +178,7 @@ async function renderBadge(
     );
 
   if (attendee.delegation) {
-    await drawDelegation(
+    drawDelegation(
       page,
       timesFont,
       attendee.delegation.country
@@ -244,7 +244,7 @@ async function renderBadge(
   return doc;
 }
 
-async function drawRoleBanner(
+function drawRoleBanner(
   page: PDFPage,
   text: string,
   color: RGB,
@@ -283,7 +283,7 @@ async function drawRoleBanner(
   });
 }
 
-async function drawTitle(page: PDFPage, font: PDFFont, opts: RenderOptions) {
+function drawTitle(page: PDFPage, font: PDFFont, opts: RenderOptions) {
   const titleText = "Rome International Model United Nations";
   const titleTextSize = 9;
   const titleTextWidth = font.widthOfTextAtSize(titleText, titleTextSize);
@@ -308,7 +308,7 @@ async function drawTitle(page: PDFPage, font: PDFFont, opts: RenderOptions) {
   });
 }
 
-async function drawSessionInfo(
+function drawSessionInfo(
   page: PDFPage,
   font: PDFFont,
   text: string,
@@ -325,13 +325,13 @@ async function drawSessionInfo(
   });
 }
 
-async function drawName(
+function drawName(
   page: PDFPage,
   font: PDFFont,
   fontHE: PDFFont,
   _firstNameText: string,
   _lastNameText: string,
-  isHE: boolean = false,
+  isHE = false,
   opts: RenderOptions
 ) {
   const firstNameText = fixNonWinAnsiString(_firstNameText, font);
@@ -399,7 +399,7 @@ async function drawName(
   }
 }
 
-async function drawDelegation(
+function drawDelegation(
   page: PDFPage,
   font: PDFFont,
   _delegationText: string,
@@ -407,7 +407,7 @@ async function drawDelegation(
 ) {
   const delegationText = fixNonWinAnsiString(_delegationText, font);
 
-  let size = 11;
+  const size = 11;
   const delegationTextWidth = font.widthOfTextAtSize(delegationText, size);
 
   page.drawText(delegationText, {
@@ -428,7 +428,7 @@ async function drawDelegation(
   });
 }
 
-async function drawSchool(
+function drawSchool(
   page: PDFPage,
   fontName: PDFFont,
   fontCountry: PDFFont,
