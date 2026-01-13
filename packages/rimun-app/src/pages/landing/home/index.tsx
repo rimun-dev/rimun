@@ -60,7 +60,7 @@ function Hero() {
         <div>
           <div id="text">
             <div>
-              <h1>Rome International MUN</h1>
+              <h1>Rome International Model United Nations</h1>
 
               <p>
                 A pathway towards a better understanding of the world among
