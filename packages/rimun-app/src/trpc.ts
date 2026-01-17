@@ -1,10 +1,16 @@
 import type { TrpcRouter } from "@rimun/api";
-import { createTRPCReact, httpBatchLink, loggerLink } from "@trpc/react-query";
-import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import {
+  type CreateTRPCReact,
+  createTRPCReact,
+  httpBatchLink,
+  loggerLink,
+} from "@trpc/react-query";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
 import { store } from "./store";
 
-export const trpc = createTRPCReact<TrpcRouter>();
+export const trpc: CreateTRPCReact<TrpcRouter, unknown, unknown> =
+  createTRPCReact<TrpcRouter>();
 
 export function createTrpcClient(url: string) {
   return trpc.createClient({
@@ -13,7 +19,7 @@ export function createTrpcClient(url: string) {
       loggerLink(),
       httpBatchLink({
         url,
-        async headers() {
+        headers() {
           const authState = store.getState().auth;
           const token = authState.isAuthenticated ? authState.token : undefined;
           return !!token ? { authorization: `Bearer ${token}` } : {};

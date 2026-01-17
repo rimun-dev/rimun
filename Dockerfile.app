@@ -1,4 +1,4 @@
-FROM node:alpine as deps-container
+FROM node:24.13.0-slim AS deps-container
 
 WORKDIR /tmp/deps
 
@@ -15,7 +15,7 @@ RUN npm run db:generate
 
 ###
 
-FROM node:alpine as build-container
+FROM node:24.13.0-slim AS build-container
 
 WORKDIR /tmp/build
 
@@ -53,7 +53,7 @@ RUN npm -w @rimun/app run build
 
 ###
 
-FROM nginx:alpine as runtime-container
+FROM nginx:alpine AS runtime-container
 
 COPY packages/rimun-app/nginx.conf /etc/nginx/conf.d/default.conf
 

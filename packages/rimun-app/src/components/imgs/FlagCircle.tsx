@@ -1,4 +1,4 @@
-import flags from "country-flag-icons/react/1x1";
+import * as flags from "country-flag-icons/react/1x1";
 import React from "react";
 import BaseCircle from "src/components/imgs/BaseCircle";
 import { InfoRouterOutputs } from "src/trpc";

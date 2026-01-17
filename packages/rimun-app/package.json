@@ -22,9 +22,9 @@
     ]
   },
   "dependencies": {
-    "@rimun/api": "*",
     "@heroicons/react": "^2.0.16",
     "@reduxjs/toolkit": "^1.9.2",
+    "@rimun/api": "*",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@tanstack/query-sync-storage-persister": "^4.24.10",
     "@tanstack/react-query": "^4.24.9",

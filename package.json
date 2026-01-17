@@ -18,11 +18,11 @@
     "db:gui": "npx prisma studio"
   },
   "devDependencies": {
-    "@types/node": "^20.11.21",
+    "@types/node": "^24.10.9",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.56.0",
     "prettier": "^3.2.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   }
 }

@@ -130,7 +130,7 @@ interface CheckPersonPermissionOpts {
 
 export async function checkPersonPermission(
   ctx: Context,
-  { resourceName, userGroupName }: CheckPersonPermissionOpts
+  { resourceName, userGroupName }: CheckPersonPermissionOpts,
 ) {
   const currentSession = await getCurrentSession(ctx);
   const currentUser = await getPersonUser(ctx);
@@ -147,7 +147,7 @@ export async function checkPersonPermission(
       currentUser.applications.filter(
         (a) =>
           a.session_id === currentSession.id &&
-          a.confirmed_group_id === group.id
+          a.confirmed_group_id === group.id,
       ).length > 0;
   }
 
@@ -163,7 +163,7 @@ export async function checkPersonPermission(
       !!resource &&
       currentUser.permissions.filter(
         (p) =>
-          p.session_id == currentSession.id && p.resource_id === resource.id
+          p.session_id == currentSession.id && p.resource_id === resource.id,
       ).length > 0;
   }
 
@@ -178,7 +178,7 @@ export async function checkPersonPermission(
 export async function resetSchoolSessionData(
   school_id: z.infer<typeof identifierSchema>,
   status_application: z.infer<typeof applicationStatusSchema>,
-  ctx: Context
+  ctx: Context,
 ) {
   const currentSession = await getCurrentSession(ctx);
 
@@ -209,7 +209,7 @@ export async function resetSchoolSessionData(
 export async function resetSchoolHousingSessionData(
   school_id: z.infer<typeof identifierSchema>,
   status_housing: z.infer<typeof housingStatusSchema>,
-  ctx: Context
+  ctx: Context,
 ) {
   const currentSession = await getCurrentSession(ctx);
 
@@ -237,7 +237,7 @@ export async function resetSchoolHousingSessionData(
 export async function checkUserPermissionToUpdatePersonApplication(
   ctx: Context,
   person_id: number,
-  resourceName: string
+  resourceName: string,
 ) {
   if (!ctx.userId)
     throw new TRPCError({
@@ -330,7 +330,7 @@ export function getDocumentBuffer(base64: string) {
 
 export function exclude<T, Key extends keyof T>(
   data: T,
-  keys: Key[]
+  keys: Key[],
 ): Omit<T, Key> {
   for (let key of keys) {
     delete data[key];
