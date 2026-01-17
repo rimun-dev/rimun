@@ -115,4 +115,4 @@ jobs:
         uses: actions/setup-node@v3
 
       - name: deploy
-        run: DATABASE_URL=${{ secrets.DATABASE_URL }} npx prisma migrate deploy
+        run: DATABASE_URL=${{ secrets.DATABASE_URL }} npx prisma@5 migrate deploy

@@ -12,10 +12,10 @@
     ]
   },
   "scripts": {
-    "db:push": "npx prisma db push",
-    "db:seed": "npx ts-node prisma/seed.ts",
-    "db:generate": "npx prisma generate",
-    "db:gui": "npx prisma studio"
+    "db:push": "npx prisma@5 db push",
+    "db:seed": "npx ts-node prisma@5/seed.ts",
+    "db:generate": "npx prisma@5 generate",
+    "db:gui": "npx prisma@5 studio"
   },
   "devDependencies": {
     "@types/node": "^24.10.9",
