@@ -1,7 +1,7 @@
 import winston from "winston";
 
-const format = winston.format.printf(({ level, message, timestamp }) => {
-  return `${new Date(timestamp).toISOString()} [${level}]: ${message}`;
+const format = winston.format.printf(({ level, message }) => {
+  return `${new Date().toISOString()} [${level}]: ${message}`;
 });
 
 const logger = winston.createLogger({
@@ -21,7 +21,7 @@ const logger = winston.createLogger({
 logger.add(
   process.env.NODE_ENV === "production"
     ? new winston.transports.Stream({ format, stream: process.stdout })
-    : new winston.transports.Console({ format })
+    : new winston.transports.Console({ format }),
 );
 
 export default logger;
