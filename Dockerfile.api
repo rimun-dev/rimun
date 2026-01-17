@@ -1,4 +1,4 @@
-FROM node as deps-container
+FROM node:24.13.0-slim AS deps-container
 
 WORKDIR /tmp/deps
 
@@ -14,7 +14,7 @@ RUN npm run db:generate
 
 ###
 
-FROM node as build-container
+FROM node:24.13.0-slim AS build-container
 
 WORKDIR /tmp/build
 
@@ -35,7 +35,7 @@ RUN npm -w @rimun/api run build
 
 ###
 
-FROM node as runtime-container
+FROM node:24.13.0-slim AS runtime-container
 
 WORKDIR /app
 
