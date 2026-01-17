@@ -37,6 +37,8 @@ RUN npm -w @rimun/api run build
 
 FROM node:24.13.0-slim AS runtime-container
 
+RUN apt-get update -y && apt-get install -y openssl
+
 WORKDIR /app
 
 COPY --chown=node:node package.json ./
