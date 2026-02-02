@@ -5,9 +5,9 @@ import PageTitle from "src/components/typography/PageTitle";
 import { trpc } from "src/trpc";
 
 export default function AdminDirectors() {
-  const { data, isLoading } = trpc.directors.getAllDirectors.useQuery();
+  const { data, isPending } = trpc.directors.getAllDirectors.useQuery();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

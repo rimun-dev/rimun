@@ -18,13 +18,13 @@ import { ResourcesRouterOutputs, trpc } from "src/trpc";
 export default function AdminGallery() {
   const [showModal, setShowModal] = React.useState(false);
 
-  const { data, isLoading } = trpc.resources.getImages.useQuery();
+  const { data, isPending } = trpc.resources.getImages.useQuery();
 
   const trpcCtx = trpc.useContext();
 
   const handleUpdate = () => trpcCtx.resources.getImages.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

@@ -20,7 +20,7 @@ export default function PersonList({
   filters = {},
   ...props
 }: PersonListProps) {
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(
+  const { data, isPending } = trpc.search.searchPersons.useQuery(
     { limit: Number.MAX_SAFE_INTEGER, filters },
     { refetchOnWindowFocus: true }
   );
@@ -33,7 +33,7 @@ export default function PersonList({
       filters,
     });
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <Card className="p-4">

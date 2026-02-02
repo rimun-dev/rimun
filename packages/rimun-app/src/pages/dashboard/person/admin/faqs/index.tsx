@@ -20,7 +20,7 @@ export default function AdminFaqs() {
   const [showFaqModal, setShowFaqModal] = React.useState(false);
   const [showFaqCategoryModal, setShowFaqCategoryModal] = React.useState(false);
 
-  const { data, isLoading } = trpc.resources.getFaqs.useQuery(undefined, {
+  const { data, isPending } = trpc.resources.getFaqs.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
@@ -28,7 +28,7 @@ export default function AdminFaqs() {
 
   const handleUpdate = () => trpcCtx.resources.getFaqs.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

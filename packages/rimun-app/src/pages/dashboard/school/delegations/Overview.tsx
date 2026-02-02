@@ -11,12 +11,12 @@ import useAuthenticatedState from "src/utils/useAuthenticatedState";
 export default function SchoolDelegationsOverview() {
   const authState = useAuthenticatedState();
 
-  const { data, isLoading } = trpc.delegations.getDelegations.useQuery(
+  const { data, isPending } = trpc.delegations.getDelegations.useQuery(
     { school_id: authState.account.school!.id },
     { refetchOnWindowFocus: true, refetchOnMount: true }
   );
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

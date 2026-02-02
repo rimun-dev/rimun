@@ -6,13 +6,13 @@ import ProfilePicture from "src/pages/dashboard/person/settings/ProfilePicture";
 import { trpc } from "src/trpc";
 
 export default function PersonSettings() {
-  const { data, isLoading } = trpc.profiles.getCurrentPersonUser.useQuery();
+  const { data, isPending } = trpc.profiles.getCurrentPersonUser.useQuery();
 
   const trpcCtx = trpc.useContext();
 
   const handleUpdate = () => trpcCtx.profiles.getCurrentPersonUser.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <div className="max-w-lg mx-auto">

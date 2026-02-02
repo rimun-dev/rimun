@@ -66,7 +66,7 @@ export default function GivePermissionModalForm({
               </CancelButton>
 
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 className="ml-2 flex-1"
               >
                 Give Permission

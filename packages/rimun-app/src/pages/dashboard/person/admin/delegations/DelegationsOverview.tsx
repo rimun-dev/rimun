@@ -19,7 +19,7 @@ import { DelegationsRouterOutputs, trpc } from "src/trpc";
 export default function DelegationsOverview() {
   const [showAddModal, setShowAddModal] = React.useState(false);
 
-  const { data, isLoading } = trpc.delegations.getDelegations.useQuery(
+  const { data, isPending } = trpc.delegations.getDelegations.useQuery(
     {},
     {
       refetchOnWindowFocus: true,
@@ -31,7 +31,7 @@ export default function DelegationsOverview() {
 
   const handleUpdate = () => trpcCtx.delegations.getDelegations.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

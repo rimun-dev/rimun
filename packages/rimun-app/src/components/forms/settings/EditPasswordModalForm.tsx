@@ -82,7 +82,7 @@ export default function EditPasswordModalForm(
           <ModalFooter
             actionTitle="Update Password"
             setIsVisible={props.setIsVisible}
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
           />
         </Form>
       </Formik>

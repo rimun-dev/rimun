@@ -58,7 +58,7 @@ export default function UpdateSessionImageModalForm(
           <ModalFooter
             actionTitle="Update Picture"
             setIsVisible={props.setIsVisible}
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
           />
         </Form>
       </Formik>

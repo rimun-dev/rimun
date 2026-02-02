@@ -56,7 +56,7 @@ export default function AddGuestModalForm(props: AddGuestModalFormProps) {
 
           <ModalFooter
             actionTitle="Select Guest"
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             setIsVisible={props.setIsVisible}
           />
         </Form>

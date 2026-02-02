@@ -39,7 +39,7 @@ export default function RemoveGalleryImageModalForm(
         </CancelButton>
 
         <SubmitButton
-          isLoading={mutation.isLoading}
+          isPending={mutation.isPending}
           onClick={() => mutation.mutate(props.image.id)}
           className="ml-2 bg-red-500 flex-1"
         >

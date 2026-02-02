@@ -71,7 +71,7 @@ export default function AddCommitteeModalForm(
           </Label>
 
           <ModalFooter
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             setIsVisible={props.setIsVisible}
             actionTitle="Create"
           />

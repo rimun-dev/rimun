@@ -57,7 +57,7 @@ export default function LoginForm() {
           </div>
 
           <SubmitButton
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             className={`w-full mt-4 ${
               values.email && values.password ? "bg-opacity-75" : undefined
             }`}

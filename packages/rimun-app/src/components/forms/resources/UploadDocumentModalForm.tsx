@@ -81,7 +81,7 @@ export default function UploadDocumentModalForm(
               </CancelButton>
 
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 className="ml-2 flex-1"
               >
                 Upload Document

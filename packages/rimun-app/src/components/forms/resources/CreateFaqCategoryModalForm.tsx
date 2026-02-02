@@ -61,7 +61,7 @@ export default function CreateFaqCategoryModalForm(
               </CancelButton>
 
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 className="ml-2 flex-1"
               >
                 Create Category

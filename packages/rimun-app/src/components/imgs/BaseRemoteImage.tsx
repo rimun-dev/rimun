@@ -11,7 +11,7 @@ export default function BaseRemoteImage({
   placeholderElement?: () => JSX.Element;
 }) {
   const [isError, setIsError] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isPending, setIsLoading] = React.useState(true);
 
   const imgRef = React.useRef<HTMLImageElement>(null);
 
@@ -20,7 +20,7 @@ export default function BaseRemoteImage({
   const Placeholder = placeholderElement ?? (() => <></>);
   if (isError) return <Placeholder />;
 
-  const isLoaded = imgRef.current?.complete || !isLoading;
+  const isLoaded = imgRef.current?.complete || !isPending;
 
   return (
     <>

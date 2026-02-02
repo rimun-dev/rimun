@@ -9,16 +9,16 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
 import { store } from "./store";
 
-export const trpc: CreateTRPCReact<TrpcRouter, unknown, unknown> =
+export const trpc: CreateTRPCReact<TrpcRouter, unknown> =
   createTRPCReact<TrpcRouter>();
 
-export function createTrpcClient(url: string) {
+export function createTrpcClient(url: string): ReturnType<typeof trpc.createClient> {
   return trpc.createClient({
-    transformer: superjson,
     links: [
       loggerLink(),
       httpBatchLink({
         url,
+        transformer: superjson,
         headers() {
           const authState = store.getState().auth;
           const token = authState.isAuthenticated ? authState.token : undefined;

@@ -88,7 +88,7 @@ export default function AddChairToCommitteeModalForm(
           </Label>
 
           <ModalFooter
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             {...props}
             actionTitle="Add Chair"
           />

@@ -17,7 +17,7 @@ export default function SelectRoleField({
   const rolesQuery = trpc.info.getRoles.useQuery(
     { group: { name: groupName, id: groupId } },
     {
-      cacheTime: Infinity,
+      gcTime: Infinity,
       staleTime: Infinity,
       refetchOnMount: false,
       refetchOnReconnect: false,
@@ -25,7 +25,7 @@ export default function SelectRoleField({
     }
   );
 
-  if (rolesQuery.isLoading || !rolesQuery.data) return <Spinner />;
+  if (rolesQuery.isPending || !rolesQuery.data) return <Spinner />;
 
   return (
     <SelectField

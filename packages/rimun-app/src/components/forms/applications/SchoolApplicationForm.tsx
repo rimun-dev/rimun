@@ -37,7 +37,7 @@ export default function SchoolApplicationForm() {
 
   const groupsQuery = trpc.info.getGroups.useQuery();
 
-  if (!groupsQuery.data || groupsQuery.isLoading) return <Spinner />;
+  if (!groupsQuery.data || groupsQuery.isPending) return <Spinner />;
 
   return (
     <Formik
@@ -239,7 +239,7 @@ export default function SchoolApplicationForm() {
 
         <PageFormFooter
           actionTitle="Submit Application"
-          isLoading={mutation.isLoading}
+          isPending={mutation.isPending}
         />
       </Form>
     </Formik>

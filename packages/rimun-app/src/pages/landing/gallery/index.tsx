@@ -11,9 +11,9 @@ export default function LandingGallery() {
   const [selectedImageIdx, setSelectedImageIdx] = React.useState(-1);
   const [selectedAlbumIdx, setSelectedAlbumIdx] = React.useState(-1);
 
-  const { data, isLoading } = trpc.resources.getImages.useQuery();
+  const { data, isPending } = trpc.resources.getImages.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   const albums = data
     .filter((s) => s.gallery_images.length > 0)

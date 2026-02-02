@@ -71,8 +71,8 @@ export default function AdminSearch() {
     }
   }, [query, userType, personFilters, schoolFilters]);
 
-  const isLoading =
-    (personsQuery.isLoading && schoolsQuery.isLoading) ||
+  const isPending =
+    (personsQuery.isPending && schoolsQuery.isPending) ||
     (personsQuery.isRefetching && schoolsQuery.isRefetching);
 
   return (
@@ -116,9 +116,9 @@ export default function AdminSearch() {
           ))}
       </div>
 
-      {isLoading && <Spinner className="mb-4" />}
+      {isPending && <Spinner className="mb-4" />}
 
-      {!isLoading &&
+      {!isPending &&
         (userType === "PERSON"
           ? personsQuery.data && (
               <PersonSearchResults query={query} data={personsQuery.data} />
@@ -154,9 +154,9 @@ interface SelectCountryInputProps {
 }
 
 function SelectCountryInput(props: SelectCountryInputProps) {
-  const { data, isLoading } = trpc.info.getCountries.useQuery();
+  const { data, isPending } = trpc.info.getCountries.useQuery();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <Select

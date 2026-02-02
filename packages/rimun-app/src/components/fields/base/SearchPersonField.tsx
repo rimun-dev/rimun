@@ -29,7 +29,7 @@ export default function SearchPersonField({
 
   const enableQuery = query.length > 0;
 
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(
+  const { data, isPending } = trpc.search.searchPersons.useQuery(
     { limit: maxResults ?? N_RESULTS_DEFAULT, query, filters },
     { enabled: enableQuery }
   );
@@ -67,7 +67,7 @@ export default function SearchPersonField({
             ))}
           </div>
 
-          {isLoading && enableQuery && <Spinner />}
+          {isPending && enableQuery && <Spinner />}
         </>
       )}
     </FieldItem>

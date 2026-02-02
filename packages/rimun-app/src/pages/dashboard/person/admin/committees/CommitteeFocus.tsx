@@ -29,7 +29,7 @@ interface CommitteeFocusViewProps {
 export default function CommitteeFocus() {
   const params = useParams();
 
-  const { data, isLoading } = trpc.committees.getCommittee.useQuery(
+  const { data, isPending } = trpc.committees.getCommittee.useQuery(
     Number.parseInt(params.id!),
     {
       refetchOnWindowFocus: true,
@@ -42,7 +42,7 @@ export default function CommitteeFocus() {
   const handleUpdate = () =>
     trpcCtx.committees.getCommittee.invalidate(Number.parseInt(params.id!));
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>
@@ -265,7 +265,7 @@ function TopicItem(props: TopicItemProps) {
         isVisible={showDelModal}
         setIsVisible={setShowDelModal}
         onConfirm={() => mutation.mutate(props.topic.id)}
-        isLoading={mutation.isLoading}
+        isPending={mutation.isPending}
         title="Remove Topic"
       >
         Are you sure you want to remove the topic <b>"{props.topic.name}"</b>?

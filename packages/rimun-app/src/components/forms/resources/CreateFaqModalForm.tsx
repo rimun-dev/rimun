@@ -87,7 +87,7 @@ export default function CreateFaqModalForm(props: CreateFaqModalFormProps) {
               </CancelButton>
 
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 className="ml-2 flex-1"
               >
                 Create F.A.Q.

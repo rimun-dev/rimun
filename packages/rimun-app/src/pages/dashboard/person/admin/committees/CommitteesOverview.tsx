@@ -12,7 +12,7 @@ import { InfoRouterOutputs, trpc } from "src/trpc";
 import { sortInCreationOrder } from "src/utils/collections";
 
 export default function CommitteesOverview() {
-  const { data, isLoading } = trpc.info.getForums.useQuery(undefined, {
+  const { data, isPending } = trpc.info.getForums.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });
@@ -20,7 +20,7 @@ export default function CommitteesOverview() {
   const trpcCtx = trpc.useContext();
   const handleUpdate = () => trpcCtx.info.getForums.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

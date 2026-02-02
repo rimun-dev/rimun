@@ -73,7 +73,7 @@ export default function ResetForm(props: ResetFormProps) {
             />
           </Label>
 
-          <PageFormFooter actionTitle="Submit" isLoading={mutation.isLoading} />
+          <PageFormFooter actionTitle="Submit" isPending={mutation.isPending} />
         </Form>
       )}
     </Formik>

@@ -11,9 +11,9 @@ export default function AlbumFocus() {
 
   const params = useParams();
 
-  const { data, isLoading } = trpc.resources.getImages.useQuery();
+  const { data, isPending } = trpc.resources.getImages.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   if (!params.edition) return null;
 

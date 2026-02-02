@@ -184,7 +184,7 @@ export default function EditSchoolApplicationModalForm(
               </CancelButton>
 
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 className="ml-2 flex-1"
               >
                 Update Application

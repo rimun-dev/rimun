@@ -4,9 +4,9 @@ import SchoolApplicationOverview from "src/pages/dashboard/school/application/Sc
 import { trpc } from "src/trpc";
 
 export default function SchoolApplication() {
-  const { data, isLoading } = trpc.profiles.getCurrentSchoolUser.useQuery();
+  const { data, isPending } = trpc.profiles.getCurrentSchoolUser.useQuery();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <div className="flex justify-center bg-slate-100">

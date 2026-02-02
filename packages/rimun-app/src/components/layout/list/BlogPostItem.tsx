@@ -80,7 +80,7 @@ export default function BlogPostItem({
         isVisible={showDeleteModal}
         setIsVisible={setShowDeleteModal}
         onConfirm={() => mutation.mutate(blogPost.id)}
-        isLoading={mutation.isLoading}
+        isPending={mutation.isPending}
         title="Delete Blog Post"
       >
         Are you sure you want to delete this post?

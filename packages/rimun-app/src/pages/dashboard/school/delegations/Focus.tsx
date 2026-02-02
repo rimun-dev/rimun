@@ -17,7 +17,7 @@ export default function SchoolDelegationFocus() {
   const params = useParams();
   const delegationId = Number.parseInt(params.id!);
 
-  const { data, isLoading } = trpc.delegations.getDelegation.useQuery(
+  const { data, isPending } = trpc.delegations.getDelegation.useQuery(
     delegationId,
     {
       refetchOnWindowFocus: true,
@@ -30,7 +30,7 @@ export default function SchoolDelegationFocus() {
   const handleUpdate = () =>
     trpcCtx.delegations.getDelegation.invalidate(delegationId);
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <div className="max-w-3xl mx-auto">

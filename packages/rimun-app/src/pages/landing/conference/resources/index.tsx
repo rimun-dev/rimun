@@ -4,9 +4,9 @@ import { ResourcesRouterOutputs, trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingConferenceResources() {
-  const { data, isLoading } = trpc.resources.getDocuments.useQuery();
+  const { data, isPending } = trpc.resources.getDocuments.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="resources">

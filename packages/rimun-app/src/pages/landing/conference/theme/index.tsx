@@ -5,9 +5,9 @@ import { CDN_ENDPOINT } from "src/config";
 import { trpc } from "src/trpc";
 
 export default function LandingConferenceTheme() {
-  const { data, isLoading } = trpc.info.getCurrentSession.useQuery();
+  const { data, isPending } = trpc.info.getCurrentSession.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="theme">

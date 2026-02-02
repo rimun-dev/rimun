@@ -1,4 +1,5 @@
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
+import React from "react";
 
 import Card from "src/components/layout/Card";
 import Spinner from "src/components/status/Spinner";
@@ -8,10 +9,13 @@ import { trpc } from "src/trpc";
 export default function AdminExports() {
   const attendeesTSVQuery = trpc.exports.getAttendeesTSV.useQuery(undefined, {
     enabled: false,
-    onSuccess: (data) => {
-      window.open(`data:text/csv;charset=utf-8,${data}`);
-    },
   });
+
+  React.useEffect(() => {
+    if (attendeesTSVQuery.data) {
+      window.open(`data:text/csv;charset=utf-8,${attendeesTSVQuery.data}`);
+    }
+  }, [attendeesTSVQuery.data]);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -19,7 +23,7 @@ export default function AdminExports() {
 
       <Card className="divide-y">
         <ExportElement
-          isLoading={attendeesTSVQuery.isRefetching}
+          isPending={attendeesTSVQuery.isRefetching}
           onDownload={() => attendeesTSVQuery.refetch()}
           name="Attendees List"
         >
@@ -33,7 +37,7 @@ export default function AdminExports() {
             onSuccess: downloadBase64File,
                 });
         <ExportElement
-          isLoading={badgesQuery.isFetching || badgesQuery.isRefetching}
+          isPending={badgesQuery.isFetching || badgesQuery.isRefetching}
           onDownload={() => badgesQuery.refetch()}
           name="Badges"
         >
@@ -41,14 +45,14 @@ export default function AdminExports() {
           extra blanks). Note: this takes a while.
         </ExportElement>
         <ExportElement
-          isLoading={attendeesTSVQuery.isRefetching}
+          isPending={attendeesTSVQuery.isRefetching}
           onDownload={() => attendeesTSVQuery.refetch()}
           name="Certificates"
         >
           Obtain a PDF document containing all participation certificates.
         </ExportElement>
         <ExportElement
-          isLoading={attendeesTSVQuery.isRefetching}
+          isPending={attendeesTSVQuery.isRefetching}
           onDownload={() => attendeesTSVQuery.refetch()}
           name="Placards"
         >
@@ -63,13 +67,13 @@ export default function AdminExports() {
 interface ExportElementProps extends React.HTMLProps<HTMLDivElement> {
   name: string;
   children: string;
-  isLoading: boolean;
+  isPending: boolean;
   onDownload: () => void;
 }
 
 function ExportElement({
   children,
-  isLoading,
+  isPending,
   onDownload,
   ...props
 }: ExportElementProps) {
@@ -79,7 +83,7 @@ function ExportElement({
         <h2 className="font-bold shrink-0">{props.name}</h2>
         <p className="text-xs shrink-0">{children}</p>
       </div>
-      {isLoading ? (
+      {isPending ? (
         <Spinner className="mx-0" />
       ) : (
         <DownloadButton onClick={onDownload} />

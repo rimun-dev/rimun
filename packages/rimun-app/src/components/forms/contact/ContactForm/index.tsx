@@ -68,7 +68,7 @@ export default function ContactForm() {
         </label>
 
         <div>
-          {mutation.isLoading ? (
+          {mutation.isPending ? (
             <Spinner />
           ) : (
             <input

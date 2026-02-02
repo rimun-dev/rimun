@@ -5,13 +5,13 @@ import PageTitle from "src/components/typography/PageTitle";
 import { trpc } from "src/trpc";
 
 export default function SchoolSettings() {
-  const { data, isLoading } = trpc.profiles.getCurrentSchoolUser.useQuery();
+  const { data, isPending } = trpc.profiles.getCurrentSchoolUser.useQuery();
 
   const trpcCtx = trpc.useContext();
 
   const handleUpdate = () => trpcCtx.profiles.getCurrentSchoolUser.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <div className="max-w-lg mx-auto">

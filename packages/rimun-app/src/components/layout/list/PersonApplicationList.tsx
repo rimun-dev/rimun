@@ -20,7 +20,7 @@ export default function PersonApplicationList({
   filters = {},
 }: PersonApplicationListProps) {
   // TODO: introduce pagination with `useInfiniteQuery`
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(
+  const { data, isPending } = trpc.search.searchPersons.useQuery(
     { limit: Number.MAX_SAFE_INTEGER, filters },
     { refetchOnWindowFocus: true }
   );
@@ -33,7 +33,7 @@ export default function PersonApplicationList({
       filters,
     });
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <Card className="p-4 overflow-x-auto">

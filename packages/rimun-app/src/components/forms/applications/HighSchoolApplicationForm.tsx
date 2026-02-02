@@ -42,14 +42,14 @@ const HighSchoolApplicationForm: React.FC<
   });
 
   const groupsQuery = trpc.info.getGroups.useQuery(undefined, {
-    cacheTime: Infinity,
+    gcTime: Infinity,
     staleTime: Infinity,
   });
 
   if (
-    schoolsQuery.isLoading ||
+    schoolsQuery.isPending ||
     !schoolsQuery.data ||
-    groupsQuery.isLoading ||
+    groupsQuery.isPending ||
     !groupsQuery.data
   )
     return <Spinner />;
@@ -199,7 +199,7 @@ const HighSchoolApplicationForm: React.FC<
 
             <PageFormFooter
               actionTitle="Submit Application"
-              isLoading={mutation.isLoading}
+              isPending={mutation.isPending}
             />
           </Form>
         );

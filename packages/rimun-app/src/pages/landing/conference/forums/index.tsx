@@ -15,10 +15,10 @@ import { InfoRouterOutputs, trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingConferenceForums() {
-  const { data, isLoading } = trpc.info.getForums.useQuery();
+  const { data, isPending } = trpc.info.getForums.useQuery();
   const location = useLocation();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="forums">
@@ -77,7 +77,7 @@ interface ForumPageProps {
 }
 
 function ForumPage(props: ForumPageProps) {
-  const { data, isLoading } = trpc.search.searchPersons.useQuery({
+  const { data, isPending } = trpc.search.searchPersons.useQuery({
     filters: {
       application: {
         status_application: "ACCEPTED",
@@ -88,7 +88,7 @@ function ForumPage(props: ForumPageProps) {
     },
   });
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <>

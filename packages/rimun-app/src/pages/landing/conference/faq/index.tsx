@@ -7,9 +7,9 @@ import { ResourcesRouterOutputs, trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingConferenceFaq() {
-  const { data, isLoading } = trpc.resources.getFaqs.useQuery();
+  const { data, isPending } = trpc.resources.getFaqs.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="faqs">

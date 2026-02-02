@@ -4,7 +4,7 @@ import Spinner from "src/components/status/Spinner";
 import { trpc } from "src/trpc";
 
 export default function SchoolList() {
-  const { data, isLoading } = trpc.search.searchSchools.useQuery({
+  const { data, isPending } = trpc.search.searchSchools.useQuery({
     limit: Number.MAX_SAFE_INTEGER,
     filters: { application: { status_application: "ACCEPTED" } },
   });
@@ -19,7 +19,7 @@ export default function SchoolList() {
     trpcCtx.housing.getStats.invalidate();
   };
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   const filteredApplications = data.result.filter(
     (a) => a.status_housing !== "NOT_REQUIRED"

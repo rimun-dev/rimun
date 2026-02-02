@@ -64,7 +64,7 @@ export default function AssignSchoolToDelegationModalForm(
           </Label>
 
           <ModalFooter
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             {...props}
             actionTitle="Assign School"
           />

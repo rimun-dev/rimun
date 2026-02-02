@@ -12,11 +12,11 @@ import { renderGender, renderTshirtSize } from "src/utils/strings";
 export default function AdminPersonProfile() {
   const { id } = useParams();
 
-  const { data, isLoading } = trpc.profiles.getPersonProfile.useQuery(
+  const { data, isPending } = trpc.profiles.getPersonProfile.useQuery(
     Number.parseInt(id!)
   );
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div className="flex flex-col items-center">

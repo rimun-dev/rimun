@@ -113,7 +113,7 @@ export default function RegisterPersonForm() {
 
           <PageFormFooter
             actionTitle="Create Account"
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
           />
         </Form>
       )}

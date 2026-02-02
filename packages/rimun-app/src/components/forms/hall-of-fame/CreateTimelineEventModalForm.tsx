@@ -114,7 +114,7 @@ export default function CreateTimelineEventModalForm(
           <ModalFooter
             actionTitle="Create Event"
             setIsVisible={props.setIsVisible}
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
           />
         </Form>
       </Formik>

@@ -58,7 +58,7 @@ export default function AddTopicToCommitteeModalForm(
           </Label>
 
           <ModalFooter
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             {...props}
             actionTitle="Add Topic"
           />

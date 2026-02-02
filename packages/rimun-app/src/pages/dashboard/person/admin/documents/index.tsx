@@ -17,7 +17,7 @@ import useDownload from "src/utils/useDownload";
 export default function AdminDocuments() {
   const [showModal, setShowModal] = React.useState(false);
 
-  const { data, isLoading } = trpc.resources.getDocuments.useQuery(undefined, {
+  const { data, isPending } = trpc.resources.getDocuments.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
@@ -25,7 +25,7 @@ export default function AdminDocuments() {
 
   const handleUpdate = () => trpcCtx.resources.getDocuments.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

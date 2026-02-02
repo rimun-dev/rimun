@@ -23,7 +23,7 @@ interface DelegationFocusViewProps {
 export default function DelegationFocus() {
   const params = useParams();
 
-  const { data, isLoading } = trpc.delegations.getDelegation.useQuery(
+  const { data, isPending } = trpc.delegations.getDelegation.useQuery(
     Number.parseInt(params.id!),
     {
       enabled: !!params.id,
@@ -37,7 +37,7 @@ export default function DelegationFocus() {
   const handleUpdate = () =>
     trpcCtx.delegations.getDelegation.invalidate(Number.parseInt(params.id!));
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

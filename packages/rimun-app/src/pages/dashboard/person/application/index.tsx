@@ -4,9 +4,9 @@ import PersonApplicationOverview from "src/pages/dashboard/person/application/Pe
 import { trpc } from "src/trpc";
 
 export default function PersonApplication() {
-  const { data, isLoading } = trpc.profiles.getCurrentPersonUser.useQuery();
+  const { data, isPending } = trpc.profiles.getCurrentPersonUser.useQuery();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <div className="flex justify-center bg-slate-100">

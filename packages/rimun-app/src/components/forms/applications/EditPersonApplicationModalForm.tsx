@@ -16,7 +16,7 @@ interface EditPersonApplicationModalFormProps extends ModalProps {
 }
 
 export default function EditPersonApplicationModalForm(
-  props: EditPersonApplicationModalFormProps
+  props: EditPersonApplicationModalFormProps,
 ) {
   const authState = useAuthenticatedState();
 
@@ -133,7 +133,7 @@ export default function EditPersonApplicationModalForm(
             )}
 
             <ModalFooter
-              isLoading={mutation.isLoading}
+              isPending={mutation.isPending}
               {...props}
               actionTitle="Update Application"
             />

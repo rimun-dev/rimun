@@ -14,7 +14,7 @@ export default function HostList() {
     },
   } as SearchRouterInputs["searchPersons"];
 
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(queryInput);
+  const { data, isPending } = trpc.search.searchPersons.useQuery(queryInput);
 
   const trpcCtx = trpc.useContext();
 
@@ -23,7 +23,7 @@ export default function HostList() {
     trpcCtx.search.searchPersons.invalidate(queryInput);
   };
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <Card className="overflow-y-auto overflow-x-auto">

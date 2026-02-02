@@ -23,13 +23,13 @@ export default function AdminTeam() {
     },
   };
 
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(queryInput, {
+  const { data, isPending } = trpc.search.searchPersons.useQuery(queryInput, {
     refetchOnWindowFocus: true,
   });
 
   const trpcCtx = trpc.useContext();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   const handleUpdate = () =>
     trpcCtx.search.searchPersons.invalidate(queryInput);

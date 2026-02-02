@@ -65,7 +65,7 @@ export default function AddReportModalForm(props: AddReportModalFormProps) {
           </Label>
 
           <ModalFooter
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             {...props}
             actionTitle="Update Report"
           />

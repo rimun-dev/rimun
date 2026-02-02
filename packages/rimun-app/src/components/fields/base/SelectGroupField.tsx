@@ -10,14 +10,14 @@ interface SelectGroupFieldProps extends Omit<SelectFieldProps, "options"> {
 
 export default function SelectGroupField(props: SelectGroupFieldProps) {
   const groupsQuery = trpc.info.getGroups.useQuery(undefined, {
-    cacheTime: Infinity,
+    gcTime: Infinity,
     staleTime: Infinity,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   });
 
-  if (groupsQuery.isLoading || !groupsQuery.data) return <Spinner />;
+  if (groupsQuery.isPending || !groupsQuery.data) return <Spinner />;
 
   return (
     <SelectField

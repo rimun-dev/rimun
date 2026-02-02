@@ -98,12 +98,9 @@ export default function App() {
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
-            onError: handleError,
           },
 
-          mutations: {
-            onError: handleError,
-          },
+          mutations: {},
         },
       })
   );

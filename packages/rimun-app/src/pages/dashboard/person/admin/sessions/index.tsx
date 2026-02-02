@@ -19,9 +19,9 @@ export default function AdminSessions() {
 
   const navigate = useNavigate();
 
-  const { data, isLoading } = trpc.sessions.getAllSessions.useQuery();
+  const { data, isPending } = trpc.sessions.getAllSessions.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <>

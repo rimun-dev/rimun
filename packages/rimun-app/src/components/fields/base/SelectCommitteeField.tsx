@@ -18,9 +18,9 @@ export default function SelectCommitteeField({
     | undefined
   >(name);
 
-  const { data, isLoading } = trpc.info.getForums.useQuery();
+  const { data, isPending } = trpc.info.getForums.useQuery();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <FieldItem {...{ error, touched }}>

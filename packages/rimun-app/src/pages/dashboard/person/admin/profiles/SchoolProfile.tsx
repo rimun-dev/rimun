@@ -11,11 +11,11 @@ import { trpc } from "src/trpc";
 export default function AdminSchoolProfile() {
   const { id } = useParams();
 
-  const { data, isLoading } = trpc.profiles.getSchoolProfile.useQuery(
+  const { data, isPending } = trpc.profiles.getSchoolProfile.useQuery(
     Number.parseInt(id!)
   );
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div className="flex flex-col items-center">

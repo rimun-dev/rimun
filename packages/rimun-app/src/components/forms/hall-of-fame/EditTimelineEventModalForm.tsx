@@ -122,7 +122,7 @@ export default function EditTimelineEventModalForm(
           <ModalFooter
             actionTitle="Update Event"
             setIsVisible={props.setIsVisible}
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
           />
         </Form>
       </Formik>

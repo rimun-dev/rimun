@@ -22,9 +22,9 @@ import { downloadDocument } from "src/utils/download";
 export default function AdminHallOfFame() {
   const [showAddModal, setShowAddModal] = React.useState(false);
 
-  const { data, isLoading } = trpc.timeline.getEvents.useQuery();
+  const { data, isPending } = trpc.timeline.getEvents.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <>

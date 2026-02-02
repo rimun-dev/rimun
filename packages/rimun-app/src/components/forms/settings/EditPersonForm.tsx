@@ -78,7 +78,7 @@ export default function EditPersonForm(props: EditPersonFormProps) {
             </CancelButton>
 
             <SubmitButton
-              isLoading={mutation.isLoading}
+              isPending={mutation.isPending}
               disabled={!dirty}
               className="ml-2 flex-1"
             >

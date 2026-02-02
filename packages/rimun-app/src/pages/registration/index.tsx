@@ -47,7 +47,7 @@ export default function Registration() {
           </CancelButton>
 
           <SubmitButton
-            isLoading={false}
+            isPending={false}
             onClick={() =>
               !type
                 ? dispatch(

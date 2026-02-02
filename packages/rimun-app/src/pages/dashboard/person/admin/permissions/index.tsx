@@ -14,7 +14,7 @@ import PageTitle from "src/components/typography/PageTitle";
 import { TeamRouterOutputs, trpc } from "src/trpc";
 
 export default function AdminPermissions() {
-  const { data, isLoading } = trpc.team.getAllPermissions.useQuery(undefined, {
+  const { data, isPending } = trpc.team.getAllPermissions.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
@@ -22,7 +22,7 @@ export default function AdminPermissions() {
 
   const handleUpdate = () => trpcCtx.team.getAllPermissions.invalidate();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <>

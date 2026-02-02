@@ -27,7 +27,7 @@ export default function SearchSchoolField({
     SearchRouterOutputs["searchSchools"]["result"][0]["school_id"] | undefined
   >(name);
 
-  const { data, isLoading } = trpc.search.searchSchools.useQuery(
+  const { data, isPending } = trpc.search.searchSchools.useQuery(
     { limit: maxResults ?? N_RESULTS_DEFAULT, query, filters },
     { enabled: query.length > 0 }
   );
@@ -65,7 +65,7 @@ export default function SearchSchoolField({
             ))}
           </div>
 
-          {isLoading && <Spinner />}
+          {isPending && <Spinner />}
         </>
       )}
     </FieldItem>

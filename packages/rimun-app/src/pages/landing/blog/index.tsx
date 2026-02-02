@@ -7,9 +7,9 @@ import { NewsRouterOutputs, trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingBlog() {
-  const { data, isLoading } = trpc.news.getPosts.useQuery();
+  const { data, isPending } = trpc.news.getPosts.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="blog">

@@ -111,7 +111,7 @@ export default function UpdateBlogPostModalForm(
             </div>
 
             <SubmitButton
-              isLoading={mutation.isLoading}
+              isPending={mutation.isPending}
               className="float-right my-4"
             >
               Update Post

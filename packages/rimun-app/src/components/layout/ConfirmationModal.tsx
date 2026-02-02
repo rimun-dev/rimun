@@ -5,7 +5,7 @@ import Modal, { ModalHeader, ModalProps } from "./Modal";
 
 interface ConfirmationModalProps extends ModalProps {
   title: string;
-  isLoading?: boolean;
+  isPending?: boolean;
   onConfirm: () => void;
 }
 
@@ -13,7 +13,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   title,
   onConfirm,
   children,
-  isLoading = false,
+  isPending = false,
   ...props
 }) => {
   return (
@@ -37,7 +37,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </CancelButton>
 
           <SubmitButton
-            isLoading={isLoading}
+            isPending={isPending}
             onClick={() => {
               onConfirm();
               props.setIsVisible(false);

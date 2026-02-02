@@ -101,7 +101,7 @@ export default function RegisterSchoolForm(props: RegisterSchoolFormProps) {
 
         <PageFormFooter
           actionTitle="Create Account"
-          isLoading={mutation.isLoading}
+          isPending={mutation.isPending}
         />
       </Form>
     </Formik>

@@ -14,7 +14,7 @@ export default function HSCList() {
     },
   };
 
-  const { data, isLoading } = trpc.search.searchPersons.useQuery(queryInput);
+  const { data, isPending } = trpc.search.searchPersons.useQuery(queryInput);
 
   const trpcCtx = trpc.useContext();
 
@@ -23,7 +23,7 @@ export default function HSCList() {
     trpcCtx.housing.getStats.invalidate();
   };
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <Card className="overflow-y-hidden overflow-x-auto">

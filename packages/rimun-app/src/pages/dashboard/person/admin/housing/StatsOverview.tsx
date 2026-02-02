@@ -3,9 +3,9 @@ import Spinner from "src/components/status/Spinner";
 import { trpc } from "src/trpc";
 
 export default function StatsOverview() {
-  const { data, isLoading } = trpc.housing.getStats.useQuery();
+  const { data, isPending } = trpc.housing.getStats.useQuery();
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   const nTotRequests = data.n_hsc_requests + data.n_school_requests;
   const nTotMatched = data.n_hsc_matched + data.n_school_matched;

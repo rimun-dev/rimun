@@ -3,11 +3,11 @@ import Spinner from "src/components/status/Spinner";
 import { trpc } from "src/trpc";
 
 export default function StatsOverview() {
-  const { data, isLoading } = trpc.applications.getStats.useQuery(undefined, {
+  const { data, isPending } = trpc.applications.getStats.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   const nDelegates =
     data.find((s) => s.group.name === "delegate")?.n_confirmed ?? 0;

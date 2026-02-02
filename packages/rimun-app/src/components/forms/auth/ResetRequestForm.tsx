@@ -46,7 +46,7 @@ export default function ResetRequestForm() {
             required
           />
 
-          <PageFormFooter actionTitle="Submit" isLoading={mutation.isLoading} />
+          <PageFormFooter actionTitle="Submit" isPending={mutation.isPending} />
         </Form>
       )}
     </Formik>

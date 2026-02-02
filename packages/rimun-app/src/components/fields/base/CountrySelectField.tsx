@@ -16,9 +16,9 @@ const CountrySelectField: React.FC<CountrySelectFieldProps> = ({
   const [field, { error, touched }, { setValue }] =
     useField<InfoRouterOutputs["getCountries"][0]["id"]>(name);
 
-  const { data, isLoading } = trpc.info.getCountries.useQuery(undefined, {
+  const { data, isPending } = trpc.info.getCountries.useQuery(undefined, {
     staleTime: Infinity,
-    cacheTime: Infinity,
+    gcTime: Infinity,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -26,7 +26,7 @@ const CountrySelectField: React.FC<CountrySelectFieldProps> = ({
 
   return (
     <FieldItem {...{ error, touched }}>
-      {isLoading || !data ? (
+      {isPending || !data ? (
         <Spinner />
       ) : (
         <Select

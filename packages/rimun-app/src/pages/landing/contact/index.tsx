@@ -4,9 +4,9 @@ import { trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingContact() {
-  const { data: team, isLoading } = trpc.info.getTeam.useQuery();
+  const { data: team, isPending } = trpc.info.getTeam.useQuery();
 
-  if (isLoading) return <Spinner />;
+  if (isPending) return <Spinner />;
 
   const internationalManager = team?.find(
     (member) =>

@@ -5,11 +5,11 @@ import CancelButton from "src/components/fields/base/CancelButton";
 
 interface PageFormFooterProps {
   actionTitle?: string;
-  isLoading?: boolean;
+  isPending?: boolean;
 }
 
 export default function PageFormFooter({
-  isLoading = false,
+  isPending = false,
   actionTitle = "Submit",
 }: PageFormFooterProps) {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function PageFormFooter({
         <p className="flex-shrink-0">Go back</p>
       </CancelButton>
 
-      <SubmitButton isLoading={isLoading} className="flex-shrink-0">
+      <SubmitButton isPending={isPending} className="flex-shrink-0">
         {actionTitle}
       </SubmitButton>
     </div>

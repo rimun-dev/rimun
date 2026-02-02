@@ -2,11 +2,11 @@ import React from "react";
 import Spinner from "src/components/status/Spinner";
 
 interface SubmitButtonProps extends React.HTMLProps<HTMLButtonElement> {
-  isLoading: boolean;
+  isPending: boolean;
 }
 
 const SubmitButton: React.FC<SubmitButtonProps> = ({
-  isLoading,
+  isPending,
   children,
   ...props
 }) => {
@@ -18,7 +18,7 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
         props.disabled ? "bg-opacity-25" : "bg-opacity-100"
       } rounded-md px-4 py-2 transition-all ${props.className}`}
     >
-      {isLoading ? <Spinner className="text-white" /> : children}
+      {isPending ? <Spinner className="text-white" /> : children}
     </button>
   );
 };

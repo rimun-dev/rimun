@@ -50,7 +50,7 @@ function Hero() {
   const year = dateEnd.getFullYear();
 
   const sessionDateString =
-    query.isLoading || !query.data
+    query.isPending || !query.data
       ? ""
       : `${startDay} - ${endDay} ${month} ${year}`;
 

@@ -72,7 +72,7 @@ export default function UpdateFaqModalForm(props: UpdateFaqModalFormProps) {
               </CancelButton>
 
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 className="ml-2 flex-1"
               >
                 Update F.A.Q.

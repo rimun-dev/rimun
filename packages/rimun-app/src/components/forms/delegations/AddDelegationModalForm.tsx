@@ -119,7 +119,7 @@ export default function AddDelegationModalForm(
             <div className="h-8" />
 
             <ModalFooter
-              isLoading={mutation.isLoading}
+              isPending={mutation.isPending}
               {...props}
               actionTitle="Create Delegation"
             />

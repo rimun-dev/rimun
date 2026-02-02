@@ -12,7 +12,7 @@ import Tag, { TagStatus } from "src/components/status/Tag";
 import { SearchRouterOutputs, trpc } from "src/trpc";
 
 export default function SchoolApplicationList() {
-  const { data, isLoading } = trpc.search.searchSchools.useQuery(
+  const { data, isPending } = trpc.search.searchSchools.useQuery(
     { limit: Number.MAX_SAFE_INTEGER, filters: {} },
     { refetchOnWindowFocus: true }
   );
@@ -25,7 +25,7 @@ export default function SchoolApplicationList() {
       filters: {},
     });
 
-  if (isLoading || !data) return <Spinner />;
+  if (isPending || !data) return <Spinner />;
 
   return (
     <Card className="p-4 overflow-x-auto">

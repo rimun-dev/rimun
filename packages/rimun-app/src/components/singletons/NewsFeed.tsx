@@ -15,9 +15,9 @@ export default function NewsFeed() {
 
   const authState = useAuthenticatedState();
 
-  const { data, isLoading } = trpc.news.getPosts.useQuery();
+  const { data, isPending } = trpc.news.getPosts.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   const canCreatePosts =
     authState.account.is_admin ||

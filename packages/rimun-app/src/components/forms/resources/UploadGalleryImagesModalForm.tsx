@@ -47,7 +47,7 @@ export default function UploadGalleryImagesModalForm(
         </Banner>
       </div>
 
-      {sessionsQuery.isLoading || !sessionsQuery.data ? (
+      {sessionsQuery.isPending || !sessionsQuery.data ? (
         <Spinner />
       ) : (
         <Formik
@@ -105,7 +105,7 @@ export default function UploadGalleryImagesModalForm(
                 </CancelButton>
 
                 <SubmitButton
-                  isLoading={mutation.isLoading}
+                  isPending={mutation.isPending}
                   className="ml-2 flex-1"
                 >
                   Upload Images

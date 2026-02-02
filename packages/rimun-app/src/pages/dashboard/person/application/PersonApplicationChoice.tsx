@@ -49,7 +49,7 @@ export default function PersonApplicationChoice() {
         </CancelButton>
 
         <SubmitButton
-          isLoading={false}
+          isPending={false}
           onClick={() =>
             type === undefined
               ? dispatch(

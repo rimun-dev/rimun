@@ -53,7 +53,7 @@ export default function DelGuestModalForm(props: DelGuestModalFormProps) {
 
           <ModalFooter
             actionTitle="Remove Guest"
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
             setIsVisible={props.setIsVisible}
           />
         </Form>

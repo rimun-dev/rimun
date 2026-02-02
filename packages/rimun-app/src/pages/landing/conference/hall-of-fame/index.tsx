@@ -14,9 +14,9 @@ import "./index.scss";
 type TimelineEvent = TimelineRouterOutputs["getEvents"][0];
 
 export default function LandingConferenceHallOfFame() {
-  const { data, isLoading } = trpc.timeline.getEvents.useQuery();
+  const { data, isPending } = trpc.timeline.getEvents.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="hall-of-fame" className="bg-slate-100">

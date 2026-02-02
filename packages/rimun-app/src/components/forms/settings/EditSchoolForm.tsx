@@ -73,7 +73,7 @@ export default function EditSchoolForm(props: EditSchoolFormProps) {
             </CancelButton>
 
             <SubmitButton
-              isLoading={mutation.isLoading}
+              isPending={mutation.isPending}
               disabled={!dirty}
               className="ml-2 flex-1"
             >

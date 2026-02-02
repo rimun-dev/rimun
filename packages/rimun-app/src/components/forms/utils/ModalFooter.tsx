@@ -4,7 +4,7 @@ import CancelButton from "src/components/fields/base/CancelButton";
 interface ModalFooterProps {
   actionTitle?: string;
   setIsVisible: (b: boolean) => void;
-  isLoading: boolean;
+  isPending: boolean;
 }
 
 export default function ModalFooter(props: ModalFooterProps) {
@@ -16,7 +16,7 @@ export default function ModalFooter(props: ModalFooterProps) {
       >
         Cancel
       </CancelButton>
-      <SubmitButton isLoading={props.isLoading} className="ml-2 flex-1">
+      <SubmitButton isPending={props.isPending} className="ml-2 flex-1">
         {props.actionTitle}
       </SubmitButton>
     </div>

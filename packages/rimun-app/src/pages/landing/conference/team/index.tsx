@@ -4,9 +4,9 @@ import { InfoRouterOutputs, trpc } from "src/trpc";
 import "./index.scss";
 
 export default function LandingConferenceTeam() {
-  const { data, isLoading } = trpc.info.getTeam.useQuery();
+  const { data, isPending } = trpc.info.getTeam.useQuery();
 
-  if (!data || isLoading) return <Spinner />;
+  if (!data || isPending) return <Spinner />;
 
   return (
     <div id="team">

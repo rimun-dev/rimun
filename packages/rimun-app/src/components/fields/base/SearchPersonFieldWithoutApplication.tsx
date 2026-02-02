@@ -27,7 +27,7 @@ export default function SearchPersonWithoutApplicationField({
 
   const enableQuery = query.length > 0;
 
-  const { data, isLoading } =
+  const { data, isPending } =
     trpc.search.searchPersonsWithoutApplication.useQuery(
       { limit: maxResults ?? N_RESULTS_DEFAULT, query },
       { enabled: enableQuery }
@@ -63,7 +63,7 @@ export default function SearchPersonWithoutApplicationField({
             ))}
           </div>
 
-          {isLoading && enableQuery && <Spinner />}
+          {isPending && enableQuery && <Spinner />}
         </>
       )}
     </FieldItem>

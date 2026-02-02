@@ -139,7 +139,7 @@ const UndergraduateApplicationForm: React.FC<
 
           <PageFormFooter
             actionTitle="Submit Application"
-            isLoading={mutation.isLoading}
+            isPending={mutation.isPending}
           />
         </Form>
       )}

@@ -57,7 +57,7 @@ export default function EditAccountForm(props: EditAccountFormProps) {
 
             <div className="md:flex justify-between items-center">
               <SubmitButton
-                isLoading={mutation.isLoading}
+                isPending={mutation.isPending}
                 disabled={!dirty}
                 className="flex-0"
               >
