@@ -2,7 +2,7 @@
  * This script populates the database with necessary values for
  * the application to work correctly.
  */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, ApplicationStatus, HousingStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -98,6 +98,7 @@ What makes this forum unique is that Historical Security Council’s delegates w
 `,
       },
     ],
+    skipDuplicates: true,
   });
 
   await prisma.resource.createMany({
@@ -119,6 +120,7 @@ What makes this forum unique is that Historical Security Council’s delegates w
       { name: "session" },
       { name: "hall-of-fame" },
     ],
+    skipDuplicates: true,
   });
 
   await prisma.group.createMany({
@@ -132,6 +134,7 @@ What makes this forum unique is that Historical Security Council’s delegates w
       { id: 7, name: "hsc" },
       { id: 8, name: "guest" },
     ],
+    skipDuplicates: true,
   });
 
   await prisma.role.createMany({
@@ -212,6 +215,7 @@ What makes this forum unique is that Historical Security Council’s delegates w
       { group_id: 4, name: "Crisis Writer" },
       { group_id: 2, name: "Teacher Staff" },
     ],
+    skipDuplicates: true,
   });
 
   await prisma.country.createMany({
@@ -463,7 +467,190 @@ What makes this forum unique is that Historical Security Council’s delegates w
       { code: "ZM", name: "Zambia" },
       { code: "ZW", name: "Zimbabwe" },
     ],
+    skipDuplicates: true,
   });
+
+  // Minimal test dataset for delegates endpoint (idempotent)
+  // - One active session
+  // - One GA committee
+  // - One individual delegation
+  // - One person (Italian)
+  // - One person_application as a delegate in that committee
+  const ga = await prisma.forum.findUnique({ where: { acronym: "GA" } });
+  if (ga) {
+    // Upsert session with unique edition
+    const session = await prisma.session.upsert({
+      where: { edition: 1 },
+      update: {},
+      create: {
+        edition: 1,
+        edition_display: 1,
+        is_active: true,
+        title: "Test Session",
+        subtitle: "Local",
+      },
+    });
+
+    // Upsert committee with composite unique (name, session_id, forum_id)
+    const committee = await prisma.committee.upsert({
+      where: {
+        name_session_id_forum_id: {
+          name: "GA Test Committee",
+          session_id: session.id,
+          forum_id: ga.id,
+        },
+      },
+      update: {},
+      create: {
+        name: "GA Test Committee",
+        session_id: session.id,
+        forum_id: ga.id,
+        size: 100,
+      },
+    });
+
+    const italy = await prisma.country.findUnique({ where: { code: "IT" } });
+    const delegateGroup = await prisma.group.findUnique({ where: { name: "delegate" } });
+    const delegateRole = await prisma.role.findFirst({
+      where: { name: "Delegate", group: { name: "delegate" } },
+    });
+
+    if (italy && delegateGroup && delegateRole) {
+      // Person (idempotent by full_name + country)
+      const person =
+        (await prisma.person.findFirst({
+          where: { full_name: "Test Delegate", country_id: italy.id },
+        })) ??
+        (await prisma.person.create({
+          data: {
+            name: "Test",
+            surname: "Delegate",
+            full_name: "Test Delegate",
+            picture_path: "img/people/test.jpg",
+            country_id: italy.id,
+          },
+        }));
+
+      // Delegation (find by name + session to avoid duplicates)
+      let delegation = await prisma.delegation.findFirst({
+        where: { name: "Test Individual Delegation", session_id: session.id },
+      });
+      if (!delegation) {
+        delegation = await prisma.delegation.create({
+          data: {
+            name: "Test Individual Delegation",
+            type: "individual",
+            is_individual: true,
+            n_delegates: 1,
+            session_id: session.id,
+            country_id: italy.id,
+          },
+        });
+      }
+
+      // PersonApplication upsert by unique (person_id, session_id)
+      await prisma.personApplication.upsert({
+        where: {
+          person_id_session_id: { person_id: person.id, session_id: session.id },
+        },
+        update: {
+          committee_id: committee.id,
+          requested_group_id: delegateGroup.id,
+          requested_role_id: delegateRole.id,
+          confirmed_group_id: delegateGroup.id,
+          confirmed_role_id: delegateRole.id,
+          delegation_id: delegation.id,
+        },
+        create: {
+          person_id: person.id,
+          session_id: session.id,
+          committee_id: committee.id,
+          requested_group_id: delegateGroup.id,
+          requested_role_id: delegateRole.id,
+          confirmed_group_id: delegateGroup.id,
+          confirmed_role_id: delegateRole.id,
+          delegation_id: delegation.id,
+          status_application: ApplicationStatus.ACCEPTED,
+          status_housing: HousingStatus.NOT_REQUIRED,
+          is_ambassador: false,
+        },
+      });
+
+      // Additional sample delegates (idempotent)
+      const samples = [
+        { name: "Alice", surname: "Wong", full: "Alice Wong", code: "US" },
+        { name: "Benjamin", surname: "Nguyen", full: "Benjamin Nguyen", code: "VN" },
+        { name: "Carla", surname: "Rossi", full: "Carla Rossi", code: "IT" },
+        { name: "Diego", surname: "Fernández", full: "Diego Fernández", code: "AR" },
+        { name: "Elena", surname: "Kuznetsova", full: "Elena Kuznetsova", code: "RU" },
+        { name: "Farah", surname: "Hassan", full: "Farah Hassan", code: "EG" },
+        { name: "Grace", surname: "Osei", full: "Grace Osei", code: "GH" },
+        { name: "Haruki", surname: "Tanaka", full: "Haruki Tanaka", code: "JP" },
+      ];
+
+      for (const s of samples) {
+        const country = await prisma.country.findUnique({ where: { code: s.code } });
+        if (!country) continue;
+
+        const p =
+          (await prisma.person.findFirst({
+            where: { full_name: s.full, country_id: country.id },
+          })) ??
+          (await prisma.person.create({
+            data: {
+              name: s.name,
+              surname: s.surname,
+              full_name: s.full,
+              picture_path: `img/people/${s.full.toLowerCase().replace(/\s+/g, "-")}.jpg`,
+              country_id: country.id,
+            },
+          }));
+
+        let d = await prisma.delegation.findFirst({
+          where: { name: `Test Delegation - ${country.name}`, session_id: session.id },
+        });
+        if (!d) {
+          d = await prisma.delegation.create({
+            data: {
+              name: `Test Delegation - ${country.name}`,
+              type: "individual",
+              is_individual: true,
+              n_delegates: 1,
+              session_id: session.id,
+              country_id: country.id,
+            },
+          });
+        }
+
+        await prisma.personApplication.upsert({
+          where: {
+            person_id_session_id: { person_id: p.id, session_id: session.id },
+          },
+          update: {
+            committee_id: committee.id,
+            requested_group_id: delegateGroup.id,
+            requested_role_id: delegateRole.id,
+            confirmed_group_id: delegateGroup.id,
+            confirmed_role_id: delegateRole.id,
+            delegation_id: d.id,
+          },
+          create: {
+            person_id: p.id,
+            session_id: session.id,
+            committee_id: committee.id,
+            requested_group_id: delegateGroup.id,
+            requested_role_id: delegateRole.id,
+            confirmed_group_id: delegateGroup.id,
+            confirmed_role_id: delegateRole.id,
+            delegation_id: d.id,
+            status_application: ApplicationStatus.ACCEPTED,
+            status_housing: HousingStatus.NOT_REQUIRED,
+            is_ambassador: false,
+          },
+        });
+      }
+    }
+  }
 }
 
 main()
