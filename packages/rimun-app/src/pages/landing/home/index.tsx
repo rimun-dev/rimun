@@ -221,6 +221,7 @@ const images = {
   treeapp: "/assets/img/partners/treeapp.png",
   wet: "/assets/img/partners/wet.png",
   crea: "/assets/img/partners/crea.png",
+  thimun: "/assets/img/partners/thimun.jpg",
 };
 
 function Partners() {
@@ -243,6 +244,7 @@ function Partners() {
           <img loading="lazy" src={images.treeapp} alt="TreeApp" />
           <img loading="lazy" src={images.wet} alt="WET" />
           <img loading="lazy" src={images.crea} alt="CREA" />
+          <img loading="lazy" src={images.thimun} alt="THIMUN" />
         </div>
 
         <div id="extra">
