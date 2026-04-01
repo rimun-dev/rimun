@@ -44,10 +44,10 @@ function Hero() {
   const dateStart = new Date(query.data?.date_start ?? "");
   const dateEnd = new Date(query.data?.date_end ?? "");
 
-  const startDay = dateStart.getDate();
-  const endDay = dateEnd.getDate();
-  const month = months[dateEnd.getMonth()];
-  const year = dateEnd.getFullYear();
+  const startDay = dateStart.getUTCDate();
+  const endDay = dateEnd.getUTCDate();
+  const month = months[dateEnd.getUTCMonth()];
+  const year = dateEnd.getUTCFullYear();
 
   const sessionDateString =
     query.isLoading || !query.data
